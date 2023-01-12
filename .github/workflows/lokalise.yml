@@ -33,6 +33,8 @@ jobs:
     
     - name: Push changes
       run: |
+        git config --global user.email "vlohachov-ecw@cricut.com"
+        git config --global user.name "vlohachov"
         git checkout -b lokalise/sync_translations
         git add --all
         git commit -m "Update: Lokalise translations"
