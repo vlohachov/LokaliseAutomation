@@ -10,15 +10,15 @@ jobs:
   lokalise:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3.1.0
-    
     - name: Setup Lokalise CLI
       uses: sudosubin/setup-lokalise-action@v1.0.1
       with:
         lokalise-version: 'latest' # or specify version (ex. '2.6.3')
         
-    - name: Pull strings
+    - name: Checkout
+      uses: actions/checkout@v3.1.0
+        
+    - name: Pull strings from Lokalise
       run: >
         lokalise2
         --token ${{ secrets.LOKALISE_TOKEN }}
@@ -30,3 +30,28 @@ jobs:
         --unzip-to "app/src/main/res"
         --directory-prefix "values-%LANG_ISO%"
         --original-filenames false
+    
+    - name: Push changes
+      run: |
+        git checkout -b lokalise/sync_translations
+        git add all
+        git commit -m "Update: Lokalise translations"
+        git push origin lokalise/sync_translations
+        
+    - name: Create PR
+      uses: devops-infra/action-pull-request@v0.5.3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        source_branch: development
+        target_branch: master
+        title: "Lokalise: Translations update"
+        #template: .github/PULL_REQUEST_TEMPLATE.md
+        #body: "**Automated pull request**"
+        #reviewer: octocat
+        #assignee: octocat
+        label: lokalise
+        #milestone: My milestone
+        #draft: true
+        #old_string: "<!-- Add your description here -->"
+        #new_string: "** Automatic pull request**"
+        get_diff: true
