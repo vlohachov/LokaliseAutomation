@@ -30,18 +30,26 @@ jobs:
         --unzip-to "app/src/main/res"
         --directory-prefix "values-%LANG_ISO%"
         --original-filenames false
+        
+    - name: Check changes
+      run: |
+        if [[ git status --porcelain ]]; then export CHANGES_DETECTED=true; else export CHANGES_DETECTED=false ;fi
+        echo CHANGES_DETECTED >> $GITHUB_ENV
     
     - name: Push changes
+      if: ${{ env.CHANGES_DETECTED == 'true' }}
       run: |
         git config --global user.email "vlohachov-ecw@cricut.com"
         git config --global user.name "vlohachov"
         git checkout -b lokalise/sync_translations
-        git status --porcelain
         git add --all
         git commit -m "Update: Lokalise translations"
         git push origin lokalise/sync_translations
+        export CHANGES_PUSHED=true
+        echo CHANGES_PUSHED >> $GITHUB_ENV
         
     - name: Create PR
+      if: ${{ env.CHANGES_PUSHED == 'true' }}
       uses: devops-infra/action-pull-request@v0.5.3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
