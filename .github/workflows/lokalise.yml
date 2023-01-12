@@ -34,7 +34,7 @@ jobs:
     - name: Push changes
       run: |
         git checkout -b lokalise/sync_translations
-        git add all
+        git add --all
         git commit -m "Update: Lokalise translations"
         git push origin lokalise/sync_translations
         
