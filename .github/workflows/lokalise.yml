@@ -20,13 +20,13 @@ jobs:
         
     - name: Pull strings
       run: >
-        lokalise2 
-        --token ${{ secrets.LOKALISE_TOKEN }} 
-        --project-id ${{ secrets.LOKALISE_PROJECT_ID }} 
-          file download 
-        --export-empty-as skip 
-        --export-sort first_added 
-        --format xml 
-        --unzip-to "app/src/main/res" 
-        --directory-prefix "values-%LANG_ISO%" 
+        lokalise2
+        --token ${{ secrets.LOKALISE_TOKEN }}
+        --project-id ${{ secrets.LOKALISE_PROJECT_ID }}
+        file download
+        --export-empty-as skip
+        --export-sort first_added
+        --format xml
+        --unzip-to "app/src/main/res"
+        --directory-prefix "values-%LANG_ISO%"
         --original-filenames false
