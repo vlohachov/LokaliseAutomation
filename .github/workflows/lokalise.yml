@@ -1,0 +1,32 @@
+name: Sync strings with Lokalise
+
+on: 
+  #schedule:
+    #- cron: '*/15 * * * *'
+  workflow_dispatch:
+  
+    
+jobs: 
+  lokalise:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3.1.0
+    
+    - name: Setup Lokalise CLI
+      uses: sudosubin/setup-lokalise-action@v1.0.1
+      with:
+        lokalise-version: 'latest' # or specify version (ex. '2.6.3')
+        
+    - name: Pull strings
+      run: |
+        lokalise2 |
+        --token ${{ secrets.LOKALISE_TOKEN }} |
+        --project-id ${{ secrets.LOKALISE_PROJECT_ID }} |
+          file download |
+        --export-empty-as skip |
+        --export-sort first_added |
+        --format xml |
+        --unzip-to "app/src/main/res" |
+        --directory-prefix "values-%LANG_ISO%" |
+        --original-filenames false
