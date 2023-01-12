@@ -45,7 +45,7 @@ jobs:
       with:
         github_token: "${{ secrets.GITHUB_TOKEN }}"
         add_timestamp: true
-        commit_prefix: "Update"
+        commit_prefix: "Update "
         commit_message: "Lokalise translations"
         force: false
         target_branch: lokalise/sync_translations
