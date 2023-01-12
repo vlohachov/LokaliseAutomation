@@ -34,10 +34,10 @@ jobs:
     - name: Check changes
       run: |
         if [[ `git status --porcelain` ]]; then
-        export CHANGES_DETECTED=true 
-        else export CHANGES_DETECTED=false
+          echo CHANGES_DETECTED=true >> $GITHUB_ENV;
+        else 
+          echo CHANGES_DETECTED=false >> $GITHUB_ENV;
         fi
-        echo CHANGES_DETECTED >> $GITHUB_ENV
     
     - name: Push changes
       if: ${{ env.CHANGES_DETECTED == 'true' }}
@@ -48,8 +48,7 @@ jobs:
         git add --all
         git commit -m "Update: Lokalise translations"
         git push origin lokalise/sync_translations
-        export CHANGES_PUSHED=true
-        echo CHANGES_PUSHED >> $GITHUB_ENV
+        echo CHANGES_PUSHED=true >> $GITHUB_ENV
         
     - name: Create PR
       if: ${{ env.CHANGES_PUSHED == 'true' }}
