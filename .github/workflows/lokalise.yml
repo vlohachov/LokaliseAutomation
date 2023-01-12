@@ -41,17 +41,17 @@ jobs:
     
     - name: Push changes
       if: ${{ env.CHANGES_DETECTED == 'true' }}
-      run: |
-        git config --global user.email "vlohachov-ecw@cricut.com"
-        git config --global user.name "vlohachov"
-        git checkout -b lokalise/sync_translations
-        git add --all
-        git commit -m "Update: Lokalise translations"
-        git push origin lokalise/sync_translations
-        echo CHANGES_PUSHED=true >> $GITHUB_ENV
+      uses: devops-infra/action-commit-push@master
+      with:
+        github_token: "${{ secrets.GITHUB_TOKEN }}"
+        add_timestamp: true
+        commit_prefix: "Update"
+        commit_message: "Lokalise translations"
+        force: false
+        target_branch: lokalise/sync_translations
         
     - name: Create PR
-      if: ${{ env.CHANGES_PUSHED == 'true' }}
+      if: ${{ success() }}
       uses: devops-infra/action-pull-request@v0.5.3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
