@@ -44,7 +44,6 @@ jobs:
       uses: devops-infra/action-commit-push@master
       with:
         github_token: "${{ secrets.GITHUB_TOKEN }}"
-        add_timestamp: true
         commit_prefix: "Update "
         commit_message: "Lokalise translations"
         force: false
@@ -55,8 +54,8 @@ jobs:
       uses: devops-infra/action-pull-request@v0.5.3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        source_branch: development
-        target_branch: master
+        source_branch: lokalise/sync_translations
+        target_branch: main
         title: "Lokalise: Translations update"
         #template: .github/PULL_REQUEST_TEMPLATE.md
         #body: "**Automated pull request**"
