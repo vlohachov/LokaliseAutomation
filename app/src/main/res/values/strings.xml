@@ -2,4 +2,5 @@
 <resources>
   <string name="welcome_header">Hello world!</string>
   <string name="app_name">Lokalise Automation</string>
+  <string name="test_workflow">Test</string>
 </resources>
