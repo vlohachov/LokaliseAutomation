@@ -33,7 +33,10 @@ jobs:
         
     - name: Check changes
       run: |
-        if [[ git status --porcelain ]]; then export CHANGES_DETECTED=true else export CHANGES_DETECTED=false ;fi
+        if [[ `git status --porcelain` ]]; then
+        export CHANGES_DETECTED=true 
+        else export CHANGES_DETECTED=false
+        fi
         echo CHANGES_DETECTED >> $GITHUB_ENV
     
     - name: Push changes
