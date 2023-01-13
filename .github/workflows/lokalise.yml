@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     
 jobs: 
-  lokalise:
+  Sync-string-resources:
     runs-on: ubuntu-latest
     steps:
     - name: Setup Lokalise CLI
