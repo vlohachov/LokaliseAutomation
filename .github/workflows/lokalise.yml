@@ -24,12 +24,9 @@ jobs:
           file_path=${arr[counter]}
           folder_path=$(dirname ${file_path})
           folder_suffix=${folder_path##*values}
-          lang_iso=${folder_suffix#-}
-          echo $counter
-          echo $file_path
-          echo $folder_path
-          echo ${lang_iso:-en}
-          #lokalise2 --token ${{ secrets.LOKALISE_TOKEN }} --project-id ${{ secrets.LOKALISE_PROJECT_ID }} file upload --file $file_path
+          lang_iso=${folder_suffix#-:-en}
+          echo ${lang_iso}
+          #lokalise2 --token ${{ secrets.LOKALISE_TOKEN }} --project-id ${{ secrets.LOKALISE_PROJECT_ID }} file upload --file $file_path --lang-iso ${lang_iso:-en}
         done
         
     - name: Pull strings from Lokalise
