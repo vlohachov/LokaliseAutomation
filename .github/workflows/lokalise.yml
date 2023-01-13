@@ -23,7 +23,7 @@ jobs:
         for counter in ${!arr[*]}; do
           echo $counter
           echo "${arr[counter]}"
-          lokalise2 --token ${{ secrets.LOKALISE_TOKEN }} --project-id ${{ secrets.LOKALISE_PROJECT_ID }} file download --file ${arr[counter]}
+          lokalise2 --token ${{ secrets.LOKALISE_TOKEN }} --project-id ${{ secrets.LOKALISE_PROJECT_ID }} file upload --file ${arr[counter]}
         done
         
     - name: Pull strings from Lokalise
