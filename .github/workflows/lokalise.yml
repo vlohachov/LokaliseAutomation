@@ -22,8 +22,8 @@ jobs:
         arr=(app/src/main/res/values*/strings.xml)
         for counter in ${!arr[*]}; do
           file_path=${arr[counter]}
-          folder_path=${$file_path%%/strings.xml}
-          lang_iso=${folder_path##*values%%*}
+          folder_path=$(dirname ${file_path})
+          lang_iso=${folder_path##*values}
           echo $counter
           echo $file
           echo $lang_iso
