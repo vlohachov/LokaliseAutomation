@@ -19,8 +19,7 @@ jobs:
       
     - name: Push string to Lokalise
       run: |
-        #$(ls )
-        arr(app/src/main/res/values*/)
+        arr=(app/src/main/res/values*/strings.xml)
         for counter in ${!arr[*]}; do
           echo $counter
           echo "${arr[counter]}"
