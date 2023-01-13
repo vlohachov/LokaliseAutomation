@@ -24,7 +24,7 @@ jobs:
           file_path=${arr[counter]}
           folder_path=$(dirname ${file_path})
           folder_suffix=${folder_path##*values}
-          lang_iso=${folder_suffix##{a-z}{2}}
+          lang_iso=${folder_suffix#-}
           echo $counter
           echo $file_path
           echo $folder_path
