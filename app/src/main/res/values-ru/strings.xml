@@ -2,4 +2,5 @@
 <resources>
   <string name="welcome_header">Здравствуй мир!</string>
   <string name="app_name">Автоматизация Lokalise</string>
+  <string name="test_workflow">Тест</string>
 </resources>
