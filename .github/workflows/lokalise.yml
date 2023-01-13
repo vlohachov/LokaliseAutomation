@@ -21,12 +21,13 @@ jobs:
       run: |
         arr=(app/src/main/res/values*/strings.xml)
         for counter in ${!arr[*]}; do
-          FILE=${arr[counter]}
-          SUFFIX=${FILE##*values}
+          file_path=${arr[counter]}
+          folder_path=${$file_path%%/strings.xml}
+          lang_iso=${folder_path##*values%%*}
           echo $counter
-          echo $FILE
-          echo $SUFFIX
-          #lokalise2 --token ${{ secrets.LOKALISE_TOKEN }} --project-id ${{ secrets.LOKALISE_PROJECT_ID }} file upload --file $FILE
+          echo $file
+          echo $lang_iso
+          #lokalise2 --token ${{ secrets.LOKALISE_TOKEN }} --project-id ${{ secrets.LOKALISE_PROJECT_ID }} file upload --file $file_path
         done
         
     - name: Pull strings from Lokalise
