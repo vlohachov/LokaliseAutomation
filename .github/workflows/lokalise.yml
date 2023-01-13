@@ -30,7 +30,6 @@ jobs:
         done
         
     - name: Pull strings from Lokalise
-      if: false
       run: >
         lokalise2
         --token ${{ secrets.LOKALISE_TOKEN }}
@@ -44,7 +43,6 @@ jobs:
         --original-filenames false
         
     - name: Check changes
-      if: false
       run: |
         if [[ `git status --porcelain` ]]; then
           echo CHANGES_DETECTED=true >> $GITHUB_ENV;
@@ -53,8 +51,7 @@ jobs:
         fi
     
     - name: Push changes
-      if: false
-      #if: ${{ env.CHANGES_DETECTED == 'true' }}
+      if: ${{ env.CHANGES_DETECTED == 'true' }}
       uses: devops-infra/action-commit-push@master
       with:
         github_token: "${{ secrets.GITHUB_TOKEN }}"
@@ -64,8 +61,7 @@ jobs:
         target_branch: lokalise/sync_translations
         
     - name: Create PR
-      if: false
-      #if: ${{ success() }}
+      if: ${{ success() }}
       uses: devops-infra/action-pull-request@v0.5.3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
