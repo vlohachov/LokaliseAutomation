@@ -23,10 +23,10 @@ jobs:
         for counter in ${!arr[*]}; do
           file_path=${arr[counter]}
           folder_path=$(dirname ${file_path})
-          lang_iso=${folder_path##*values}
+          lang_iso=${folder_path##*values*}
           echo $counter
           echo $file
-          echo $lang_iso
+          echo ${lang_iso:-en}
           #lokalise2 --token ${{ secrets.LOKALISE_TOKEN }} --project-id ${{ secrets.LOKALISE_PROJECT_ID }} file upload --file $file_path
         done
         
