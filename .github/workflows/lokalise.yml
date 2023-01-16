@@ -29,22 +29,18 @@ jobs:
           echo ${module}
           echo ${file_path}
           echo ${lang_iso:-en}
-          lokalise2 --token ${{ secrets.LOKALISE_TOKEN }} --project-id ${{ secrets.LOKALISE_PROJECT_ID }} file upload --file $file_path --include-path --lang-iso ${lang_iso:-en} --tag-skipped-keys --tags $module
+          lokalise2 --token ${{ secrets.LOKALISE_TOKEN }} --project-id ${{ secrets.LOKALISE_PROJECT_ID }} file upload --file $file_path --lang-iso ${lang_iso:-en} --tag-skipped-keys --tags $module
         done
         
     - name: Pull strings from Lokalise
-      if: false
-      run: >
-        lokalise2
-        --token ${{ secrets.LOKALISE_TOKEN }}
-        --project-id ${{ secrets.LOKALISE_PROJECT_ID }}
-        file download
-        --export-empty-as skip
-        --export-sort first_added
-        --format xml
-        #--unzip-to "app/src/main/res"
-        --directory-prefix "values-%LANG_ISO%"
-        --original-filenames false
+      run: |
+        arr=(*/src/main/res)
+        for counter in ${!arr[*]}; do
+          file_path=${arr[counter]}
+          module=${file_path%%/*/*}
+          echo ${module}
+          #lokalise2 --token ${{ secrets.LOKALISE_TOKEN }} --project-id ${{ secrets.LOKALISE_PROJECT_ID }} file download --export-empty-as skip --export-sort first_added --format xml --unzip-to "${module}/src/main/res" --directory-prefix "values-%LANG_ISO%" --original-filenames false
+        done
         
     - name: Check changes
       id: check_changes
