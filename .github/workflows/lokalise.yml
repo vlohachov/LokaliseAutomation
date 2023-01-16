@@ -39,12 +39,11 @@ jobs:
           file_path=${arr[counter]}
           module=${file_path%%/*/*}
           echo ${module}
-          #lokalise2 --token ${{ secrets.LOKALISE_TOKEN }} --project-id ${{ secrets.LOKALISE_PROJECT_ID }} file download --export-empty-as skip --export-sort first_added --format xml --unzip-to "${module}/src/main/res" --directory-prefix "values-%LANG_ISO%" --original-filenames false
+          lokalise2 --token ${{ secrets.LOKALISE_TOKEN }} --project-id ${{ secrets.LOKALISE_PROJECT_ID }} file download --export-empty-as skip --export-sort first_added --format xml --unzip-to "${module}/src/main/res" --directory-prefix "values-%LANG_ISO%" --original-filenames false
         done
         
     - name: Check changes
       id: check_changes
-      if: false
       run: |
         if [[ `git status --porcelain` ]]; then
           echo changes_detected=true >> $GITHUB_OUTPUT;
@@ -54,8 +53,7 @@ jobs:
     
     - name: Push changes
       id: push_changes
-      if: false
-      #if: ${{ steps.check_changes.outputs.changes_detected == 'true' }}
+      if: ${{ steps.check_changes.outputs.changes_detected == 'true' }}
       uses: devops-infra/action-commit-push@v0.9.2
       with:
         github_token: "${{ secrets.GITHUB_TOKEN }}"
@@ -72,13 +70,8 @@ jobs:
         source_branch: lokalise/sync_translations
         target_branch: main
         title: "Lokalise: Translations update"
-        #template: .github/PULL_REQUEST_TEMPLATE.md
-        #body: "**Automated pull request**"
         #reviewer: octocat
         #assignee: octocat
         label: lokalise
-        #milestone: My milestone
         #draft: true
-        #old_string: "<!-- Add your description here -->"
-        #new_string: "** Automatic pull request**"
         get_diff: true
