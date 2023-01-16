@@ -19,12 +19,13 @@ jobs:
       
     - name: Push strings to Lokalise
       run: |
-        arr=(app/src/main/res/values*/strings.xml)
+        arr=(*/src/main/res/values*/strings.xml)
         for counter in ${!arr[*]}; do
           file_path=${arr[counter]}
           folder_path=$(dirname ${file_path})
           folder_suffix=${folder_path##*values}
           lang_iso=${folder_suffix#-}
+          echo ${file_path}
           echo ${lang_iso:-en}
           lokalise2 --token ${{ secrets.LOKALISE_TOKEN }} --project-id ${{ secrets.LOKALISE_PROJECT_ID }} file upload --file $file_path --lang-iso ${lang_iso:-en}
         done
@@ -38,21 +39,23 @@ jobs:
         --export-empty-as skip
         --export-sort first_added
         --format xml
-        --unzip-to "app/src/main/res"
+        #--unzip-to "app/src/main/res"
         --directory-prefix "values-%LANG_ISO%"
         --original-filenames false
         
     - name: Check changes
+      id: check_changes
       run: |
         if [[ `git status --porcelain` ]]; then
-          echo CHANGES_DETECTED=true >> $GITHUB_ENV;
+          echo changes_detected=true >> $GITHUB_OUTPUT;
         else 
-          echo CHANGES_DETECTED=false >> $GITHUB_ENV;
+          echo changes_detected=false >> $GITHUB_OUTPUT;
         fi
     
     - name: Push changes
-      if: ${{ env.CHANGES_DETECTED == 'true' }}
-      uses: devops-infra/action-commit-push@master
+      id: push_changes
+      if: ${{ steps.check_changes.outputs.changes_detected == 'true' }}
+      uses: devops-infra/action-commit-push@v0.9.2
       with:
         github_token: "${{ secrets.GITHUB_TOKEN }}"
         commit_prefix: "Update "
@@ -61,7 +64,7 @@ jobs:
         target_branch: lokalise/sync_translations
         
     - name: Create PR
-      if: ${{ success() }}
+      if: ${{ steps.push_changes.outcome == 'success' }}
       uses: devops-infra/action-pull-request@v0.5.3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
