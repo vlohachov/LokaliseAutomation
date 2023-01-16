@@ -29,7 +29,7 @@ jobs:
           echo ${module}
           echo ${file_path}
           echo ${lang_iso:-en}
-          #lokalise2 --token ${{ secrets.LOKALISE_TOKEN }} --project-id ${{ secrets.LOKALISE_PROJECT_ID }} file upload --file $file_path --lang-iso ${lang_iso:-en}
+          lokalise2 --token ${{ secrets.LOKALISE_TOKEN }} --project-id ${{ secrets.LOKALISE_PROJECT_ID }} file upload --file $file_path --include-path --lang-iso ${lang_iso:-en} --tag-skipped-keys --tags $module
         done
         
     - name: Pull strings from Lokalise
