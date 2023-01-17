@@ -22,8 +22,10 @@ jobs:
         ./gradlew buildHealth
         report_file=build/reports/dependency-analysis/build-health-report.txt
         if [[ -f $report_file && -s $report_file ]]; then
+          echo "Report is successfully generated"
           echo report_file=$report_file >> $GITHUB_OUTPUT;
         else 
+          echo "Report is missing"
           echo report_file= >> $GITHUB_OUTPUT;
         fi
         
