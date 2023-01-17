@@ -56,7 +56,8 @@ jobs:
     - name: Check branch exists
       id: check_branch_exists
       run: |
-        if git show-ref --quiet refs/heads/lokalise/sync_translations; then
+        git ls-remote --exit-code --heads origin lokalise/sync_translations >/dev/null 2>&1
+        if [[ $? == '0' ]]; then
           echo branch_exists=true >> $GITHUB_OUTPUT;
         else
           echo branch_exists=false >> $GITHUB_OUTPUT;
