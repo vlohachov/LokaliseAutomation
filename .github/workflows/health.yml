@@ -10,13 +10,24 @@ on:
   workflow_dispatch:
   
 jobs:
-  Check_health:
+  Health_check:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v3.1.0
     
     - name: Check health
+      id: check_health
       run: |
         ./gradlew buildHealth
-        cat build/reports/dependency-analysis/build-health-report.txt
+        report_file=build/reports/dependency-analysis/build-health-report.txt
+        if [[ -f $report_file && -s $report_file ]]; then
+          echo report_file=$report_file >> $GITHUB_OUTPUT;
+        else 
+          echo report_file= >> $GITHUB_OUTPUT;
+        fi
+        
+    - name: Show advices
+      if: ${{ steps.check_health.outputs.report_file != '' }}
+      run: |
+        cat ${{ steps.check_health.outputs.report_file }}
