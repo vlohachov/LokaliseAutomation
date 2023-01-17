@@ -57,9 +57,10 @@ jobs:
       id: check_branch_exists
       run: |
         git ls-remote --exit-code --heads origin lokalise/sync_translations >/dev/null 2>&1
-        if [[ $? == '0' ]]; then
+        EXIT_CODE=$?
+        if [[ $EXIT_CODE == '0' ]]; then
           echo branch_exists=true >> $GITHUB_OUTPUT;
-        elif [[ $? == '2' ]]
+        elif [[ $EXIT_CODE == '2' ]]; then
           echo branch_exists=false >> $GITHUB_OUTPUT;
         fi
         
