@@ -80,6 +80,10 @@ jobs:
         force: false
         target_branch: lokalise/sync_translations
         
+    - name: Print changes output
+      run: |
+        echo "Changes: ${{ steps.push_changes.outputs.files_changed }}"
+        
     - name: Create PR
       if: ${{ steps.push_changes.outcome == 'success' }}
       uses: devops-infra/action-pull-request@v0.5.3
