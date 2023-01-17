@@ -1,0 +1,22 @@
+name: Check dependencies health
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on: 
+  #schedule:
+    #- cron: '*/15 * * * *'
+  workflow_dispatch:
+  
+jobs:
+  Check_health:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3.1.0
+    
+    - name: Check health
+      run: |
+        ./gradlew buildHealth
+        cat build/reports/dependency-analysis/build-health-report.txt
