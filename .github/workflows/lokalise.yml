@@ -86,7 +86,6 @@ jobs:
         
     - name: Create PR
       if: ${{ steps.push_changes.outputs.files_changed != '' }}
-      #if: ${{ steps.push_changes.outcome == 'success' }}
       uses: devops-infra/action-pull-request@v0.5.3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
