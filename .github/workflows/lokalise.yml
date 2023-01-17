@@ -55,7 +55,7 @@ jobs:
         
     - name: Check branch exists
       id: check_branch_exists
-      
+      continue-on-error: true
       run: |
         git ls-remote --exit-code --heads origin 'lokalise/sync_translations' >/dev/null 2>&1
         RESULT=$?
@@ -66,7 +66,6 @@ jobs:
           echo Branch does not exist
           echo branch_exists=false >> $GITHUB_OUTPUT;
         fi
-        exit 0
         
     - name: Checkout Lokalise branch
       if: ${{ steps.check_branch_exists.outputs.branch_exists == 'true' }}
