@@ -52,6 +52,21 @@ jobs:
         else 
           echo changes_detected=false >> $GITHUB_OUTPUT;
         fi
+        
+    - name: Check branch exists
+      id: check_branch_exists
+      run: |
+        if git show-ref --quiet refs/heads/develop; then
+          echo branch_exists=true >> $GITHUB_OUTPUT;
+        else
+          echo branch_exists=false >> $GITHUB_OUTPUT;
+        fi
+        
+    - name: Checkout Lokalise branch
+      if: ${{ steps.check_branch_exists.outputs.branch_exists == 'true' }}
+      uses: actions/checkout@v3.1.0
+      with:
+        ref: lokalise/sync_translations
     
     - name: Push changes
       id: push_changes
