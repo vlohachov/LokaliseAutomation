@@ -29,6 +29,7 @@ jobs:
         echo project_name=$processed_project_name >> $GITHUB_OUTPUT
 
     - name: Pull strings from Lokalise
+      continue-on-error: true
       run: |
         arr=(*/src/main/res)
         for counter in ${!arr[*]}; do
