@@ -51,16 +51,18 @@ jobs:
       with:
         message-id: health_check
         message: |
-          ### Dependencies Health Check
+          ## ⚠ Dependencies Health Check ⚠
+          
           <details>
           <summary>
           Full Report
           </summary>
           <p>
           
-          #### Advices for ${{ github.event.repository.name }}:
+          ### Advices for ${{ github.event.repository.name }}:
           
           ${{ steps.report.outputs.report }}
+          
           </p>
           </details>
           
