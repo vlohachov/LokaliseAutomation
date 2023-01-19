@@ -45,7 +45,10 @@ jobs:
       with:
         message-id: health_check
         message: |
+          <details>
+          <summary>
           Dependencies health check has found some issues!
-          
-          Please check ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} to see report logs.
+          </summary>
+          $(cat ${{ steps.check_health.outputs.report_file }})
+          </details>
           
