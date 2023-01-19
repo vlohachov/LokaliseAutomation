@@ -40,7 +40,7 @@ jobs:
         report="$(cat ${{ steps.check_health.outputs.report_file }})"
         echo "$report"
         delimiter="$(openssl rand -hex 8)"
-        echo "output-name<<${delimiter}" >> "${GITHUB_OUTPUT}"
+        echo "report<<${delimiter}" >> "${GITHUB_OUTPUT}"
         echo "$report" >> "${GITHUB_OUTPUT}"
         echo "${delimiter}" >> "${GITHUB_OUTPUT}"
         exit 1
