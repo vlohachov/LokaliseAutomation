@@ -7,11 +7,14 @@ concurrency:
 on: 
   #schedule:
     #- cron: '*/15 * * * *'
+  pull_request:
   workflow_dispatch:
   
 jobs:
   Health_check:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     steps:
     - name: Checkout
       uses: actions/checkout@v3.1.0
@@ -33,3 +36,14 @@ jobs:
       if: ${{ steps.check_health.outputs.report_file != '' }}
       run: |
         cat ${{ steps.check_health.outputs.report_file }}
+        
+    - name: Comment on PR
+      if: ${{ steps.check_health.outputs.report_file != '' }}
+      uses: mshick/add-pr-comment@v2
+      with:
+        message-id: health_check
+        message: |
+          Dependencies health check failed!
+          
+          To see report logs, please check ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          
