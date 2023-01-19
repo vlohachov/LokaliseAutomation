@@ -53,6 +53,9 @@ jobs:
         message: |
           ## ⚠ Dependencies Health Check ⚠
           
+          Some issues were detected during health check.
+          See report to get more insights.
+          
           <details>
           <summary>
           Full Report
