@@ -5,4 +5,5 @@
   <string name="test_workflow">Test</string>
   <string name="repository_key">Repository key</string>
   <string name="conflict_key">Conflict key</string>
+  <string name="library_key">Library key</string>
 </resources>
