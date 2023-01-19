@@ -35,7 +35,7 @@ jobs:
           file_path=${arr[counter]}
           module=${file_path%%/*/*}
           echo "Pulling string for '${module}' module..."
-          lokalise2 --token ${{ secrets.LOKALISE_TOKEN }} --project-id ${{ secrets.LOKALISE_PROJECT_ID }} file download --export-empty-as skip --export-sort first_added --format xml --include-tags "${{ steps.read_project_name.outputs.project_name }}-$module" --unzip-to "${module}/src/main/res" --directory-prefix "values-%LANG_ISO%" --original-filenames false
+          lokalise2 --token ${{ secrets.LOKALISE_TOKEN }} --project-id ${{ secrets.LOKALISE_PROJECT_ID }} file download --export-empty-as skip --export-sort first_added --format xml --include-tags "${{ steps.read_project_name.outputs.project_name }}-${module}" --unzip-to "${module}/src/main/res" --directory-prefix "values-%LANG_ISO%" --original-filenames false
         done
         
     - name: Push strings to Lokalise
@@ -48,7 +48,7 @@ jobs:
           folder_suffix=${folder_path##*values}
           lang_iso=${folder_suffix#-}
           echo "Pushing strings from '${module}' module..."
-          lokalise2 --token ${{ secrets.LOKALISE_TOKEN }} --project-id ${{ secrets.LOKALISE_PROJECT_ID }} file upload --file $file_path --lang-iso ${lang_iso:-en} --tag-skipped-keys --tags "${{ steps.read_project_name.outputs.project_name }}-$module"
+          lokalise2 --token ${{ secrets.LOKALISE_TOKEN }} --project-id ${{ secrets.LOKALISE_PROJECT_ID }} file upload --file $file_path --lang-iso ${lang_iso:-en} --tag-skipped-keys --tags "${{ steps.read_project_name.outputs.project_name }}-${module}"
         done
 
     - name: Check changes
