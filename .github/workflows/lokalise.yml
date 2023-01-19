@@ -24,7 +24,9 @@ jobs:
     - name: Read project name
       id: read_project_name
       run: |
-        echo project_name=$(./gradlew -q printProjectName) >> $GITHUB_OUTPUT
+        raw_project_name=$(./gradlew -q printProjectName)
+        processed_project_name=$(echo $raw_project_name | tr " " "-" | tr '[:upper:]' '[:lower:]')
+        echo project_name=$processed_project_name >> $GITHUB_OUTPUT
 
     - name: Push strings to Lokalise
       run: |
