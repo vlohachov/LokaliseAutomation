@@ -32,15 +32,18 @@ jobs:
           echo report_file= >> $GITHUB_OUTPUT;
         fi
         
-    - name: Show advices
+    - name: Report
+      id: report
       if: ${{ steps.check_health.outputs.report_file != '' }}
       continue-on-error: true
       run: |
-        cat ${{ steps.check_health.outputs.report_file }}
+        report=$(cat ${{ steps.check_health.outputs.report_file }})
+        echo $report
+        echo report=$report >> $GITHUB_OUTPUT
         exit 1
         
     - name: Comment on PR
-      if: ${{ steps.check_health.outputs.report_file != '' }}
+      if: ${{ steps.report.outputs.report != '' }}
       uses: mshick/add-pr-comment@v2
       with:
         message-id: health_check
@@ -50,6 +53,6 @@ jobs:
           <summary>
           Health check report
           </summary>
-          $(cat ${{ steps.check_health.outputs.report_file }})
+          ${{ steps.report.outputs.report }}
           </details>
           
