@@ -37,7 +37,7 @@ jobs:
       if: ${{ steps.check_health.outputs.report_file != '' }}
       continue-on-error: true
       run: |
-        report=$(cat ${{ steps.check_health.outputs.report_file }})
+        report="$(cat ${{ steps.check_health.outputs.report_file }})"
         echo $report
         echo report=$report >> $GITHUB_OUTPUT
         exit 1
