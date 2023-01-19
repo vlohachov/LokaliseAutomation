@@ -45,7 +45,7 @@ jobs:
       with:
         message-id: health_check
         message: |
-          Dependencies health check failed!
+          Dependencies health check has found some issues!
           
-          To see report logs, please check ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          Please check ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} to see report logs.
           
