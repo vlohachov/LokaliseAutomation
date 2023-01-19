@@ -34,8 +34,10 @@ jobs:
         
     - name: Show advices
       if: ${{ steps.check_health.outputs.report_file != '' }}
+      continue-on-error: true
       run: |
         cat ${{ steps.check_health.outputs.report_file }}
+        exit 1
         
     - name: Comment on PR
       if: ${{ steps.check_health.outputs.report_file != '' }}
