@@ -38,6 +38,9 @@ jobs:
       continue-on-error: true
       run: |
         report="$(cat ${{ steps.check_health.outputs.report_file }})"
+        report="${report//'%'/'%25'}"
+        report="${report//$'\n'/'%0A'}"
+        report="${report//$'\r'/'%0D'}"
         echo "$report"
         echo report=$report >> $GITHUB_OUTPUT
         exit 1
@@ -53,6 +56,6 @@ jobs:
           <summary>
           Health check report
           </summary>
-          "${{ steps.report.outputs.report }}"
+          ${{ steps.report.outputs.report }}
           </details>
           
