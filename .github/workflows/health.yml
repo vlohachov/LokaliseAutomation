@@ -54,7 +54,7 @@ jobs:
           ### Dependencies Health Check
           <details>
           <summary>
-          Health check report
+          Full Report
           </summary>
           ${{ steps.report.outputs.report }}
           </details>
