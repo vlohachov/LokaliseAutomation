@@ -45,9 +45,10 @@ jobs:
       with:
         message-id: health_check
         message: |
+          ### Dependencies Health Check
           <details>
           <summary>
-          Dependencies health check has found some issues!
+          Health check report
           </summary>
           $(cat ${{ steps.check_health.outputs.report_file }})
           </details>
