@@ -32,18 +32,40 @@ jobs:
           echo report_file= >> $GITHUB_OUTPUT;
         fi
         
-    - name: Show advices
+    - name: Report
+      id: report
       if: ${{ steps.check_health.outputs.report_file != '' }}
+      continue-on-error: true
       run: |
-        cat ${{ steps.check_health.outputs.report_file }}
+        report="$(cat ${{ steps.check_health.outputs.report_file }})"
+        echo "$report"
+        delimiter="$(openssl rand -hex 8)"
+        echo "report<<${delimiter}" >> "${GITHUB_OUTPUT}"
+        echo "$report" >> "${GITHUB_OUTPUT}"
+        echo "${delimiter}" >> "${GITHUB_OUTPUT}"
+        exit 1
         
     - name: Comment on PR
-      if: ${{ steps.check_health.outputs.report_file != '' }}
+      if: ${{ steps.report.outputs.report != '' }}
       uses: mshick/add-pr-comment@v2
       with:
         message-id: health_check
         message: |
-          Dependencies health check failed!
+          ## ⚠ Dependencies Health Check ⚠
           
-          To see report logs, please check ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          Some issues were detected during health check.
+          See report to get more insights.
+          
+          <details>
+          <summary>
+          Full Report
+          </summary>
+          <p>
+          
+          ### Advices for ${{ github.event.repository.name }}:
+          
+          ${{ steps.report.outputs.report }}
+          
+          </p>
+          </details>
           
