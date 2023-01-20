@@ -59,7 +59,7 @@ jobs:
       id: generate_comment_message
       if: ${{ steps.report.outputs.report != '' && steps.report.outputs.report_data != '' }}
       run: |
-        unused_count=${{ fromJson(steps.report.outputs.report_data).unsuedCount }}
+        unused_count=${{ fromJson(steps.report.outputs.report_data).unusedCount }}
         undeclared_count=${{ fromJson(steps.report.outputs.report_data).undeclaredCount }}
         mis_declared_count=${{ fromJson(steps.report.outputs.report_data).misDeclaredCount }}
         compile_only_count=${{ fromJson(steps.report.outputs.report_data).compileOnlyCount }}
@@ -84,10 +84,10 @@ jobs:
         fi
         
         message+="\nSee report to get more insights.\n\n"
-        message+="<details><summary>Full Report</summary><p>\n\n"
+        message+="\<details\>\<summary\>Full Report\</summary\>\<p\>\n\n"
         message+="### Advices for ${{ github.event.repository.name }}:\n\n"
         message+="${{ steps.report.outputs.report }}\n\n"
-        message+="</p></details>"
+        message+="\</p\>\</details\>"
         echo "$message"
         delimiter="$(openssl rand -hex 8)"
         echo "message<<${delimiter}" >> ${GITHUB_OUTPUT}
