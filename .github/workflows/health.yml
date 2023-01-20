@@ -71,23 +71,28 @@ jobs:
         
         if [[ $unused_count > 0 ]]; then
           message+="\t${unused_count} - Unused dependencies which should be removed\n"
-        elif [[ $undeclared_count > 0 ]]; then
+        fi
+        if [[ $undeclared_count > 0 ]]; then
           message+="\t${undeclared_count} - Transitively used dependencies that should be declared directly\n"
-        elif [[ $mis_declared_count > 0 ]]; then
+        fi
+        if [[ $mis_declared_count > 0 ]]; then
           message+="\t${mis_declared_count} - Existing dependencies which should be modified\n"
-        elif [[ $compile_only_count > 0 ]]; then
+        fi
+        if [[ $compile_only_count > 0 ]]; then
           message+="\t${compile_only_count} - Dependencies which could be compile-only\n"
-        elif [[ $runtime_only_count > 0 ]]; then
+        fi
+        if [[ $runtime_only_count > 0 ]]; then
           message+="\t${runtime_only_count} - Dependencies which should be removed or changed to runtime-only\n"
-        elif [[ $processor_count > 0 ]]; then
+        fi
+        if [[ $processor_count > 0 ]]; then
           message+="\t${processor_count} - Unused annotation processors that should be removed\n"
         fi
         
         message+="\nSee report to get more insights.\n\n"
-        message+="\<details\>\<summary\>Full Report\</summary\>\<p\>\n\n"
+        message+="<details><summary>Full Report<summary><p>\n\n"
         message+="### Advices for ${{ github.event.repository.name }}:\n\n"
         message+="${{ steps.report.outputs.report }}\n\n"
-        message+="\</p\>\</details\>"
+        message+="</p></details>"
         
         echo -e "$message"
         
