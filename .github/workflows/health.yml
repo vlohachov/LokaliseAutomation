@@ -63,10 +63,12 @@ jobs:
         runtime_only_count=${{ fromJson(steps.report.outputs.report_data).runtimeOnlyCount }}
         processor_count=${{ fromJson(steps.report.outputs.report_data).processorCount }}
         
+        unused_status=$([ $unused_count == 0 ] && echo ✅ || echo ❌ )
+        
         message="## ⚠ Dependencies Health Check ⚠\n\n"
         message+="### Summary\n\n"
 
-        message+="${unused_count} - Unused dependencies which should be removed\n"
+        message+="${unused_count} - Unused dependencies which should be removed ${unused_status}\n"
         message+="${undeclared_count} - Transitively used dependencies that should be declared directly\n"
         message+="${mis_declared_count} - Existing dependencies which should be modified\n"
         message+="${compile_only_count} - Dependencies which could be compile-only\n"
