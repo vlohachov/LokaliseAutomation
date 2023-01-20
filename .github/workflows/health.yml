@@ -74,11 +74,11 @@ jobs:
         message+="### Summary\n\n"
 
         message+="${unused_status} - Has no unused dependencies which should be removed (detected ${unused_count})\n"
-        message+="${undeclared_status} - Transitively used dependencies that should be declared directly (detected ${undeclared_count})\n"
-        message+="${mis_declared_status} - Existing dependencies which should be modified (detected ${mis_declared_count})\n"
-        message+="${compile_only_status} - Dependencies which could be compile-only (detected ${compile_only_count})\n"
-        message+="${runtime_only_status} - Dependencies which should be removed or changed to runtime-only (detected ${runtime_only_count})\n"
-        message+="${processor_status} - Unused annotation processors that should be removed (detected ${processor_count})\n"
+        message+="${undeclared_status} - Has no transitively used dependencies that should be declared directly (detected ${undeclared_count})\n"
+        message+="${mis_declared_status} - Has no existing dependencies which should be modified (detected ${mis_declared_count})\n"
+        message+="${compile_only_status} - Has no dependencies which could be compile-only (detected ${compile_only_count})\n"
+        message+="${runtime_only_status} - Has no dependencies which should be removed or changed to runtime-only (detected ${runtime_only_count})\n"
+        message+="${processor_status} - Has no unused annotation processors that should be removed (detected ${processor_count})\n"
       
         message+="\nSee report below to get more insights.\n\n"
         message+="<details><summary>Report</summary>\n\n"
