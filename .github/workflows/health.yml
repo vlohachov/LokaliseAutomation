@@ -67,7 +67,7 @@ jobs:
         processor_count=${{ fromJson(steps.report.outputs.report_data).processorCount }}
         
         message="## ⚠ Dependencies Health Check ⚠\n\n"
-        message+="Some issues were detected during health check:"\n\n"
+        message+="Some issues were detected during health check:\n\n"
         
         message+="\nSee report to get more insights.\n\n"
         message+="\<details\>\<summary\>Full Report\</summary\>\<p\>\n\n"
