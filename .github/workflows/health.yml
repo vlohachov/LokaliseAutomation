@@ -31,13 +31,13 @@ jobs:
           echo "Report .txt is missing"
           echo report_txt_file= >> $GITHUB_OUTPUT;
         fi
-        eport_json_file=build/reports/dependency-analysis/build-health-report.json
-        if [[ -f $eport_json_file && -s $eport_json_file ]]; then
+        report_json_file=build/reports/dependency-analysis/build-health-report.json
+        if [[ -f $report_json_file && -s $report_json_file ]]; then
           echo "Report .json is successfully generated"
-          echo eport_json_file=$eport_json_file >> $GITHUB_OUTPUT;
+          echo report_json_file=$report_json_file >> $GITHUB_OUTPUT;
         else 
           echo "Report .json is missing"
-          echo eport_json_file= >> $GITHUB_OUTPUT;
+          echo report_json_file= >> $GITHUB_OUTPUT;
         fi
         
     - name: Report
