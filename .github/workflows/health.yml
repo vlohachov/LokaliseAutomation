@@ -95,6 +95,10 @@ jobs:
         message+="</p></details>"
         
         echo -e "$message"
+        delimiter="$(openssl rand -hex 8)"
+        echo "message<<${delimiter}" >> ${GITHUB_OUTPUT}
+        echo -e "$message" >> ${GITHUB_OUTPUT}
+        echo "${delimiter}" >> ${GITHUB_OUTPUT}
         
     - name: Comment on PR
       if: ${{ steps.generate_comment_message.outputs.message != '' }}
