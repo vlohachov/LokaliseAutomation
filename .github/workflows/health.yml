@@ -23,49 +23,81 @@ jobs:
       id: check_health
       run: |
         ./gradlew buildHealth
-        report_file=build/reports/dependency-analysis/build-health-report.txt
-        if [[ -f $report_file && -s $report_file ]]; then
-          echo "Report is successfully generated"
-          echo report_file=$report_file >> $GITHUB_OUTPUT;
+        report_txt_file=build/reports/dependency-analysis/build-health-report.txt
+        if [[ -f $report_txt_file && -s $report_txt_file ]]; then
+          echo "Report .txt is successfully generated"
+          echo report_txt_file=$report_txt_file >> $GITHUB_OUTPUT;
         else 
-          echo "Report is missing"
-          echo report_file= >> $GITHUB_OUTPUT;
+          echo "Report .txt is missing"
+          echo report_txt_file= >> $GITHUB_OUTPUT;
+        fi
+        eport_json_file=build/reports/dependency-analysis/build-health-report.json
+        if [[ -f $eport_json_file && -s $eport_json_file ]]; then
+          echo "Report .json is successfully generated"
+          echo eport_json_file=$eport_json_file >> $GITHUB_OUTPUT;
+        else 
+          echo "Report .json is missing"
+          echo eport_json_file= >> $GITHUB_OUTPUT;
         fi
         
     - name: Report
       id: report
-      if: ${{ steps.check_health.outputs.report_file != '' }}
+      if: ${{ steps.check_health.outputs.report_txt_file != '' && steps.check_health.outputs.report_json_file != '' }}
       continue-on-error: true
       run: |
-        report="$(cat ${{ steps.check_health.outputs.report_file }})"
+        report_data="$(cat ${{ steps.check_health.outputs.report_json_file }})"
+        report="$(cat ${{ steps.check_health.outputs.report_txt_file }})"
         echo "$report"
         delimiter="$(openssl rand -hex 8)"
-        echo "report<<${delimiter}" >> "${GITHUB_OUTPUT}"
-        echo "$report" >> "${GITHUB_OUTPUT}"
-        echo "${delimiter}" >> "${GITHUB_OUTPUT}"
+        echo "report<<${delimiter}" >> ${GITHUB_OUTPUT}
+        echo "$report" >> ${GITHUB_OUTPUT}
+        echo "${delimiter}" >> ${GITHUB_OUTPUT}
+        echo report_data=$report_data >> $GITHUB_OUTPUT
         exit 1
         
+    - name: Generate comment message
+      id: generate_comment_message
+      if: ${{ steps.report.outputs.report != '' && steps.report.outputs.report_data != '' }}
+      run: |
+        unused_count=${{ fromJson(steps.report.outputs.report_data).unsuedCount }}
+        undeclared_count=${{ fromJson(steps.report.outputs.report_data).undeclaredCount }}
+        mis_declared_count=${{ fromJson(steps.report.outputs.report_data).misDeclaredCount }}
+        compile_only_count=${{ fromJson(steps.report.outputs.report_data).compileOnlyCount }}
+        runtime_only_count=${{ fromJson(steps.report.outputs.report_data).runtimeOnlyCount }}
+        processor_count=${{ fromJson(steps.report.outputs.report_data).processorCount }}
+        
+        message="## ⚠ Dependencies Health Check ⚠\n\n"
+        message+="Some issues were detected during health check:"\n\n"
+        
+        if [[ $unused_count > 0 ]]; then
+          message+="\t$unused_count - Unused dependencies which should be removed\n"
+        elif [[ $undeclared_count > 0 ]]; then
+          message+="\t$undeclared_count - Transitively used dependencies that should be declared directly\n"
+        elif [[ $mis_declared_count > 0 ]]; then
+          message+="\t$mis_declared_count - Existing dependencies which should be modified\n"
+        elif [[ $compile_only_count > 0 ]]; then
+          message+="\t$compile_only_count - Dependencies which could be compile-only\n"
+        elif [[ $runtime_only_count > 0 ]]; then
+          message+="\t$runtime_only_count - Dependencies which should be removed or changed to runtime-only\n"
+        elif [[ $processor_count > 0 ]]; then
+          message+="\t$processor_count - Unused annotation processors that should be removed\n"
+        fi
+        
+        message+="\nSee report to get more insights.\n\n"
+        message+="<details><summary>Full Report</summary><p>\n\n"
+        message+="### Advices for ${{ github.event.repository.name }}:\n\n"
+        message+="${{ steps.report.outputs.report }}\n\n"
+        message+="</p></details>"
+        echo "$message"
+        delimiter="$(openssl rand -hex 8)"
+        echo "message<<${delimiter}" >> ${GITHUB_OUTPUT}
+        echo "$message" >> ${GITHUB_OUTPUT}
+        echo "${delimiter}" >> ${GITHUB_OUTPUT}
+        
     - name: Comment on PR
-      if: ${{ steps.report.outputs.report != '' }}
+      if: ${{ steps.generate_comment_message.outputs.message != '' }}
       uses: mshick/add-pr-comment@v2
       with:
         message-id: health_check
-        message: |
-          ## ⚠ Dependencies Health Check ⚠
-          
-          Some issues were detected during health check.
-          See report to get more insights.
-          
-          <details>
-          <summary>
-          Full Report
-          </summary>
-          <p>
-          
-          ### Advices for ${{ github.event.repository.name }}:
-          
-          ${{ steps.report.outputs.report }}
-          
-          </p>
-          </details>
+        message: ${{ steps.generate_comment_message.outputs.message }}
           
