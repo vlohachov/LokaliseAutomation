@@ -64,16 +64,21 @@ jobs:
         processor_count=${{ fromJson(steps.report.outputs.report_data).processorCount }}
         
         unused_status=$([ $unused_count == 0 ] && echo ✅ || echo ❌ )
+        undeclared_status=$([ $undeclared_count == 0 ] && echo ✅ || echo ❌ )
+        mis_declared_status=$([ $mis_declared_count == 0 ] && echo ✅ || echo ❌ )
+        compile_only_status=$([ $compile_only_count == 0 ] && echo ✅ || echo ❌ )
+        runtime_only_status=$([ $runtime_only_count == 0 ] && echo ✅ || echo ❌ )
+        processor_status=$([ $processor_count == 0 ] && echo ✅ || echo ❌ )
         
         message="## ⚠ Dependencies Health Check ⚠\n\n"
         message+="### Summary\n\n"
 
-        message+="${unused_count} - Unused dependencies which should be removed ${unused_status}\n"
-        message+="${undeclared_count} - Transitively used dependencies that should be declared directly\n"
-        message+="${mis_declared_count} - Existing dependencies which should be modified\n"
-        message+="${compile_only_count} - Dependencies which could be compile-only\n"
-        message+="${runtime_only_count} - Dependencies which should be removed or changed to runtime-only\n"
-        message+="${processor_count} - Unused annotation processors that should be removed\n"
+        message+="${unused_status} - Has no unused dependencies which should be removed (detected ${unused_count})\n"
+        message+="${undeclared_status} - Transitively used dependencies that should be declared directly (detected ${undeclared_count})\n"
+        message+="${mis_declared_status} - Existing dependencies which should be modified (detected ${mis_declared_count})\n"
+        message+="${compile_only_status} - Dependencies which could be compile-only (detected ${compile_only_count})\n"
+        message+="${runtime_only_status} - Dependencies which should be removed or changed to runtime-only (detected ${runtime_only_count})\n"
+        message+="${processor_status} - Unused annotation processors that should be removed (detected ${processor_count})\n"
       
         message+="\nSee report below to get more insights.\n\n"
         message+="<details><summary>Report</summary>\n\n"
