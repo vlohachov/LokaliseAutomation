@@ -72,19 +72,10 @@ jobs:
           echo branch_exists=false >> $GITHUB_OUTPUT;
         fi
 
-    - name: Switch to Lokalise branch
+    - name: Remove existing branch
+      if: ${{ steps.check_branch_exists.outputs.branch_exists == 'true' }}
       run: |
-        git fetch --all
-        if [[ ${{ steps.check_branch_exists.outputs.branch_exists }} == 'true' ]]; then
-          echo "Checkout existing remote branch"
-          git checkout -m -b 'lokalise/sync_translations' 'origin/lokalise/sync_translations'
-        else
-          echo "Create new and checkout"
-          git checkout -b 'lokalise/sync_translations'
-        fi
-      #uses: actions/checkout@v3.1.0
-      #with:
-        #ref: lokalise/sync_translations
+        git push origin -d 'lokalise/sync_translations'
 
     - name: Push changes
       id: push_changes
@@ -94,6 +85,7 @@ jobs:
         github_token: "${{ secrets.GITHUB_TOKEN }}"
         commit_prefix: "Update "
         commit_message: "Lokalise translations"
+        target_branch: lokalise/sync_translations
 
     - name: Create PR
       if: ${{ steps.push_changes.outputs.files_changed != '' }}
