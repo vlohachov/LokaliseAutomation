@@ -36,24 +36,21 @@ jobs:
           res_path=${arr[counter]}
           module=${res_path%%/src/*}
           tag=${module/./${{ steps.read_project_name.outputs.project_name }}}
-          echo "Pulling string for '${module}' module with tag \"${tag}\""
-          echo "Matching tag: ${tag}"
+          echo "Pulling translations tagged \"${tag}\" into \"${module}\" module..."
           #lokalise2 --token ${{ secrets.LOKALISE_TOKEN }} --project-id ${{ secrets.LOKALISE_PROJECT_ID }} file download --export-empty-as skip --export-sort first_added --format xml --include-tags $tag --unzip-to "${module}/src/main/res" --directory-prefix "values-%LANG_ISO%" --original-filenames false
         done
         
     - name: Push strings to Lokalise
       run: |
-        arr=(*/src/main/res/values*/strings.xml)
+        arr=(`find . -type f -name strings.xml`)
         for counter in ${!arr[*]}; do
           file_path=${arr[counter]}
-          echo "File path: ${file_path}"
           module=${file_path%%/src/*}
           folder_path=$(dirname ${file_path})
           folder_suffix=${folder_path##*values}
           lang_iso=${folder_suffix#-}
-          tag="${{ steps.read_project_name.outputs.project_name }}/${module}"
-          echo "Pushing strings from '${module}' module..."
-          echo "With tag: ${tag}"
+          tag=${module/./${{ steps.read_project_name.outputs.project_name }}}
+          echo "Pushing strings from \"${module}\" module with \"${tag}\" tag..."
           #lokalise2 --token ${{ secrets.LOKALISE_TOKEN }} --project-id ${{ secrets.LOKALISE_PROJECT_ID }} file upload --file $file_path --lang-iso ${lang_iso:-en} --tag-skipped-keys --tags $tag
         done
 
