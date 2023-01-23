@@ -64,7 +64,7 @@ jobs:
           # Replace "." in module path with project name to generate tag that consists of
           # project name and module path 
           tag=${module_path/./${{ steps.read_project_name.outputs.project_name }}}
-          echo "Pushing  strings from \"${module_path}\" module with \"${tag}\" tag..."
+          echo "Pushing \"${lang_iso:-en}\" strings from \"${module_path}\" module with \"${tag}\" tag..."
           # Call Lokalise CLI (v2) "file upload" command to upload 'strings.xml' file. 
           # Each string key is tagged with the tag we generated, so later on (while pulling)
           # script understands where pulled translations should be unzipped to
