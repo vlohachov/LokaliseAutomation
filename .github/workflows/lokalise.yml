@@ -36,7 +36,8 @@ jobs:
           file_path=${arr[counter]}
           echo "File path: ${file_path}"
           module=${file_path%%/src/*}
-          tag="${{ steps.read_project_name.outputs.project_name }}/${module}"
+          #tag="${{ steps.read_project_name.outputs.project_name }}/${module}"
+          tag=${module//./${{ steps.read_project_name.outputs.project_name }}}
           echo "Pulling string for '${module}' module..."
           echo "Matching tag: ${tag}"
           #lokalise2 --token ${{ secrets.LOKALISE_TOKEN }} --project-id ${{ secrets.LOKALISE_PROJECT_ID }} file download --export-empty-as skip --export-sort first_added --format xml --include-tags $tag --unzip-to "${module}/src/main/res" --directory-prefix "values-%LANG_ISO%" --original-filenames false
