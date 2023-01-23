@@ -77,11 +77,12 @@ jobs:
         git fetch --all
         git stash -u
         if [[ ${{ steps.check_branch_exists.outputs.branch_exists }} == 'true' ]]; then
-          echo "Checkout existing branch"
-          git checkout -t 'lokalise/sync_translations'
+          echo "Checkout existing remote branch"
+          git checkout -b 'lokalise/sync_translations' 'origin/lokalise/sync_translations'
         else
           echo "Create new and checkout"
-          git checkout -t -b 'lokalise/sync_translations'
+          git branch 'lokalise/sync_translations'
+          git checkout 'lokalise/sync_translations'
         fi
         git stash pop
       #uses: actions/checkout@v3.1.0
