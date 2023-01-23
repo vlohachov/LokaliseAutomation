@@ -73,10 +73,13 @@ jobs:
         fi
 
     - name: Checkout Lokalise branch
-      if: ${{ steps.check_branch_exists.outputs.branch_exists == 'true' }}
       run: |
         git stash -u
-        git checkout -b 'lokalise/sync_translations'
+        if [[ ${{ steps.check_branch_exists.outputs.branch_exists } == 'true' ]]; then
+          git checkout 'lokalise/sync_translations'
+        else
+          git checkout -b 'lokalise/sync_translations'
+        fi
         git stash pop
       #uses: actions/checkout@v3.1.0
       #with:
@@ -91,7 +94,6 @@ jobs:
         commit_prefix: "Update "
         commit_message: "Lokalise translations"
         force: false
-        target_branch: lokalise/sync_translations
 
     - name: Create PR
       if: ${{ steps.push_changes.outputs.files_changed != '' }}
