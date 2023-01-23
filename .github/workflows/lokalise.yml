@@ -21,6 +21,10 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3.1.0
 
+    - name: Create Lokalise branch (local)
+      run: |
+        git checkout -b 'lokalise/sync_translations'
+
     - name: Read project name
       id: read_project_name
       run: |
@@ -47,19 +51,7 @@ jobs:
           lokalise2 --token ${{ secrets.LOKALISE_TOKEN }} --project-id ${{ secrets.LOKALISE_PROJECT_ID }} file download --export-empty-as skip --export-sort first_added --format xml --include-tags $tag --unzip-to "${module_path}/src/main/res" --directory-prefix "values-%LANG_ISO%" --original-filenames false
         done
 
-    - name: Check changes
-      id: check_changes
-      run: |
-        git status --porcelain
-        if [[ `git status --porcelain` ]]; then
-          echo "Changes detected"
-          echo changes_detected=true >> $GITHUB_OUTPUT;
-        else 
-          echo "Changes not detected"
-          echo changes_detected=false >> $GITHUB_OUTPUT;
-        fi
-
-    - name: Check branch exists
+    - name: Check Lokalise branch exists (remote)
       id: check_branch_exists
       continue-on-error: true
       run: |
@@ -73,8 +65,22 @@ jobs:
           echo branch_exists=false >> $GITHUB_OUTPUT;
         fi
 
+    - name: Check changes
+      id: check_changes
+      if: ${{ steps.check_branch_exists.outputs.branch_exists == 'true' }}
+      run: |
+        git fetch
+        git diff 'lokalise/sync_translations' 'origin/lokalise/sync_translations'
+        if [[ `git status --porcelain` ]]; then
+          echo "Changes detected"
+          echo changes_detected=true >> $GITHUB_OUTPUT;
+        else 
+          echo "Changes not detected"
+          echo changes_detected=false >> $GITHUB_OUTPUT;
+        fi
+
 #    - name: Remove existing branch
-#      if: ${{ steps.check_branch_exists.outputs.branch_exists == 'true' }}
+#      if: ${{ steps.check_changes.outputs.changes_detected == 'true' }}
 #      run: |
 #        git push origin -d 'lokalise/sync_translations'
 #
