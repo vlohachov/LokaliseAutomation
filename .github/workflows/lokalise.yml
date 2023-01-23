@@ -74,9 +74,13 @@ jobs:
 
     - name: Checkout Lokalise branch
       if: ${{ steps.check_branch_exists.outputs.branch_exists == 'true' }}
-      uses: actions/checkout@v3.1.0
-      with:
-        ref: lokalise/sync_translations
+      run: |
+        git stash -u
+        git checkout lokalise/sync_translations
+        git stash pop
+      #uses: actions/checkout@v3.1.0
+      #with:
+        #ref: lokalise/sync_translations
 
     - name: Push changes
       id: push_changes
