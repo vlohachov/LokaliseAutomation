@@ -77,7 +77,7 @@ jobs:
         git fetch --all
         if [[ ${{ steps.check_branch_exists.outputs.branch_exists }} == 'true' ]]; then
           echo "Checkout existing remote branch"
-          git checkout -b -m 'lokalise/sync_translations' 'origin/lokalise/sync_translations'
+          git checkout -m -b 'lokalise/sync_translations' 'origin/lokalise/sync_translations'
         else
           echo "Create new and checkout"
           git checkout -b 'lokalise/sync_translations'
