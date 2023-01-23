@@ -60,8 +60,10 @@ jobs:
       id: check_changes
       run: |
         if [[ `git status --porcelain` ]]; then
+          echo "Changes detected"
           echo changes_detected=true >> $GITHUB_OUTPUT;
         else 
+          echo "Changes not detected"
           echo changes_detected=false >> $GITHUB_OUTPUT;
         fi
 
@@ -72,7 +74,7 @@ jobs:
         git ls-remote --exit-code --heads origin 'lokalise/sync_translations' >/dev/null 2>&1
         RESULT=$?
         if [[ $RESULT == '0' ]]; then
-          echo "Branch does exist"
+          echo "Branch exists"
           echo branch_exists=true >> $GITHUB_OUTPUT;
         elif [[ $RESULT == '2' ]]; then
           echo "Branch does not exist"
