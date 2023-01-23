@@ -31,7 +31,7 @@ jobs:
     - name: Pull strings from Lokalise
       continue-on-error: true
       run: |
-        arr=(`find . -type d -name res`)
+        arr=(`find "$PWD" -type d -name res`)
         #arr=(*/src/main/res)
         for counter in ${!arr[*]}; do
           file_path=${arr[counter]}
