@@ -20,7 +20,7 @@ jobs:
 
     - name: Checkout
       uses: actions/checkout@v3.1.0
-      
+
     - name: Read project name
       id: read_project_name
       run: |
@@ -28,6 +28,26 @@ jobs:
         # Convert to lowercase and replace white spaces with '-'
         processed_project_name=$(echo $raw_project_name | tr " " "-" | tr '[:upper:]' '[:lower:]')
         echo project_name=$processed_project_name >> $GITHUB_OUTPUT
+
+    - name: Check branch exists
+      id: check_branch_exists
+      continue-on-error: true
+      run: |
+        git ls-remote --exit-code --heads origin 'lokalise/sync_translations' >/dev/null 2>&1
+        RESULT=$?
+        if [[ $RESULT == '0' ]]; then
+          echo "Branch exists"
+          echo branch_exists=true >> $GITHUB_OUTPUT;
+        elif [[ $RESULT == '2' ]]; then
+          echo "Branch does not exist"
+          echo branch_exists=false >> $GITHUB_OUTPUT;
+        fi
+
+    - name: Checkout Lokalise branch
+      if: ${{ steps.check_branch_exists.outputs.branch_exists == 'true' }}
+      uses: actions/checkout@v3.1.0
+      with:
+        ref: lokalise/sync_translations
 
     - name: Pull strings from Lokalise
       continue-on-error: true
@@ -57,26 +77,6 @@ jobs:
           echo "Changes not detected"
           echo changes_detected=false >> $GITHUB_OUTPUT;
         fi
-
-    - name: Check branch exists
-      id: check_branch_exists
-      continue-on-error: true
-      run: |
-        git ls-remote --exit-code --heads origin 'lokalise/sync_translations' >/dev/null 2>&1
-        RESULT=$?
-        if [[ $RESULT == '0' ]]; then
-          echo "Branch exists"
-          echo branch_exists=true >> $GITHUB_OUTPUT;
-        elif [[ $RESULT == '2' ]]; then
-          echo "Branch does not exist"
-          echo branch_exists=false >> $GITHUB_OUTPUT;
-        fi
-
-    - name: Checkout Lokalise branch
-      if: ${{ steps.check_branch_exists.outputs.branch_exists == 'true' }}
-      uses: actions/checkout@v3.1.0
-      with:
-        ref: lokalise/sync_translations
 
     - name: Push changes
       id: push_changes
