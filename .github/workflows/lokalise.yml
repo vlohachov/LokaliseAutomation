@@ -31,7 +31,7 @@ jobs:
     - name: Pull strings from Lokalise
       continue-on-error: true
       run: |
-        arr=(*/src/main/res)
+        arr=(/*/src/main/res)
         for counter in ${!arr[*]}; do
           file_path=${arr[counter]}
           module=${file_path%%/*/src/*}
@@ -43,7 +43,7 @@ jobs:
         
     - name: Push strings to Lokalise
       run: |
-        arr=(*/src/main/res/values*/strings.xml)
+        arr=(/*/src/main/res/values*/strings.xml)
         for counter in ${!arr[*]}; do
           file_path=${arr[counter]}
           module=${file_path%%/*/src/*}
