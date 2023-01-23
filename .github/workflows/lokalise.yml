@@ -18,6 +18,9 @@ jobs:
       with:
         lokalise-version: 'latest' # or specify version (ex. '2.6.3')
 
+    - name: Checkout
+      uses: actions/checkout@v3.1.0
+
     - name: Read project name
       id: read_project_name
       run: |
@@ -25,9 +28,6 @@ jobs:
         # Convert to lowercase and replace white spaces with '-'
         processed_project_name=$(echo $raw_project_name | tr " " "-" | tr '[:upper:]' '[:lower:]')
         echo project_name=$processed_project_name >> $GITHUB_OUTPUT
-
-    - name: Checkout
-      uses: actions/checkout@v3.1.0
 
     - name: Pull strings from Lokalise
       continue-on-error: true
