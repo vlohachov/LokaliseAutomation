@@ -74,6 +74,7 @@ jobs:
 
     - name: Switch to Lokalise branch
       run: |
+        git fetch --all
         git stash -u
         if [[ ${{ steps.check_branch_exists.outputs.branch_exists }} == 'true' ]]; then
           echo "Checkout existing branch"
