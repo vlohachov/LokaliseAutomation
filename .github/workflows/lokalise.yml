@@ -34,7 +34,7 @@ jobs:
         arr=(*/src/main/res)
         for counter in ${!arr[*]}; do
           file_path=${arr[counter]}
-          module=${file_path%%/src/*}
+          module=${file_path%%/*/src/*}
           tag="${{ steps.read_project_name.outputs.project_name }}/${module}"
           echo "Pulling string for '${module}' module..."
           echo "Matching tag: ${tag}"
@@ -46,7 +46,7 @@ jobs:
         arr=(*/src/main/res/values*/strings.xml)
         for counter in ${!arr[*]}; do
           file_path=${arr[counter]}
-          module=${file_path%%/src/*}
+          module=${file_path%%/*/src/*}
           folder_path=$(dirname ${file_path})
           folder_suffix=${folder_path##*values}
           lang_iso=${folder_suffix#-}
