@@ -25,32 +25,49 @@ jobs:
       id: read_project_name
       run: |
         raw_project_name=$(./gradlew -q printProjectName)
+        # Convert to lowercase and replace white spaces with '-'
         processed_project_name=$(echo $raw_project_name | tr " " "-" | tr '[:upper:]' '[:lower:]')
         echo project_name=$processed_project_name >> $GITHUB_OUTPUT
 
     - name: Pull strings from Lokalise
       continue-on-error: true
       run: |
+        # Get paths to all "res" folders
         arr=(`find . -type d -name res`)
         for counter in ${!arr[*]}; do
           res_path=${arr[counter]}
-          module=${res_path%%/src/*}
-          tag=${module/./${{ steps.read_project_name.outputs.project_name }}}
-          echo "Pulling translations tagged \"${tag}\" into \"${module}\" module..."
-          #lokalise2 --token ${{ secrets.LOKALISE_TOKEN }} --project-id ${{ secrets.LOKALISE_PROJECT_ID }} file download --export-empty-as skip --export-sort first_added --format xml --include-tags $tag --unzip-to "${module}/src/main/res" --directory-prefix "values-%LANG_ISO%" --original-filenames false
+          # Get module from path, by cutting "/src/..." part out of original path
+          module_path=${res_path%%/src/*}
+          # Replace "." in module path with project name to generate tag that consists of
+          # project name and module path 
+          tag=${module_path/./${{ steps.read_project_name.outputs.project_name }}}
+          echo "Pulling translations tagged \"${tag}\" into \"${module_path}\" module..."
+          # Call Lokalise CLI (v2) "file download" command to pull all available translations 
+          # (tagged with the tag we generated before) and unzip them to a proper module.
+          #lokalise2 --token ${{ secrets.LOKALISE_TOKEN }} --project-id ${{ secrets.LOKALISE_PROJECT_ID }} file download --export-empty-as skip --export-sort first_added --format xml --include-tags $tag --unzip-to "${module_path}/src/main/res" --directory-prefix "values-%LANG_ISO%" --original-filenames false
         done
         
     - name: Push strings to Lokalise
       run: |
+        # Get paths to all "strings.xml" files
         arr=(`find . -type f -name strings.xml`)
         for counter in ${!arr[*]}; do
           file_path=${arr[counter]}
-          module=${file_path%%/src/*}
+          # Get module from path, by cutting "/src/..." part out of original path
+          module_path=${file_path%%/src/*}
+          # Get path to /values" (/values-Lang_ISO) folder 
           folder_path=$(dirname ${file_path})
+          # Get suffix of /values-Lang_ISO folder (result "-Lang_ISO")
           folder_suffix=${folder_path##*values}
+          # Remove '-' from suffix
           lang_iso=${folder_suffix#-}
-          tag=${module/./${{ steps.read_project_name.outputs.project_name }}}
-          echo "Pushing strings from \"${module}\" module with \"${tag}\" tag..."
+          # Replace "." in module path with project name to generate tag that consists of
+          # project name and module path 
+          tag=${module_path/./${{ steps.read_project_name.outputs.project_name }}}
+          echo "Pushing  strings from \"${module_path}\" module with \"${tag}\" tag..."
+          # Call Lokalise CLI (v2) "file upload" command to upload 'strings.xml' file. 
+          # Each string key is tagged with the tag we generated, so later on (while pulling)
+          # script understands where pulled translations should be unzipped to
           #lokalise2 --token ${{ secrets.LOKALISE_TOKEN }} --project-id ${{ secrets.LOKALISE_PROJECT_ID }} file upload --file $file_path --lang-iso ${lang_iso:-en} --tag-skipped-keys --tags $tag
         done
 
