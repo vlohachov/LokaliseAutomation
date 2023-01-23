@@ -75,7 +75,7 @@ jobs:
     - name: Checkout Lokalise branch
       run: |
         git stash -u
-        if [[ ${{ steps.check_branch_exists.outputs.branch_exists } == 'true' ]]; then
+        if [[ ${{ steps.check_branch_exists.outputs.branch_exists }} == 'true' ]]; then
           git checkout 'lokalise/sync_translations'
         else
           git checkout -b 'lokalise/sync_translations'
