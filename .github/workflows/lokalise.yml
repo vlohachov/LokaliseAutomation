@@ -58,37 +58,6 @@ jobs:
           echo changes_detected=false >> $GITHUB_OUTPUT;
         fi
 
-    - name: Check branch exists
-      id: check_branch_exists
-      continue-on-error: true
-      run: |
-        git ls-remote --exit-code --heads origin 'lokalise/sync_translations' >/dev/null 2>&1
-        RESULT=$?
-        if [[ $RESULT == '0' ]]; then
-          echo "Branch exists"
-          echo branch_exists=true >> $GITHUB_OUTPUT;
-        elif [[ $RESULT == '2' ]]; then
-          echo "Branch does not exist"
-          echo branch_exists=false >> $GITHUB_OUTPUT;
-        fi
-
-    - name: Switch to Lokalise branch
-      run: |
-        git fetch --all
-        git stash -u
-        if [[ ${{ steps.check_branch_exists.outputs.branch_exists }} == 'true' ]]; then
-          echo "Checkout existing remote branch"
-          git checkout -b 'lokalise/sync_translations' 'origin/lokalise/sync_translations'
-        else
-          echo "Create new and checkout"
-          git branch 'lokalise/sync_translations'
-          git checkout 'lokalise/sync_translations'
-        fi
-        git stash pop
-      #uses: actions/checkout@v3.1.0
-      #with:
-        #ref: lokalise/sync_translations
-
     - name: Push changes
       id: push_changes
       if: ${{ steps.check_changes.outputs.changes_detected == 'true' }}
@@ -97,7 +66,8 @@ jobs:
         github_token: "${{ secrets.GITHUB_TOKEN }}"
         commit_prefix: "Update "
         commit_message: "Lokalise translations"
-        force: false
+        target_branch: lokalise/sync_translations
+        force: true
 
     - name: Create PR
       if: ${{ steps.push_changes.outputs.files_changed != '' }}
