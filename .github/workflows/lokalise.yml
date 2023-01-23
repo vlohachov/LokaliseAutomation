@@ -76,7 +76,7 @@ jobs:
       if: ${{ steps.check_branch_exists.outputs.branch_exists == 'true' }}
       run: |
         git stash -u
-        git checkout lokalise/sync_translations
+        git checkout -b 'lokalise/sync_translations'
         git stash pop
       #uses: actions/checkout@v3.1.0
       #with:
