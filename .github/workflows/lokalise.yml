@@ -38,7 +38,7 @@ jobs:
           tag="${{ steps.read_project_name.outputs.project_name }}/${module}"
           echo "Pulling string for '${module}' module..."
           echo "Matching tag: ${tag}"
-#          lokalise2 --token ${{ secrets.LOKALISE_TOKEN }} --project-id ${{ secrets.LOKALISE_PROJECT_ID }} file download --export-empty-as skip --export-sort first_added --format xml --include-tags $tag --unzip-to "${module}/src/main/res" --directory-prefix "values-%LANG_ISO%" --original-filenames false
+          #lokalise2 --token ${{ secrets.LOKALISE_TOKEN }} --project-id ${{ secrets.LOKALISE_PROJECT_ID }} file download --export-empty-as skip --export-sort first_added --format xml --include-tags $tag --unzip-to "${module}/src/main/res" --directory-prefix "values-%LANG_ISO%" --original-filenames false
         done
         
     - name: Push strings to Lokalise
@@ -53,7 +53,7 @@ jobs:
           tag="${{ steps.read_project_name.outputs.project_name }}/${module}"
           echo "Pushing strings from '${module}' module..."
           echo "With tag: ${tag}"
-#          lokalise2 --token ${{ secrets.LOKALISE_TOKEN }} --project-id ${{ secrets.LOKALISE_PROJECT_ID }} file upload --file $file_path --lang-iso ${lang_iso:-en} --tag-skipped-keys --tags $tag
+          #lokalise2 --token ${{ secrets.LOKALISE_TOKEN }} --project-id ${{ secrets.LOKALISE_PROJECT_ID }} file upload --file $file_path --lang-iso ${lang_iso:-en} --tag-skipped-keys --tags $tag
         done
 
     - name: Check changes
