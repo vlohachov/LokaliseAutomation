@@ -76,8 +76,10 @@ jobs:
       run: |
         git stash -u
         if [[ ${{ steps.check_branch_exists.outputs.branch_exists }} == 'true' ]]; then
+          echo "Checkout existing branch"
           git checkout 'lokalise/sync_translations'
         else
+          echo "Create new and checkout"
           git checkout -b 'lokalise/sync_translations'
         fi
         git stash pop
