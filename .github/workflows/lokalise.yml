@@ -21,14 +21,6 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3.1.0
 
-    - name: Sync Lokalise branch with main
-      run: |
-        git config user.name github-actions[bot]
-        git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-        git fetch origin
-        git checkout -b 'lokalise/sync_translations' 'origin/lokalise/sync_translations' || git checkout -b 'lokalise/sync_translations'
-        git merge 'main' --allow-unrelated-histories
-
     - name: Read project name
       id: read_project_name
       run: |
@@ -54,6 +46,18 @@ jobs:
           # (tagged with the tag we generated before) and unzip them to a proper module.
           lokalise2 --token ${{ secrets.LOKALISE_TOKEN }} --project-id ${{ secrets.LOKALISE_PROJECT_ID }} file download --export-empty-as skip --export-sort first_added --format xml --include-tags $tag --unzip-to "${module_path}/src/main/res" --directory-prefix "values-%LANG_ISO%" --original-filenames false
         done
+
+    - name: Sync Lokalise branch with main
+      run: |
+        git stash
+        git fetch origin
+        git checkout -b 'lokalise/sync_translations' 'origin/lokalise/sync_translations' || git checkout -b 'lokalise/sync_translations'
+        git stash pop
+        #git config user.name github-actions[bot]
+        #git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+        #git fetch origin
+        #git checkout -b 'lokalise/sync_translations' 'origin/lokalise/sync_translations' || git checkout -b 'lokalise/sync_translations'
+        #git merge 'main' --allow-unrelated-histories
 
     - name: Push changes
       id: push_changes
