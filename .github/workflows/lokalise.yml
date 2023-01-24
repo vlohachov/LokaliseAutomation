@@ -56,7 +56,7 @@ jobs:
         echo "Checkout"
         git checkout -m -b lokalise/sync_translations origin/lokalise/sync_translations || git checkout -b lokalise/sync_translations
         if [[ $(git ls-remote --heads origin lokalise/sync_translations | wc -l) == '1' ]]; then
-          git pull origin lokalise/sync_translations
+          git pull --rebase origin lokalise/sync_translations
         fi
 
     - name: Sync Lokalise branch with main
