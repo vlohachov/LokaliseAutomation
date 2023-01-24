@@ -63,7 +63,7 @@ jobs:
 
     - name: Show changes
       run: |
-        echo "Files changed\n${{ steps.push_changes.outputs.files_changed }}"
+        echo "${{ steps.push_changes.outputs.files_changed }}"
 
     - name: Create PR
       if: ${{ steps.push_changes.outputs.files_changed != '' }}
