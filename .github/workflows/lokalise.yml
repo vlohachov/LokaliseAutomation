@@ -79,11 +79,11 @@ jobs:
         source_branch: lokalise/sync_translations
         target_branch: main
         title: "Lokalise: Translations update"
+        body: "This PR contains translations update"
         #reviewer: octocat
         #assignee: octocat
         label: lokalise,translations
         #draft: true
-        get_diff: true
 
   push-translations:
     if: ${{ always() }}
