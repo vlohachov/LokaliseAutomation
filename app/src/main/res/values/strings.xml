@@ -4,4 +4,5 @@
   <string name="app_name">Lokalise Automation</string>
   <string name="repository_key">Repository key</string>
   <string name="conflict_key">Conflict key</string>
+  <string name="test_workflow">Test</string>
 </resources>
