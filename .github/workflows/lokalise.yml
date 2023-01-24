@@ -70,7 +70,7 @@ jobs:
       if: ${{ steps.check_branch_exists.outputs.branch_exists == 'true' }}
       run: |
         git fetch
-        git diff 'lokalise/sync_translations' 'origin/lokalise/sync_translations'
+        git diff --name-only 'lokalise/sync_translations' 'origin/lokalise/sync_translations'
         if [[ `git status --porcelain` ]]; then
           echo "Changes detected"
           echo changes_detected=true >> $GITHUB_OUTPUT;
