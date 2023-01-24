@@ -74,7 +74,7 @@ jobs:
         source_branch: lokalise/sync_translations
         target_branch: main
         title: "Lokalise: Translations update"
-        body: "${{ steps.push_changes.outputs.files_changed }}"
+        body: "Changes:\n${{ steps.push_changes.outputs.files_changed }}"
         #reviewer: octocat
         #assignee: octocat
         label: lokalise,translations
