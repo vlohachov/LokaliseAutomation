@@ -71,8 +71,7 @@ jobs:
       continue-on-error: true
       run: |
         git fetch
-        git diff --quiet 'lokalise/sync_translations' 'origin/lokalise/sync_translations'
-        case $? in
+        case $(git diff --quiet 'lokalise/sync_translations' 'origin/lokalise/sync_translations') in
           0)  echo "Changes not detected"
               echo changes_detected=false >> $GITHUB_OUTPUT ;;
           1)  echo "Changes detected"
@@ -80,6 +79,7 @@ jobs:
           128)  echo "Invalid commit id(s)" ;;
           *)  echo "Unknown error" ;;
         esac
+        exit 0
 
 #    - name: Remove existing branch
 #      if: ${{ steps.check_changes.outputs.changes_detected == 'true' }}
