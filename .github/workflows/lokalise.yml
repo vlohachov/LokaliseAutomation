@@ -77,7 +77,7 @@ jobs:
         message: "Changes:\n${{ steps.push_changes.outputs.files_changed }}"
         #reviewer: octocat
         #assignee: octocat
-        label: lokalise
+        label: lokalise,translations
         #draft: true
         get_diff: true
 
