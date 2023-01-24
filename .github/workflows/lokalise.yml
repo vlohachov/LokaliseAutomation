@@ -24,7 +24,7 @@ jobs:
     - name: Sync Lokalise branch with main
       run: |
         git fetch origin
-        git checkout -b 'lokalise/sync_translations' 'origin/lokalise/sync_translations'
+        git checkout -b 'lokalise/sync_translations' 'origin/lokalise/sync_translations' || git checkout -b 'lokalise/sync_translations'
         git merge 'main'
 
     - name: Read project name
