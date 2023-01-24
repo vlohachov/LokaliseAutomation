@@ -47,7 +47,13 @@ jobs:
           lokalise2 --token ${{ secrets.LOKALISE_TOKEN }} --project-id ${{ secrets.LOKALISE_PROJECT_ID }} file download --export-empty-as skip --export-sort first_added --format xml --include-tags $tag --unzip-to "${module_path}/src/main/res" --directory-prefix "values-%LANG_ISO%" --original-filenames false
         done
 
+    - name: Switch to Lokalise branch
+      run: |
+        git fetch --all
+        git checkout -m -b 'lokalise/sync_translations' 'origin/lokalise/sync_translations' || git checkout -b 'lokalise/sync_translations'
+
     - name: Sync Lokalise branch with main
+      if: false
       run: |
         git stash
         git checkout -b lokalise/sync_translations
