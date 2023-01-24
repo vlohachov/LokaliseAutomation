@@ -63,6 +63,7 @@ jobs:
         elif [[ $RESULT == '2' ]]; then
           echo "Branch does not exist"
           echo branch_exists=false >> $GITHUB_OUTPUT;
+        exit 0
         fi
 
     - name: Check changes
