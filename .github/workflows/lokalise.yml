@@ -55,6 +55,7 @@ jobs:
         git fetch --all
         echo "Checkout"
         git checkout -m -b 'lokalise/sync_translations' 'origin/lokalise/sync_translations' || git checkout -b 'lokalise/sync_translations'
+        
         git pull
 
     - name: Sync Lokalise branch with main
@@ -66,7 +67,7 @@ jobs:
         git fetch origin lokalise/sync_translations
         git branch --set-upstream-to=origin/lokalise/sync_translations lokalise/sync_translations
         git checkout lokalise/sync_translations
-        git pull
+        git pull origin lokalise/sync_translations
         #git config user.name github-actions[bot]
         #git config user.email 41898282+github-actions[bot]@users.noreply.github.com
         #git fetch origin
