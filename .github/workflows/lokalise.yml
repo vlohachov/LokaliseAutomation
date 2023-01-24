@@ -85,6 +85,11 @@ jobs:
     needs: pull-translations
     runs-on: ubuntu-latest
     steps:
+      - name: Setup Lokalise CLI
+        uses: sudosubin/setup-lokalise-action@v1.0.1
+        with:
+          lokalise-version: 'latest' # or specify version (ex. '2.6.3')
+
       - name: Checkout default
         uses: actions/checkout@v3.1.0
 
