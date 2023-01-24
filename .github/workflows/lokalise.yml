@@ -57,13 +57,13 @@ jobs:
         git checkout -m -b lokalise/sync_translations origin/lokalise/sync_translations || git checkout -b lokalise/sync_translations
         if [[ $(git ls-remote --heads origin lokalise/sync_translations | wc -l) == '1' ]]; then
           echo "Add"
-          git add --all
+          git add "*/values*/strings.xml"
           echo "Stash"
           git stash
+          echo "Stash drop"
+          git stash dop
           echo "Pull"
           git pull --rebase origin lokalise/sync_translations
-          echo "Stash pop"
-          git stash pop
         fi
 
     - name: Sync Lokalise branch with main
