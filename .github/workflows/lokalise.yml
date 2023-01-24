@@ -14,7 +14,7 @@ on:
 
 jobs:
   update-pr-body:
-    if: ${{ github.even_name == 'push' && github.ref_name == 'lokalise/sync_translations' }}
+    if: ${{ github.even_name == 'push' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout default
@@ -33,6 +33,7 @@ jobs:
 #            github_token: ${{ secrets.GITHUB_TOKEN }}
 
   pull-translations:
+    if: ${{ github.even_name != 'push' }}
     runs-on: ubuntu-latest
     steps:
     - name: Setup Lokalise CLI
