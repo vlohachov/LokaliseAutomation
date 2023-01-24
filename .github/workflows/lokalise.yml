@@ -51,10 +51,15 @@ jobs:
       run: |
         git config user.name github-actions[bot]
         git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+        echo "Stash"
         git stash
+        echo "Fetch"
         git fetch --all
+        echo "Checkout"
         git checkout -m -b 'lokalise/sync_translations' 'origin/lokalise/sync_translations' || git checkout -b 'lokalise/sync_translations'
+        echo "Stash pop"
         git stash pop
+        echo "Add"
         git add --all
 
     - name: Sync Lokalise branch with main
