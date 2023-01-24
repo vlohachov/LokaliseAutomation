@@ -82,7 +82,7 @@ jobs:
         body: "This PR contains translations update."
         #reviewer: octocat
         #assignee: octocat
-        label: "lokalise","translations","PLEASE REVIEW"
+        label: lokalise,translations,PLEASE REVIEW
         #draft: true
 
   push-translations:
