@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <string name="feature_key">Функциональный ключ</string>
+  <string name="feature_second_key">Второй функциональный ключ</string>
+</resources>
