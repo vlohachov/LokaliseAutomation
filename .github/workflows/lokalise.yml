@@ -71,7 +71,10 @@ jobs:
       continue-on-error: true
       run: |
         git fetch
-        case $(git diff --quiet 'lokalise/sync_translations' 'origin/lokalise/sync_translations') in
+        RESULT=$(git diff --quiet 'lokalise/sync_translations' 'origin/lokalise/sync_translations')
+        exit 0
+        echo "EXIT_CODE=$RESULT"
+        case $RESULT in
           0)  echo "Changes not detected"
               echo changes_detected=false >> $GITHUB_OUTPUT ;;
           1)  echo "Changes detected"
