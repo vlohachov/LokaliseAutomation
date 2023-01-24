@@ -93,7 +93,6 @@ jobs:
         github_token: "${{ secrets.GITHUB_TOKEN }}"
         commit_prefix: "Update "
         commit_message: "Lokalise translations"
-        target_branch: lokalise/sync_translations
 
     - name: Create PR
       if: ${{ steps.push_changes.outputs.files_changed != '' }}
