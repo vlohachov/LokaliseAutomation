@@ -24,7 +24,7 @@ jobs:
     - name: Create Lokalise branch (local)
       run: |
         git checkout -b 'lokalise/sync_translations'
-        git pull 'origin' 'lokalise/sync_translations' --rebase || true
+        git pull 'origin' 'lokalise/sync_translations' --no-ff || true
 
     - name: Read project name
       id: read_project_name
