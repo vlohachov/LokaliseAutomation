@@ -54,8 +54,8 @@ jobs:
         echo "Fetch"
         git fetch --all
         echo "Checkout"
-        git checkout -m -b 'lokalise/sync_translations' 'origin/lokalise/sync_translations' || git checkout -b 'lokalise/sync_translations'
-        if [[ $(git ls-remote --heads origin <branch> | wc -l) == '1' ]]; then
+        git checkout -m -b lokalise/sync_translations origin/lokalise/sync_translations || git checkout -b lokalise/sync_translations
+        if [[ $(git ls-remote --heads origin lokalise/sync_translations | wc -l) == '1' ]]; then
           git pull origin lokalise/sync_translations
         fi
 
