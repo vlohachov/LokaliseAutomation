@@ -70,8 +70,8 @@ jobs:
       if: ${{ steps.check_branch_exists.outputs.branch_exists == 'true' }}
       run: |
         git fetch
-        RESULT=$(git diff --quiet 'lokalise/sync_translations' 'origin/lokalise/sync_translations')
-        case $RESULT in
+        git diff --quiet 'lokalise/sync_translations' 'origin/lokalise/sync_translations'
+        case $? in
           0)  echo "Changes not detected"
               echo changes_detected=false >> $GITHUB_OUTPUT ;;
           1)  echo "Changes detected"
