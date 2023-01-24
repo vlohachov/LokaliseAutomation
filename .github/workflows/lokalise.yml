@@ -25,8 +25,8 @@ jobs:
       id: get_modules
       run: |
         arr=(`find . -type d -name res`)
-        echo "${arr[*]}"
-        echo modules=$arr >> $GITHUB_OUTPUT;
+        echo "[${arr[*]// /,}]"
+        echo modules=$(echo "[${arr[*]// /,}]")) >> $GITHUB_OUTPUT;
 
     - name: Print modules
       run: |
