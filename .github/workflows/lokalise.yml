@@ -25,7 +25,7 @@ jobs:
       run: |
         git fetch origin
         git checkout -b 'lokalise/sync_translations' 'origin/lokalise/sync_translations' || git checkout -b 'lokalise/sync_translations'
-        git merge 'main'
+        git merge 'main' --allow-unrelated-histories
 
     - name: Read project name
       id: read_project_name
