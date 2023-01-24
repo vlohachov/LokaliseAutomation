@@ -60,6 +60,10 @@ jobs:
         commit_prefix: "Update "
         commit_message: "Lokalise translations"
 
+    - name: Show changes
+      run: |
+        echo "Files changed\n${{ steps.push_changes.outputs.files_changed }}"
+
     - name: Create PR
       if: ${{ steps.push_changes.outputs.files_changed != '' }}
       uses: devops-infra/action-pull-request@v0.5.3
