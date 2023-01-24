@@ -28,9 +28,9 @@ jobs:
         echo modules=$(echo "${arr[*]}") >> $GITHUB_OUTPUT;
 
     - name: Checkout Lokalise branch
-      uses: actions/checkout@v3.1.0
-      with:
-        ref: lokalise/sync_translations
+      run: |
+        git fetch origin
+        git checkout -b lokalise/sync_translations origin/lokalise/sync_translations || git checkout -b lokalise/sync_translations
 
     - name: Read project name
       id: read_project_name
