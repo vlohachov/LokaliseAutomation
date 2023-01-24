@@ -30,7 +30,7 @@ jobs:
 
     - name: Print modules
       run: |
-        echo "${{ fromJSON(steps.get_modules.outputs.modules) }}"
+        echo "$steps.get_modules.outputs.modules"
         exit 1
 
     - name: Read project name
