@@ -79,7 +79,6 @@ jobs:
         #assignee: octocat
         label: lokalise,translations
         #draft: true
-        get_diff: true
   push-translations:
     if: ${{ always() }}
     needs: pull-translations
