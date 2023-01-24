@@ -68,6 +68,7 @@ jobs:
     - name: Check changes
       id: check_changes
       if: ${{ steps.check_branch_exists.outputs.branch_exists == 'true' }}
+      continue_on_error: true
       run: |
         git fetch
         git diff --quiet 'lokalise/sync_translations' 'origin/lokalise/sync_translations'
