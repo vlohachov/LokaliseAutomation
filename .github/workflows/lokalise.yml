@@ -59,9 +59,9 @@ jobs:
           echo "Add"
           git add "*/values*/strings.xml"
           echo "Stash"
-          git stash
+          git stash 
           echo "Stash drop"
-          git stash dop
+          git stash drop
           echo "Pull"
           git pull --rebase origin lokalise/sync_translations
         fi
