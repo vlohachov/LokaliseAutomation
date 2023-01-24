@@ -70,14 +70,15 @@ jobs:
       if: ${{ steps.check_branch_exists.outputs.branch_exists == 'true' }}
       run: |
         git fetch
-        git diff --name-only 'lokalise/sync_translations' 'origin/lokalise/sync_translations'
-        if [[ `git status --porcelain` ]]; then
-          echo "Changes detected"
-          echo changes_detected=true >> $GITHUB_OUTPUT;
-        else 
-          echo "Changes not detected"
-          echo changes_detected=false >> $GITHUB_OUTPUT;
-        fi
+        RESULT=$(git diff --quiet 'lokalise/sync_translations' 'origin/lokalise/sync_translations')
+        case $RESULT in
+          0)  echo "Changes not detected"
+              echo changes_detected=false >> $GITHUB_OUTPUT ;;
+          1)  echo "Changes detected"
+              echo changes_detected=true >> $GITHUB_OUTPUT ;;
+          128)  echo "Invalid commit id(s)" ;;
+          *)  echo "Unknown error" ;;
+        esac
 
 #    - name: Remove existing branch
 #      if: ${{ steps.check_changes.outputs.changes_detected == 'true' }}
