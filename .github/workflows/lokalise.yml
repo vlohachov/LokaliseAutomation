@@ -87,7 +87,7 @@ jobs:
 
     - name: Push changes
       id: push_changes
-      if: ${{ steps.check_changes.outputs.changes_detected == 'true' || steps.check_branch_exists.outputs.branch_exists == 'false' }}
+      if: ${{ steps.check_changes.outputs.changes_detected == 'true' || steps.check_branch_exists.outputs.branch_exists != 'true' }}
       uses: devops-infra/action-commit-push@v0.9.2
       with:
         github_token: "${{ secrets.GITHUB_TOKEN }}"
