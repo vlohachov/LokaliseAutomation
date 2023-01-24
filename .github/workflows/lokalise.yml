@@ -82,7 +82,6 @@ jobs:
           128)  echo "Invalid commit id(s)" ;;
           *)  echo "Unknown error" ;;
         esac
-        exit 0
 
 #    - name: Remove existing branch
 #      if: ${{ steps.check_changes.outputs.changes_detected == 'true' }}
