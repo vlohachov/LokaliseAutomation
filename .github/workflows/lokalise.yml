@@ -27,11 +27,6 @@ jobs:
         arr=(`find . -type d -name res`)
         echo modules=$(echo "${arr[*]}") >> $GITHUB_OUTPUT;
 
-    - name: Print modules
-      run: |
-        echo "${{ steps.get_modules.outputs.modules }}"
-        exit 1
-
     - name: Checkout Lokalise branch
       uses: actions/checkout@v3.1.0
       with:
@@ -49,7 +44,7 @@ jobs:
       continue-on-error: true
       run: |
         # Get paths to all "res" folders
-        arr=(`find . -type d -name res`)
+        arr=(${{ steps.get_modules.outputs.modules }})
         for counter in ${!arr[*]}; do
           res_path=${arr[counter]}
           # Get module from path, by cutting "/src/..." part out of original path
