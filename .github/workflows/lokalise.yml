@@ -7,33 +7,10 @@ concurrency:
 on:
   #schedule:
     #- cron: '*/15 * * * *'
-  push:
-    branches:
-    - lokalise/sync_translations
   workflow_dispatch:
 
 jobs:
-  update-pr-body:
-    if: ${{ github.even_name == 'push' }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout default
-        uses: actions/checkout@v3.1.0
-
-      - name: Generate PR body
-        run: |
-          gh pr view --json commits
-          json=$(gh pr view --json commits)
-          echo "$json"
-
-#      - name: Update PR body
-#        uses: kt3k/update-pr-description@v1.0.1
-#          with:
-#            pr_body: "**some description**"
-#            github_token: ${{ secrets.GITHUB_TOKEN }}
-
   pull-translations:
-    if: ${{ github.even_name != 'push' }}
     runs-on: ubuntu-latest
     steps:
     - name: Setup Lokalise CLI
