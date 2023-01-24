@@ -93,6 +93,14 @@ jobs:
       - name: Checkout default
         uses: actions/checkout@v3.1.0
 
+      - name: Read project name
+        id: read_project_name
+        run: |
+          raw_project_name=$(./gradlew -q printProjectName)
+          # Convert to lowercase and replace white spaces with '-'
+          processed_project_name=$(echo $raw_project_name | tr " " "-" | tr '[:upper:]' '[:lower:]')
+          echo project_name=$processed_project_name >> $GITHUB_OUTPUT
+
       - name: Push strings to Lokalise
         run: |
           # Get paths to all "strings.xml" files
