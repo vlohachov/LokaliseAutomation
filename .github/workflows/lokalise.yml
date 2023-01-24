@@ -26,7 +26,7 @@ jobs:
       run: |
         arr=(`find . -type d -name res`)
         echo "$arr"
-        echo modules=${{ toJSON($arr) }} >> $GITHUB_OUTPUT;
+        echo modules=${{ toJSON(arr) }} >> $GITHUB_OUTPUT;
 
     - name: Print modules
       run: |
