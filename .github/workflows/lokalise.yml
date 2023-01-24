@@ -79,10 +79,10 @@ jobs:
         source_branch: lokalise/sync_translations
         target_branch: main
         title: "Lokalise: Translations update"
-        body: "This PR contains translations update"
+        body: "This PR contains translations update."
         #reviewer: octocat
         #assignee: octocat
-        label: lokalise,translations
+        label: "lokalise","translations","PLEASE REVIEW"
         #draft: true
 
   push-translations:
