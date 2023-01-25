@@ -55,7 +55,7 @@ jobs:
           echo "Pulling translations tagged \"${tag}\" into \"${module_path}\" module..."
           # Call Lokalise CLI (v2) "file download" command to pull all available translations 
           # (tagged with the tag we generated before) and unzip them to a proper module.
-          lokalise2 --token ${{ secrets.LOKALISE_TOKEN }} --project-id ${{ secrets.LOKALISE_PROJECT_ID }} file download --export-empty-as skip --export-sort first_added --format xml --include-tags $tag --unzip-to "${module_path}/src/main/res" --directory-prefix "values-%LANG_ISO%" --original-filenames false
+          lokalise2 --token ${{ secrets.LOKALISE_TOKEN }} --project-id ${{ secrets.LOKALISE_PROJECT_ID }} file download --export-empty-as skip --export-sort first_added --format xml --include-tags $tag --unzip-to "${module_path}/src/main/res" --directory-prefix "values-%LANG_ISO%" --original-filenames false || true
         done
 
     - name: Generate timestamp
