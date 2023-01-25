@@ -101,12 +101,15 @@ jobs:
           fetch-depth: 0
 
       - name: Checkout Lokalise
+        id: checkout_lokalise
+        continue-on-error: true
         uses: actions/checkout@v3.1.0
         with:
           fetch-depth: 0
           ref: lokalise/sync_translations
 
       - name: Merge
+        if: $ {{ steps.checkout_lokalise.outcome == 'success' }}
         run: |
           git merge main
           git status
