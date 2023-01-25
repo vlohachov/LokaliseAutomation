@@ -111,7 +111,7 @@ jobs:
       - name: Merge
         if: ${{ steps.checkout_lokalise.outcome == 'success' }}
         run: |
-          git merge main
+          git merge origin/main
           git status
           exit 1
 
