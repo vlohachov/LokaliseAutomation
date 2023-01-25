@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<resources>
-  <string name="welcome_header">¡Hola, mundo!</string>
-  <string name="app_name">Automatización Lokalise</string>
-  <string name="test_workflow">Prueba</string>
-  <string name="repository_key">Clave del depósito</string>
-  <string name="conflict_key">Clave del conflicto</string>
-</resources>

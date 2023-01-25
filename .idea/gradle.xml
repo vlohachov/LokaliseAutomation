@@ -15,7 +15,6 @@
             <option value="$PROJECT_DIR$/feature-module" />
             <option value="$PROJECT_DIR$/feature-module/android-lib" />
             <option value="$PROJECT_DIR$/feature-module/kotlin-lib" />
-            <option value="$PROJECT_DIR$/test2library" />
             <option value="$PROJECT_DIR$/testlibrary" />
           </set>
         </option>

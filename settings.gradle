@@ -18,6 +18,5 @@ rootProject.name = "Lokalise Automation"
 
 include ':app'
 include ':testlibrary'
-include ':test2library'
 include ':feature-module:kotlin-lib'
 include ':feature-module:android-lib'

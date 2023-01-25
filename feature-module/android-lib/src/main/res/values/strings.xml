@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="feature_key">Feature key</string>
-    <string name="feature_second_key">Feature second key</string>
 </resources>
