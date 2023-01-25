@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
   <string name="app_name">Автоматизация Lokalise</string>
+  <string name="hello_world">Здравствуй мир!</string>
 </resources>
