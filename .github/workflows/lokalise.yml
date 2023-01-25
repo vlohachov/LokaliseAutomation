@@ -27,7 +27,7 @@ jobs:
         arr=(`find . -type d -name res`)
         echo modules=$(echo "${arr[*]}") >> $GITHUB_OUTPUT;
 
-    - name: Checkout Lokalise branch
+    - name: Checkout Lokalise
       run: |
         git fetch origin
         git checkout -b lokalise/sync_translations origin/lokalise/sync_translations || git checkout -b lokalise/sync_translations
@@ -67,7 +67,7 @@ jobs:
       id: push_changes
       uses: devops-infra/action-commit-push@v0.9.2
       with:
-        github_token: "${{ secrets.GITHUB_TOKEN }}"
+        github_token: ${{ github.token }}
         commit_prefix: "Update "
         commit_message: "Lokalise translations (${{ steps.generate_timestamp.outputs.timestamp }})"
 
@@ -75,7 +75,7 @@ jobs:
       if: ${{ steps.push_changes.outputs.files_changed != '' }}
       uses: devops-infra/action-pull-request@v0.5.3
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ github.token }}
         source_branch: lokalise/sync_translations
         target_branch: main
         title: "Lokalise: Translations update"
@@ -97,6 +97,20 @@ jobs:
 
       - name: Checkout default
         uses: actions/checkout@v3.1.0
+        with:
+          fetch-depth: 0
+
+      - name: Checkout Lokalise
+        uses: actions/checkout@v3.1.0
+        with:
+          fetch-depth: 0
+          ref: lokalise/sync_translations
+
+      - name: Merge
+        run: |
+          git merge main
+          git status
+          exit 1
 
       - name: Read project name
         id: read_project_name
