@@ -109,7 +109,7 @@ jobs:
           ref: lokalise/sync_translations
 
       - name: Merge
-        if: $ {{ steps.checkout_lokalise.outcome == 'success' }}
+        if: ${{ steps.checkout_lokalise.outcome == 'success' }}
         run: |
           git merge main
           git status
