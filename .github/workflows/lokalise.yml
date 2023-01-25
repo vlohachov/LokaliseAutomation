@@ -95,11 +95,6 @@ jobs:
         with:
           lokalise-version: 'latest' # or specify version (ex. '2.6.3')
 
-      - name: Checkout default
-        uses: actions/checkout@v3.1.0
-        with:
-          fetch-depth: 0
-
       - name: Checkout Lokalise
         id: checkout_lokalise
         continue-on-error: true
@@ -113,11 +108,7 @@ jobs:
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          echo "Merge"
           git merge --no-ff origin/main
-          echo "Status"
-          git status
-          exit 1
 
       - name: Read project name
         id: read_project_name
