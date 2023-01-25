@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
   <string name="library_key">Бібліотечний ключ</string>
+  <string name="second_library_key">Другий ключ функції</string>
 </resources>
