@@ -234,8 +234,16 @@ jobs:
             # Extract only 'attr_name' values from 'string' array
             local_keys=$(jq -r '.string[].attr_name' <<< ${local_keys_json} || jq -r '.string.attr_name' <<< ${local_keys_json} )
             # Create array of local keys
-            local_keys=(${local_keys//$'\n'/ })
+            local_keys=( ${local_keys//$'\n'/ } )
             echo "Local keys: ${local_keys[*]}"
+            for counter in ${!remote_keys[*]}; do
+              remote_key=${remote_keys[counter]}
+              if [[ " ${local_keys[*]} " =~ " ${remote_key} " ]]; then
+                echo "Remote key \"${remote_key}\" present among local keys."
+              else 
+                echo "Remote key \"${remote_key}\" not present among local keys."
+              fi
+            done
           done
 
       - name: Map languages
