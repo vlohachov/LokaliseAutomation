@@ -11,7 +11,7 @@ on:
     branches:
       - 'main'
     paths:
-      - '*strings.xml'
+      - '**/*strings.xml'
   workflow_dispatch:
 
 env:
