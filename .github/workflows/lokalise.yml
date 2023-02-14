@@ -166,8 +166,7 @@ jobs:
           label: lokalise,translations,PLEASE REVIEW
 
   push-translations:
-    if: ${{ !cancelled() || github.event_name == 'push' }}
-    needs: pull-translations
+    if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
     steps:
       - name: Setup Lokalise CLI
@@ -234,7 +233,7 @@ jobs:
         run: |
           mapping='${{ steps.map_languages.outputs.language_mapping }}'
           # Get paths to all "strings.xml" files
-          arr=(`find . -type f -name *strings.xml`)
+          arr=(**/values/*strings.xml)
           for counter in ${!arr[*]}; do
             file_path=${arr[counter]}
             echo "{$file_path}"
