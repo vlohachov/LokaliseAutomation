@@ -229,7 +229,8 @@ jobs:
             remote_keys=(${keys//$'\n'/ })
             echo "Remote keys: ${remote_keys}"
             echo "Parsing ${file_path} to get list of local keys..."
-            mapfile -t local_keys < <(xidel -s ${file_path} -e '//string/@name')
+            yq r -j <(./xq ${file_path}) resources.strings | jq
+            #local_keys=$(yq r -j <(./xq ${file_path}) resources.strings | jq)
             echo "Local keys: ${local_keys[*]}"
           done
 
