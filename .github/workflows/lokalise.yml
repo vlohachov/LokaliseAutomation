@@ -230,9 +230,9 @@ jobs:
             remote_keys=(${keys//$'\n'/ })
             echo "Remote keys: ${remote_keys[*]}"
             echo "Parsing ${file_path} to get list of local keys..."
-            yq -p=xml '.' ${file_path} | jq
+            yq -p=xml '.' ${file_path}
             #local_keys=$(yq -p=xml '.' ${file_path} | jq)
-            echo "Local keys: ${local_keys[*]}"
+            #echo "Local keys: ${local_keys[*]}"
           done
 
       - name: Map languages
