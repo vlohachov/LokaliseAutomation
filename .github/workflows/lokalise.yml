@@ -238,10 +238,12 @@ jobs:
             echo "Local keys: ${local_keys[*]}"
             for counter in ${!remote_keys[*]}; do
               remote_key=${remote_keys[counter]}
-              if [[ " ${local_keys[*]} " =~ " ${remote_key} " ]]; then
-                echo "Remote key \"${remote_key}\" present among local keys."
-              else 
+              if ! [[ " ${local_keys[*]} " =~ " ${remote_key} " ]]; then
                 echo "Remote key \"${remote_key}\" not present among local keys."
+                echo "Removing \"${tag}\" for \"${remote_key}\""
+                # Get tags of the key
+                tags=$(jq -r -c -arg key_name ${remote_key} '.keys[] | select(.key_name.android == $key_name) | .tags' <<< ${response_json})
+                echo "Key tags: ${tags}"
               fi
             done
           done
