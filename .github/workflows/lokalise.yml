@@ -25,13 +25,11 @@ jobs:
     steps:
       - name: Print trigger event
         run: |
-          echo "Event ${{ github.event }}"
-          echo "Event schedule ${{ github.event.schedule }}"
-          echo "Event workflow_dispatch ${{ github.event.workflow_dispatch }}"
-          echo "Event push ${{ github.event.push }}"
+          echo "Event_name: ${{ github.event_name }}"
+          echo "Event: ${{ toJSON(github.event) }}"
 
   pull-translations:
-    if: ${{ github.event.schedule || github.event.workflow_dispatch }}
+    if: ${{ github.event_name = 'schedule' || github.event_name = 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     steps:
       - name: Setup Lokalise CLI
@@ -176,7 +174,7 @@ jobs:
           label: lokalise,translations,PLEASE REVIEW
 
   push-translations:
-    if: ${{ !cancelled() || github.event.push }}
+    if: ${{ !cancelled() || github.event_name = 'push' }}
     needs: pull-translations
     runs-on: ubuntu-latest
     steps:
