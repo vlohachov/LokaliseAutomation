@@ -227,9 +227,9 @@ jobs:
             remote_keys=$(jq -r '.keys[].key_name.android' <<< ${response_json})
             # Create array of remote keys
             remote_keys=(${keys//$'\n'/ })
-            echo "Remote keys: ${remote_keys}"
+            echo "Remote keys: ${remote_keys[*]}"
             echo "Parsing ${file_path} to get list of local keys..."
-            yq r -j <(./xq ${file_path}) resources.strings | jq
+            yq r -j <(xq ${file_path}) resources.strings | jq
             #local_keys=$(yq r -j <(./xq ${file_path}) resources.strings | jq)
             echo "Local keys: ${local_keys[*]}"
           done
