@@ -276,7 +276,6 @@ jobs:
           echo language_mapping="${language_mapping}" >> $GITHUB_OUTPUT
 
       - name: Push strings to Lokalise
-        if: false
         run: |
           mapping='${{ steps.map_languages.outputs.language_mapping }}'
           # Get paths to all "*strings.xml" files
