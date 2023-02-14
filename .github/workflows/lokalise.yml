@@ -204,6 +204,7 @@ jobs:
 
       - name: Cleanup removed keys
         run: |
+          shopt -s globstar
           arr=(**/values/*strings.xml)
           for counter in ${!arr[*]}; do
             file_path=${arr[counter]}
