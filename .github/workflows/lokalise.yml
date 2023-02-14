@@ -202,7 +202,7 @@ jobs:
           processed_project_name=$(echo $raw_project_name | tr " " "-" | tr '[:upper:]' '[:lower:]')
           echo project_name=$processed_project_name >> $GITHUB_OUTPUT
 
-      - name: Cleanup removed keys
+      - name: Cleanup tags for unused keys
         run: |
           shopt -s globstar
           arr=(**/values/*strings.xml)
