@@ -244,6 +244,8 @@ jobs:
                 # Get tags of the key
                 tags=$(jq -r -c -arg key_name ${remote_key} '.keys[] | select(.key_name.android == $key_name) | .tags' <<< ${response_json})
                 echo "Key tags: ${tags}"
+              else 
+                echo "Remote key \"${remote_key}\" is present among local keys. Skipping..."
               fi
             done
           done
