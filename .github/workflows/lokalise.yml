@@ -230,10 +230,10 @@ jobs:
             remote_keys=(${keys//$'\n'/ })
             echo "Remote keys: ${remote_keys[*]}"
             echo "Parsing ${file_path} to get list of local keys..."
-            # Parse '*strings.xml' to get list of all name attributes
-            local_keys=$(yq -p=xml --xml-attribute-prefix=attr_ -o=json '.resources' ${file_path})
-            echo "Local keys: ${local_keys}"
-            local_keys=$(jq -r '.string[].attr_name' <<< ${local_keys})
+            # Parse '*strings.xml' to get list of all name attributes as json
+            local_keys_json=$(yq -p=xml --xml-attribute-prefix=attr_ -o=json '.resources' ${file_path})
+            # Convert json with keys into array
+            local_keys=$(jq -r '.string[].attr_name' <<< ${local_keys_json} || jq -r '.string.attr_name' <<< ${local_keys_json} )
             echo "Local keys: ${local_keys}"
           done
 
