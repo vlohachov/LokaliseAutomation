@@ -12,7 +12,7 @@ on:
 env:
   GITHUB_TOKEN: ${{ secrets.CRICUT_GPR_TOKEN }}
   GITHUB_USER: cricut-builduser
-  LOKALISE_TOKEN: ${{ secrets.secrets.LOKALISE_TOKEN }}
+  LOKALISE_TOKEN: ${{ secrets.LOKALISE_TOKEN }}
   LOKALISE_PROJECT_ID: ${{ secrets.LOKALISE_PROJECT_ID }}
   SKIP_MODULES_PATTERN: +(app) # For pattern details visit https://www.linuxjournal.com/content/pattern-matching-bash
 
