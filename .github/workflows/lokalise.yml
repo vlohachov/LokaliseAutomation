@@ -241,12 +241,15 @@ jobs:
               if ! [[ " ${local_keys[*]} " =~ " ${remote_key} " ]]; then
                 echo "Remote key \"${remote_key}\" not present among local keys."
                 echo "Removing \"${tag}\" tag for \"${remote_key}\" key..."
+                # Get remote key id
+                remote_key_id=$(jq -r -c --arg key_name "${remote_key}" '.keys[] | select(.key_name.android == $key_name) | .key_id' <<< ${response_json})
                 # Get tags of the key
-                tags=$(jq -r -c --arg key_name "${remote_key}" '.keys[] | select(.key_name.android == $key_name) | .tags' <<< ${response_json})
-                echo "Key tags: ${tags}"
+                tags_json=$(jq -r -c --arg key_name "${remote_key}" '.keys[] | select(.key_name.android == $key_name) | .tags' <<< ${response_json})
                 # Remove tag
-                tags=$(jq -r -c --arg tag "${tag}" 'map(select(. != $tag))' <<< ${tags})
-                echo "Key tags: ${tags}"
+                tags_json=$(jq -r -c --arg tag "${tag}" 'map(select(. != $tag))' <<< ${tags_json})
+                # Update remote key tags
+                lokalise2 --token ${{ env.LOKALISE_TOKEN }} --project-id ${{ env.LOKALISE_PROJECT_ID }} \
+                key update --key-id ${key_id} --tags ${tags_json}
               else 
                 echo "Remote key \"${remote_key}\" is present among local keys. Skipping..."
               fi
