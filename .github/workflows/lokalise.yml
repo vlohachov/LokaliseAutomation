@@ -7,6 +7,11 @@ concurrency:
 on:
   schedule:
     - cron: '0 0 * * 1,3' # at 00:00 every Mon and Wed
+  push:
+    branches:
+      - 'main'
+    paths:
+      - '*strings.xml'
   workflow_dispatch:
 
 env:
@@ -15,112 +20,8 @@ env:
   SKIP_MODULES_PATTERN: +(app) # For pattern details visit https://www.linuxjournal.com/content/pattern-matching-bash
 
 jobs:
-  push-translations:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Setup Lokalise CLI
-        uses: sudosubin/setup-lokalise-action@v1.0.1
-        with:
-          lokalise-version: 'latest' # or specify version (ex. '2.6.3')
-
-      - name: Checkout Lokalise
-        id: checkout_lokalise
-        continue-on-error: true
-        uses: actions/checkout@v3.1.0
-        with:
-          fetch-depth: 0
-          ref: lokalise/sync_translations
-
-      - name: Merge
-        if: ${{ steps.checkout_lokalise.outcome == 'success' }}
-        run: |
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git merge --no-ff origin/main
-
-      - name: Checkout master
-        if: ${{ steps.checkout_lokalise.outcome == 'failure' }}
-        uses: actions/checkout@v3.1.0
-
-      - name: Read project name
-        if: false
-        id: read_project_name
-        run: |
-          raw_project_name=$(./gradlew -q printProjectName)
-          # Convert to lowercase and replace white spaces with '-'
-          processed_project_name=$(echo $raw_project_name | tr " " "-" | tr '[:upper:]' '[:lower:]')
-          echo project_name=$processed_project_name >> $GITHUB_OUTPUT
-
-      - name: Map languages
-        id: map_languages
-        run: |
-          # Load list of languages supported by Lokalise
-          languages_json=$(lokalise2 --token ${{ env.LOKALISE_TOKEN }} --project-id ${{ env.LOKALISE_PROJECT_ID }} language list)
-          # Extract only 'lang_iso' values form 'languages' array
-          languages_iso=$(jq -r '.languages[].lang_iso' <<< ${languages_json})
-          # Create array of supported languages
-          languages_iso=(${languages_iso//$'\n'/ })
-          # Create language mapping array for next step
-          language_mapping="["
-          for i in "${!languages_iso[@]}"; do
-          original_iso="${languages_iso[$i]}"
-          custom_iso=$(
-          if [[ ${original_iso} == zh* ]]; then
-            echo "${original_iso/_/-r}"
-          elif [[ ${original_iso} = *?[0-9] ]]; then
-            echo "b+${original_iso/_/+}"
-          else 
-            echo "${original_iso%_*}"
-          fi
-          )
-          language_mapping+="{\"original_language_iso\":\"${original_iso}\",\"custom_language_iso\":\"${custom_iso}\"},"
-          done
-          language_mapping="${language_mapping::-1}]"
-          echo language_mapping="${language_mapping}" >> $GITHUB_OUTPUT
-
-      - name: Push strings to Lokalise
-        run: |
-          mapping='${{ steps.map_languages.outputs.language_mapping }}'
-          # Get paths to all "strings.xml" files
-          arr=(`find . -type f -name *strings.xml`)
-          for counter in ${!arr[*]}; do
-            file_path=${arr[counter]}
-            echo "{$file_path}"
-            # Get module from path, by cutting "/src/..." part out of original path
-            module_path=${file_path%%/src/*}
-            # Skip if excluded
-            if [[ ${module_path#./} == ${{ env.SKIP_MODULES_PATTERN }} ]]; then
-              echo "Skipping \"${module_path}\" module..."
-              continue
-            fi
-            # Get path to /values" (/values-Lang_ISO) folder
-            folder_path=$(dirname ${file_path})
-            # Get suffix of /values-Lang_ISO folder (result "-Lang_ISO")
-            folder_suffix=${folder_path##*values}
-            # Convert folder suffix to lang-iso known by Lokalise
-            locale="${folder_suffix:-en}"
-            locale="${locale#-}"
-            # Find proper lang iso supported by Lokalise in mapping array
-            lang_iso=$(jq -r -c --arg locale "$locale" '.[] | select(.custom_language_iso == $locale) | .original_language_iso' <<< ${mapping})
-            # Skip unknown lang iso
-            if [[ ${lang_iso} == "" ]]; then
-              continue
-            fi
-            # Replace "." in module path with project name to generate tag that consists of
-            # project name and module path
-            tag=${module_path/./${{ steps.read_project_name.outputs.project_name }}}
-            echo "Pushing \"${lang_iso}\" strings from \"${module_path}\" module with \"${tag}\" tag..."
-            # Call Lokalise CLI (v2) "file upload" command to upload 'strings.xml' file.
-            # Each string key is tagged with the tag we generated, so later on (while pulling)
-            # script understands where pulled translations should be unzipped to
-            lokalise2 --token ${{ env.LOKALISE_TOKEN }} --project-id ${{ env.LOKALISE_PROJECT_ID }} \
-            file upload --file $file_path --detect-icu-plurals --lang-iso ${lang_iso} \
-            --tag-skipped-keys --tags $tag 
-          done
-
   pull-translations:
-    if: ${{ always() }}
-    needs: push-translations
+    if: ${{ github.event.schedule || github.event.workflow_dispatch }}
     runs-on: ubuntu-latest
     steps:
       - name: Setup Lokalise CLI
@@ -264,6 +165,110 @@ jobs:
           body: "This PR contains translations update."
           label: lokalise,translations,PLEASE REVIEW
 
+  push-translations:
+    if: ${{ !canceled() || github.event.push }}
+    needs: pull-translations
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Lokalise CLI
+        uses: sudosubin/setup-lokalise-action@v1.0.1
+        with:
+          lokalise-version: 'latest' # or specify version (ex. '2.6.3')
+
+      - name: Checkout Lokalise
+        id: checkout_lokalise
+        continue-on-error: true
+        uses: actions/checkout@v3.1.0
+        with:
+          fetch-depth: 0
+          ref: lokalise/sync_translations
+
+      - name: Merge
+        if: ${{ steps.checkout_lokalise.outcome == 'success' }}
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git merge --no-ff origin/main
+
+      - name: Checkout master
+        if: ${{ steps.checkout_lokalise.outcome == 'failure' }}
+        uses: actions/checkout@v3.1.0
+
+      - name: Read project name
+        if: false
+        id: read_project_name
+        run: |
+          raw_project_name=$(./gradlew -q printProjectName)
+          # Convert to lowercase and replace white spaces with '-'
+          processed_project_name=$(echo $raw_project_name | tr " " "-" | tr '[:upper:]' '[:lower:]')
+          echo project_name=$processed_project_name >> $GITHUB_OUTPUT
+
+      - name: Map languages
+        id: map_languages
+        run: |
+          # Load list of languages supported by Lokalise
+          languages_json=$(lokalise2 --token ${{ env.LOKALISE_TOKEN }} --project-id ${{ env.LOKALISE_PROJECT_ID }} language list)
+          # Extract only 'lang_iso' values form 'languages' array
+          languages_iso=$(jq -r '.languages[].lang_iso' <<< ${languages_json})
+          # Create array of supported languages
+          languages_iso=(${languages_iso//$'\n'/ })
+          # Create language mapping array for next step
+          language_mapping="["
+          for i in "${!languages_iso[@]}"; do
+          original_iso="${languages_iso[$i]}"
+          custom_iso=$(
+          if [[ ${original_iso} == zh* ]]; then
+            echo "${original_iso/_/-r}"
+          elif [[ ${original_iso} = *?[0-9] ]]; then
+            echo "b+${original_iso/_/+}"
+          else 
+            echo "${original_iso%_*}"
+          fi
+          )
+          language_mapping+="{\"original_language_iso\":\"${original_iso}\",\"custom_language_iso\":\"${custom_iso}\"},"
+          done
+          language_mapping="${language_mapping::-1}]"
+          echo language_mapping="${language_mapping}" >> $GITHUB_OUTPUT
+
+      - name: Push strings to Lokalise
+        run: |
+          mapping='${{ steps.map_languages.outputs.language_mapping }}'
+          # Get paths to all "strings.xml" files
+          arr=(`find . -type f -name *strings.xml`)
+          for counter in ${!arr[*]}; do
+            file_path=${arr[counter]}
+            echo "{$file_path}"
+            # Get module from path, by cutting "/src/..." part out of original path
+            module_path=${file_path%%/src/*}
+            # Skip if excluded
+            if [[ ${module_path#./} == ${{ env.SKIP_MODULES_PATTERN }} ]]; then
+              echo "Skipping \"${module_path}\" module..."
+              continue
+            fi
+            # Get path to /values" (/values-Lang_ISO) folder
+            folder_path=$(dirname ${file_path})
+            # Get suffix of /values-Lang_ISO folder (result "-Lang_ISO")
+            folder_suffix=${folder_path##*values}
+            # Convert folder suffix to lang-iso known by Lokalise
+            locale="${folder_suffix:-en}"
+            locale="${locale#-}"
+            # Find proper lang iso supported by Lokalise in mapping array
+            lang_iso=$(jq -r -c --arg locale "$locale" '.[] | select(.custom_language_iso == $locale) | .original_language_iso' <<< ${mapping})
+            # Skip unknown lang iso
+            if [[ ${lang_iso} == "" ]]; then
+              continue
+            fi
+            # Replace "." in module path with project name to generate tag that consists of
+            # project name and module path
+            tag=${module_path/./${{ steps.read_project_name.outputs.project_name }}}
+            echo "Pushing \"${lang_iso}\" strings from \"${module_path}\" module with \"${tag}\" tag..."
+            # Call Lokalise CLI (v2) "file upload" command to upload 'strings.xml' file.
+            # Each string key is tagged with the tag we generated, so later on (while pulling)
+            # script understands where pulled translations should be unzipped to
+            lokalise2 --token ${{ env.LOKALISE_TOKEN }} --project-id ${{ env.LOKALISE_PROJECT_ID }} \
+            file upload --file $file_path --detect-icu-plurals --lang-iso ${lang_iso} \
+            --tag-skipped-keys --tags $tag 
+          done
 #name: Sync strings with Lokalise
 #
 #concurrency:
