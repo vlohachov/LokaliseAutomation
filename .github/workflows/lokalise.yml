@@ -266,7 +266,7 @@ jobs:
             # script understands where pulled translations should be unzipped to
             lokalise2 --token ${{ env.LOKALISE_TOKEN }} --project-id ${{ env.LOKALISE_PROJECT_ID }} \
             file upload --file $file_path --detect-icu-plurals --lang-iso ${lang_iso} \
-            --tag-skipped-keys --tags $tag --cleanup-mode
+            --tag-skipped-keys --tags $tag --replace-modified
           done
 #name: Sync strings with Lokalise
 #
