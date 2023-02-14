@@ -58,9 +58,9 @@ jobs:
         id: map_languages
         run: |
           # Load list of languages supported by Lokalise
-          languages_json=$(lokalise2 --token ${{ env.LOKALISE_TOKEN }} --project-id ${{ env.LOKALISE_PROJECT_ID }} language list)
+          response_json=$(lokalise2 --token ${{ env.LOKALISE_TOKEN }} --project-id ${{ env.LOKALISE_PROJECT_ID }} language list)
           # Extract only 'lang_iso' values form 'languages' array
-          languages_iso=$(jq -r '.languages[].lang_iso' <<< ${languages_json})
+          languages_iso=$(jq -r '.languages[].lang_iso' <<< ${response_json})
           # Create array of supported languages
           languages_iso=(${languages_iso//$'\n'/ })
           # Create language mapping array for next step
@@ -202,13 +202,38 @@ jobs:
           processed_project_name=$(echo $raw_project_name | tr " " "-" | tr '[:upper:]' '[:lower:]')
           echo project_name=$processed_project_name >> $GITHUB_OUTPUT
 
+      - name: Cleanup removed keys
+        run: |
+          arr=(*/values/*strings.xml)
+          for counter in ${!arr[*]}; do
+            file_path=${arr[counter]}
+            echo "{$file_path}"
+            # Get module from path, by cutting "/src/..." part out of original path
+            module_path=${file_path%%/src/*}
+            # Skip if excluded
+            if [[ ${module_path#./} == ${{ env.SKIP_MODULES_PATTERN }} ]]; then
+              echo "Skipping \"${module_path}\" module..."
+              continue
+            fi
+            # Replace "." in module path with project name to generate tag that consists of
+            # project name and module path
+            tag=${module_path/./${{ steps.read_project_name.outputs.project_name }}}
+            echo "Cleanup strings from \"${module_path}\" module with \"${tag}\" tag..."
+            echo "Loading keys tagged with \"${tag}\""
+            response_json=$(lokalise2 --token ${{ env.LOKALISE_TOKEN }} --project-id ${{ env.LOKALISE_PROJECT_ID }} \
+            key list --filter-platforms android --filter-tags ${tag})
+            echo "Response: ${response_json}"
+            keys=$(jq -r '.keys[].key_name.android' <<< ${response_json})
+            echo "Keys: ${keys}"
+          done
+
       - name: Map languages
         id: map_languages
         run: |
           # Load list of languages supported by Lokalise
-          languages_json=$(lokalise2 --token ${{ env.LOKALISE_TOKEN }} --project-id ${{ env.LOKALISE_PROJECT_ID }} language list)
+          response_json=$(lokalise2 --token ${{ env.LOKALISE_TOKEN }} --project-id ${{ env.LOKALISE_PROJECT_ID }} language list)
           # Extract only 'lang_iso' values form 'languages' array
-          languages_iso=$(jq -r '.languages[].lang_iso' <<< ${languages_json})
+          languages_iso=$(jq -r '.languages[].lang_iso' <<< ${response_json})
           # Create array of supported languages
           languages_iso=(${languages_iso//$'\n'/ })
           # Create language mapping array for next step
@@ -232,7 +257,7 @@ jobs:
       - name: Push strings to Lokalise
         run: |
           mapping='${{ steps.map_languages.outputs.language_mapping }}'
-          # Get paths to all "strings.xml" files
+          # Get paths to all "*strings.xml" files
           arr=(`find . -type f -name *strings.xml`)
           for counter in ${!arr[*]}; do
             file_path=${arr[counter]}
@@ -266,152 +291,5 @@ jobs:
             # script understands where pulled translations should be unzipped to
             lokalise2 --token ${{ env.LOKALISE_TOKEN }} --project-id ${{ env.LOKALISE_PROJECT_ID }} \
             file upload --file $file_path --detect-icu-plurals --lang-iso ${lang_iso} \
-            --tag-skipped-keys --tags $tag --replace-modified
+            --tag-skipped-keys --tags $tag
           done
-#name: Sync strings with Lokalise
-#
-#concurrency:
-#  group: ${{ github.workflow }}-${{ github.ref }}
-#  cancel-in-progress: true
-#
-#on:
-#  #schedule:
-#    #- cron: '*/15 * * * *'
-#  workflow_dispatch:
-#
-#jobs:
-#  pull-translations:
-#    runs-on: ubuntu-latest
-#    steps:
-#    - name: Setup Lokalise CLI
-#      uses: sudosubin/setup-lokalise-action@v1.0.1
-#      with:
-#        lokalise-version: 'latest' # or specify version (ex. '2.6.3')
-#
-#    - name: Checkout main
-#      uses: actions/checkout@v3.1.0
-#
-#    - name: Get modules with "res" folder
-#      id: get_modules
-#      run: |
-#        arr=(`find . -type d -name res`)
-#        echo modules=$(echo "${arr[*]}") >> $GITHUB_OUTPUT;
-#
-#    - name: Checkout Lokalise
-#      run: |
-#        git fetch origin
-#        git checkout -b lokalise/sync_translations origin/lokalise/sync_translations || git checkout -b lokalise/sync_translations
-#
-#    - name: Read project name
-#      id: read_project_name
-#      run: |
-#        raw_project_name=$(./gradlew -q printProjectName)
-#        # Convert to lowercase and replace white spaces with '-'
-#        processed_project_name=$(echo $raw_project_name | tr " " "-" | tr '[:upper:]' '[:lower:]')
-#        echo project_name=$processed_project_name >> $GITHUB_OUTPUT
-#
-#    - name: Pull strings from Lokalise
-#      continue-on-error: true
-#      run: |
-#        # Get paths to all "res" folders
-#        arr=(${{ steps.get_modules.outputs.modules }})
-#        for counter in ${!arr[*]}; do
-#          res_path=${arr[counter]}
-#          # Get module from path, by cutting "/src/..." part out of original path
-#          module_path=${res_path%%/src/*}
-#          # Replace "." in module path with project name to generate tag that consists of
-#          # project name and module path
-#          tag=${module_path/./${{ steps.read_project_name.outputs.project_name }}}
-#          echo "Pulling translations tagged \"${tag}\" into \"${module_path}\" module..."
-#          # Call Lokalise CLI (v2) "file download" command to pull all available translations
-#          # (tagged with the tag we generated before) and unzip them to a proper module.
-#          lokalise2 --token ${{ secrets.LOKALISE_TOKEN }} --project-id ${{ secrets.LOKALISE_PROJECT_ID }} file download --export-empty-as skip --export-sort first_added --format xml --include-tags $tag --unzip-to "${module_path}/src/main/res" --directory-prefix "values-%LANG_ISO%" --original-filenames false || true
-#        done
-#
-#    - name: Generate timestamp
-#      id: generate_timestamp
-#      run: |
-#        echo timestamp=$(date +'%Y-%m-%dT%H:%M:%S') >> $GITHUB_OUTPUT;
-#
-#    - name: Push changes
-#      id: push_changes
-#      uses: devops-infra/action-commit-push@v0.9.2
-#      with:
-#        github_token: ${{ github.token }}
-#        commit_prefix: "Update "
-#        commit_message: "Lokalise translations (${{ steps.generate_timestamp.outputs.timestamp }})"
-#
-#    - name: Create PR
-#      if: ${{ steps.push_changes.outputs.files_changed != '' }}
-#      uses: devops-infra/action-pull-request@v0.5.3
-#      with:
-#        github_token: ${{ github.token }}
-#        source_branch: lokalise/sync_translations
-#        target_branch: main
-#        title: "Lokalise: Translations update"
-#        body: "This PR contains translations update."
-#        #reviewer: octocat
-#        #assignee: octocat
-#        label: lokalise,translations,PLEASE REVIEW
-#        #draft: true
-#
-#  push-translations:
-#    if: ${{ always() }}
-#    needs: pull-translations
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Setup Lokalise CLI
-#        uses: sudosubin/setup-lokalise-action@v1.0.1
-#        with:
-#          lokalise-version: 'latest' # or specify version (ex. '2.6.3')
-#
-#      - name: Checkout Lokalise
-#        id: checkout_lokalise
-#        continue-on-error: true
-#        uses: actions/checkout@v3.1.0
-#        with:
-#          fetch-depth: 0
-#          ref: lokalise/sync_translations
-#
-#      - name: Merge
-#        if: ${{ steps.checkout_lokalise.outcome == 'success' }}
-#        run: |
-#          git config user.name github-actions[bot]
-#          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-#          git merge --no-ff origin/main
-#
-#      - name: Checkout main
-#        if: ${{ steps.checkout_lokalise.outcome == 'failure' }}
-#        uses: actions/checkout@v3.1.0
-#
-#      - name: Read project name
-#        id: read_project_name
-#        run: |
-#          raw_project_name=$(./gradlew -q printProjectName)
-#          # Convert to lowercase and replace white spaces with '-'
-#          processed_project_name=$(echo $raw_project_name | tr " " "-" | tr '[:upper:]' '[:lower:]')
-#          echo project_name=$processed_project_name >> $GITHUB_OUTPUT
-#
-#      - name: Push strings to Lokalise
-#        run: |
-#          # Get paths to all "strings.xml" files
-#          arr=(`find . -type f -name strings.xml`)
-#          for counter in ${!arr[*]}; do
-#            file_path=${arr[counter]}
-#            # Get module from path, by cutting "/src/..." part out of original path
-#            module_path=${file_path%%/src/*}
-#            # Get path to /values" (/values-Lang_ISO) folder
-#            folder_path=$(dirname ${file_path})
-#            # Get suffix of /values-Lang_ISO folder (result "-Lang_ISO")
-#            folder_suffix=${folder_path##*values}
-#            # Remove '-' from suffix
-#            lang_iso=${folder_suffix#-}
-#            # Replace "." in module path with project name to generate tag that consists of
-#            # project name and module path
-#            tag=${module_path/./${{ steps.read_project_name.outputs.project_name }}}
-#            echo "Pushing \"${lang_iso:-en}\" strings from \"${module_path}\" module with \"${tag}\" tag..."
-#            # Call Lokalise CLI (v2) "file upload" command to upload 'strings.xml' file.
-#            # Each string key is tagged with the tag we generated, so later on (while pulling)
-#            # script understands where pulled translations should be unzipped to
-#            lokalise2 --token ${{ secrets.LOKALISE_TOKEN }} --project-id ${{ secrets.LOKALISE_PROJECT_ID }} file upload --file $file_path --lang-iso ${lang_iso:-en} --tag-skipped-keys --tags $tag
-#          done
