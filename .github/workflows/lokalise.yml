@@ -166,7 +166,7 @@ jobs:
           label: lokalise,translations,PLEASE REVIEW
 
   push-translations:
-    if: ${{ !canceled() || github.event.push }}
+    if: ${{ !cancelled() || github.event.push }}
     needs: pull-translations
     runs-on: ubuntu-latest
     steps:
