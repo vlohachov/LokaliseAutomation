@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
   <string name="library_key">Library key</string>
+  <string name="new_library_key">New library key</string>
 </resources>
