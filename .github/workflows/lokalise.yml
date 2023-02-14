@@ -59,7 +59,7 @@ jobs:
         run: |
           # Load list of languages supported by Lokalise
           response_json=$(lokalise2 --token ${{ env.LOKALISE_TOKEN }} --project-id ${{ env.LOKALISE_PROJECT_ID }} language list)
-          # Extract only 'lang_iso' values form 'languages' array
+          # Extract only 'lang_iso' values from 'languages' array
           languages_iso=$(jq -r '.languages[].lang_iso' <<< ${response_json})
           # Create array of supported languages
           languages_iso=(${languages_iso//$'\n'/ })
@@ -223,9 +223,14 @@ jobs:
             echo "Loading keys tagged with \"${tag}\""
             response_json=$(lokalise2 --token ${{ env.LOKALISE_TOKEN }} --project-id ${{ env.LOKALISE_PROJECT_ID }} \
             key list --filter-platforms android --filter-tags ${tag})
-            echo "Response: ${response_json}"
-            keys=$(jq -r '.keys[].key_name.android' <<< ${response_json})
-            echo "Keys: ${keys}"
+            # Extract only 'key_name.android' values from 'keys' array
+            remote_keys=$(jq -r '.keys[].key_name.android' <<< ${response_json})
+            # Create array of remote keys
+            remote_keys=(${keys//$'\n'/ })
+            echo "Remote keys: ${remote_keys}"
+            echo "Parsing ${file_path} to get list of local keys..."
+            mapfile -t local_keys < <(xidel -s ${file_path} -e '//string/@name')
+            echo "Local keys: ${local_keys[*]}"
           done
 
       - name: Map languages
@@ -233,7 +238,7 @@ jobs:
         run: |
           # Load list of languages supported by Lokalise
           response_json=$(lokalise2 --token ${{ env.LOKALISE_TOKEN }} --project-id ${{ env.LOKALISE_PROJECT_ID }} language list)
-          # Extract only 'lang_iso' values form 'languages' array
+          # Extract only 'lang_iso' values from 'languages' array
           languages_iso=$(jq -r '.languages[].lang_iso' <<< ${response_json})
           # Create array of supported languages
           languages_iso=(${languages_iso//$'\n'/ })
