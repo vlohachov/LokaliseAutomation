@@ -225,16 +225,17 @@ jobs:
             key list --filter-platforms android --filter-tags ${tag})
             # Extract only 'key_name.android' values from 'keys' array
             remote_keys=$(jq -r '.keys[].key_name.android' <<< ${response_json})
-            echo "Remote keys: ${remote_keys}"
             # Create array of remote keys
-            remote_keys=(${keys//$'\n'/ })
+            remote_keys=(${remote_keys//$'\n'/ })
             echo "Remote keys: ${remote_keys[*]}"
             echo "Parsing ${file_path} to get list of local keys..."
             # Parse '*strings.xml' to get list of all name attributes as json
             local_keys_json=$(yq -p=xml --xml-attribute-prefix=attr_ -o=json '.resources' ${file_path})
-            # Convert json with keys into array
+            # Extract only 'attr_name' values from 'string' array
             local_keys=$(jq -r '.string[].attr_name' <<< ${local_keys_json} || jq -r '.string.attr_name' <<< ${local_keys_json} )
-            echo "Local keys: ${local_keys}"
+            # Create array of local keys
+            local_keys=(${local_keys//$'\n'/ })
+            echo "Local keys: ${local_keys[*]}"
           done
 
       - name: Map languages
