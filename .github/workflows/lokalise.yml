@@ -207,8 +207,8 @@ jobs:
           shopt -s globstar
           arr=(**/values/*strings.xml)
           for counter in ${!arr[*]}; do
-            file_path=${arr[counter]}
-            echo "{$file_path}"
+            file_path="./${arr[counter]}"
+            echo "${file_path}"
             # Get module from path, by cutting "/src/..." part out of original path
             module_path=${file_path%%/src/*}
             # Skip if excluded
@@ -262,7 +262,7 @@ jobs:
           arr=(`find . -type f -name *strings.xml`)
           for counter in ${!arr[*]}; do
             file_path=${arr[counter]}
-            echo "{$file_path}"
+            echo "${file_path}"
             # Get module from path, by cutting "/src/..." part out of original path
             module_path=${file_path%%/src/*}
             # Skip if excluded
