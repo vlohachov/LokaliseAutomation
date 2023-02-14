@@ -204,7 +204,7 @@ jobs:
 
       - name: Cleanup removed keys
         run: |
-          arr=(*/values/*strings.xml)
+          arr=(**/values/*strings.xml)
           for counter in ${!arr[*]}; do
             file_path=${arr[counter]}
             echo "{$file_path}"
