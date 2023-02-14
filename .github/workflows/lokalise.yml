@@ -9,9 +9,9 @@ on:
     - cron: '0 0 * * 1,3' # at 00:00 every Mon and Wed
   push:
     branches:
-      - 'main'
+      - 'main' # on 'push' into 'main'/'master' branch
     paths:
-      - '**/*strings.xml'
+      - '**/*strings.xml' # if 'push' contains changes to '*strings.xml' files
   workflow_dispatch:
 
 env:
@@ -20,14 +20,6 @@ env:
   SKIP_MODULES_PATTERN: +(app) # For pattern details visit https://www.linuxjournal.com/content/pattern-matching-bash
 
 jobs:
-  print-event:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Print trigger event
-        run: |
-          echo "Event_name: ${{ github.event_name }}"
-          echo "Event: ${{ toJSON(github.event) }}"
-
   pull-translations:
     if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
