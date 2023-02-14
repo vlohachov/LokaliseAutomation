@@ -20,6 +20,16 @@ env:
   SKIP_MODULES_PATTERN: +(app) # For pattern details visit https://www.linuxjournal.com/content/pattern-matching-bash
 
 jobs:
+  print-event:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print trigger event
+        run: |
+          echo "Event ${{ github.event }}"
+          echo "Event schedule ${{ github.event.schedule }}"
+          echo "Event workflow_dispatch ${{ github.event.workflow_dispatch }}"
+          echo "Event push ${{ github.event.push }}"
+
   pull-translations:
     if: ${{ github.event.schedule || github.event.workflow_dispatch }}
     runs-on: ubuntu-latest
