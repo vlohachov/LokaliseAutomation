@@ -230,7 +230,8 @@ jobs:
             remote_keys=(${keys//$'\n'/ })
             echo "Remote keys: ${remote_keys[*]}"
             echo "Parsing ${file_path} to get list of local keys..."
-            yq -p=xml '.resources.string[].name' ${file_path}
+            # Parse '*strings.xml' to get list of all name attributes
+            yq -p=xml -j '.resources.string[]' ${file_path}
             #local_keys=$(yq -p=xml '.' ${file_path} | jq)
             #echo "Local keys: ${local_keys[*]}"
           done
