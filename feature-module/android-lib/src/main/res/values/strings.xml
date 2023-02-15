@@ -5,4 +5,8 @@
     <item quantity="one">One</item>
     <item quantity="two">Two</item>
   </plurals>
+  <plurals name="feature_second_plurals_key">
+    <item quantity="few">Few</item>
+    <item quantity="many">Many</item>
+  </plurals>
 </resources>

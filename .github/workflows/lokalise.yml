@@ -290,7 +290,7 @@ jobs:
             # project name and module path
             tag=${module_path/./${{ steps.read_project_name.outputs.project_name }}}
             echo "Cleanup strings from \"${module_path}\" module with \"${tag}\" tag..."
-            echo "Loading keys tagged with \"${tag}\""
+            echo "Loading remote keys tagged with \"${tag}\""
             response_json=$(lokalise2 --token ${{ env.LOKALISE_TOKEN }} --project-id ${{ env.LOKALISE_PROJECT_ID }} \
             key list --filter-platforms android --filter-tags ${tag} --filter-filenames ${file_name})
             # Extract only 'key_name.android' values from 'keys' array
@@ -301,14 +301,14 @@ jobs:
             echo "Parsing ${file_path} to get list of local keys..."
             # Parse '*strings.xml' to get list of all name attributes as json
             local_keys_json=$(yq -p=xml --xml-attribute-prefix=attr_ -o=json '.resources' ${file_path})
-            echo "${local_keys_json}"
             # Extract only 'attr_name' values from 'string' array
             local_string_keys=$(jq -r '.string[].attr_name' <<< ${local_keys_json} || jq -r '.string.attr_name' <<< ${local_keys_json} )
             local_plurals_keys=$(jq -r '.plurals[].attr_name' <<< ${local_keys_json} || jq -r '.plurals.attr_name' <<< ${local_keys_json} )
             # Create array of local keys
             local_keys=( ${local_string_keys//$'\n'/ } ${local_plurals_keys//$'\n'/ } )
             echo "Local keys: ${local_keys[*]}"
-            keys_removed=0
+            # Declare int to count removed/untagged keys
+            declare -i keys_removed=0
             for counter in ${!remote_keys[*]}; do
               remote_key=${remote_keys[counter]}
               if ! [[ " ${local_keys[*]} " =~ " ${remote_key} " ]]; then
@@ -322,7 +322,8 @@ jobs:
                 # Update remote key tags
                 lokalise2 --token ${{ env.LOKALISE_TOKEN }} --project-id ${{ env.LOKALISE_PROJECT_ID }} \
                 key update --key-id ${remote_key_id} --tags "${edited_tags}" &> /dev/null
-                ((keys_removed++))
+                # Increment counter
+                keys_removed=+$?
               fi
             done
             echo "${keys_removed} were removed (untagged)."
