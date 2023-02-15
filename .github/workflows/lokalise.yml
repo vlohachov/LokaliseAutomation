@@ -308,10 +308,10 @@ jobs:
             # Create array of local keys
             local_keys=( ${local_string_keys//$'\n'/ } ${local_plurals_keys//$'\n'/ } )
             echo "Local keys: ${local_keys[*]}"
+            keys_removed=0
             for counter in ${!remote_keys[*]}; do
               remote_key=${remote_keys[counter]}
               if ! [[ " ${local_keys[*]} " =~ " ${remote_key} " ]]; then
-                echo "Remote key \"${remote_key}\" not present among local keys."
                 echo "Removing \"${tag}\" tag for \"${remote_key}\" key..."
                 # Get remote key id
                 remote_key_id=$(jq -r -c --arg key_name "${remote_key}" '.keys[] | select(.key_name.android == $key_name) | .key_id' <<< ${response_json})
@@ -322,8 +322,8 @@ jobs:
                 # Update remote key tags
                 lokalise2 --token ${{ env.LOKALISE_TOKEN }} --project-id ${{ env.LOKALISE_PROJECT_ID }} \
                 key update --key-id ${remote_key_id} --tags "${edited_tags}" &> /dev/null
-              else 
-                echo "Remote key \"${remote_key}\" is present among local keys. Skipping..."
+                ((keys_removed++))
               fi
             done
+            echo "${keys_removed} were removed (untagged)."
           done
