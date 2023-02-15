@@ -303,9 +303,10 @@ jobs:
             local_keys_json=$(yq -p=xml --xml-attribute-prefix=attr_ -o=json '.resources' ${file_path})
             echo "${local_keys_json}"
             # Extract only 'attr_name' values from 'string' array
-            local_keys=$(jq -r '.string[].attr_name' <<< ${local_keys_json} || jq -r '.string.attr_name' <<< ${local_keys_json} )
+            local_string_keys=$(jq -r '.string[].attr_name' <<< ${local_keys_json} || jq -r '.string.attr_name' <<< ${local_keys_json} )
+            local_plurals_keys=$(jq -r '.plurals[].attr_name' <<< ${local_keys_json} || jq -r '.plurals.attr_name' <<< ${local_keys_json} )
             # Create array of local keys
-            local_keys=( ${local_keys//$'\n'/ } )
+            local_keys=( ${local_string_keys//$'\n'/ } ${local_plurals_keys//$'\n'/  )
             echo "Local keys: ${local_keys[*]}"
             for counter in ${!remote_keys[*]}; do
               remote_key=${remote_keys[counter]}
