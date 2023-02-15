@@ -15,6 +15,8 @@ on:
   workflow_dispatch:
 
 env:
+  GITHUB_TOKEN: ${{ secrets.CRICUT_GPR_TOKEN }}
+  GITHUB_USER: cricut-builduser
   LOKALISE_TOKEN: ${{ secrets.LOKALISE_TOKEN }}
   LOKALISE_PROJECT_ID: ${{ secrets.LOKALISE_PROJECT_ID }}
   SKIP_MODULES_PATTERN: +(app) # For pattern details visit https://www.linuxjournal.com/content/pattern-matching-bash
@@ -29,7 +31,7 @@ jobs:
         with:
           lokalise-version: 'latest' # or specify version (ex. '2.6.3')
 
-      - name: Checkout master
+      - name: Checkout main
         uses: actions/checkout@v3.1.0
 
       - name: Get modules with "res" folder
@@ -45,7 +47,6 @@ jobs:
           git checkout -b lokalise/sync_translations origin/lokalise/sync_translations || git checkout -b lokalise/sync_translations
 
       - name: Read project name
-        if: false
         id: read_project_name
         run: |
           raw_project_name=$(./gradlew -q printProjectName)
@@ -58,9 +59,9 @@ jobs:
         id: map_languages
         run: |
           # Load list of languages supported by Lokalise
-          response_json=$(lokalise2 --token ${{ env.LOKALISE_TOKEN }} --project-id ${{ env.LOKALISE_PROJECT_ID }} language list)
-          # Extract only 'lang_iso' values from 'languages' array
-          languages_iso=$(jq -r '.languages[].lang_iso' <<< ${response_json})
+          languages_json=$(lokalise2 --token ${{ env.LOKALISE_TOKEN }} --project-id ${{ env.LOKALISE_PROJECT_ID }} language list)
+          # Extract only 'lang_iso' values form 'languages' array
+          languages_iso=$(jq -r '.languages[].lang_iso' <<< ${languages_json})
           # Create array of supported languages
           languages_iso=(${languages_iso//$'\n'/ })
           # Create language mapping array for next step
@@ -189,12 +190,11 @@ jobs:
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git merge --no-ff origin/main
 
-      - name: Checkout master
+      - name: Checkout main
         if: ${{ steps.checkout_lokalise.outcome == 'failure' }}
         uses: actions/checkout@v3.1.0
 
       - name: Read project name
-        if: false
         id: read_project_name
         run: |
           raw_project_name=$(./gradlew -q printProjectName)
@@ -206,9 +206,9 @@ jobs:
         id: map_languages
         run: |
           # Load list of languages supported by Lokalise
-          response_json=$(lokalise2 --token ${{ env.LOKALISE_TOKEN }} --project-id ${{ env.LOKALISE_PROJECT_ID }} language list)
-          # Extract only 'lang_iso' values from 'languages' array
-          languages_iso=$(jq -r '.languages[].lang_iso' <<< ${response_json})
+          languages_json=$(lokalise2 --token ${{ env.LOKALISE_TOKEN }} --project-id ${{ env.LOKALISE_PROJECT_ID }} language list)
+          # Extract only 'lang_iso' values form 'languages' array
+          languages_iso=$(jq -r '.languages[].lang_iso' <<< ${languages_json})
           # Create array of supported languages
           languages_iso=(${languages_iso//$'\n'/ })
           # Create language mapping array for next step
@@ -232,11 +232,11 @@ jobs:
       - name: Push strings to Lokalise
         run: |
           mapping='${{ steps.map_languages.outputs.language_mapping }}'
-          # Get paths to all "*strings.xml" files
+          # Get paths to all "strings.xml" files
           arr=(`find . -type f -name *strings.xml`)
           for counter in ${!arr[*]}; do
             file_path=${arr[counter]}
-            echo "${file_path}"
+            echo "Process ${file_path} file..."
             # Get module from path, by cutting "/src/..." part out of original path
             module_path=${file_path%%/src/*}
             # Skip if excluded
@@ -266,7 +266,7 @@ jobs:
             # script understands where pulled translations should be unzipped to
             lokalise2 --token ${{ env.LOKALISE_TOKEN }} --project-id ${{ env.LOKALISE_PROJECT_ID }} \
             file upload --file $file_path --detect-icu-plurals --lang-iso ${lang_iso} \
-            --tag-skipped-keys --tags $tag
+            --tag-skipped-keys --tags $tag 
           done
 
       - name: Cleanup tags for unused keys
@@ -275,7 +275,8 @@ jobs:
           arr=(**/values/*strings.xml)
           for counter in ${!arr[*]}; do
             file_path="./${arr[counter]}"
-            echo "${file_path}"
+            file_name=${file_path##*/}
+            echo "Process ${file_path} file..."
             # Get module from path, by cutting "/src/..." part out of original path
             module_path=${file_path%%/src/*}
             # Skip if excluded
@@ -289,7 +290,7 @@ jobs:
             echo "Cleanup strings from \"${module_path}\" module with \"${tag}\" tag..."
             echo "Loading keys tagged with \"${tag}\""
             response_json=$(lokalise2 --token ${{ env.LOKALISE_TOKEN }} --project-id ${{ env.LOKALISE_PROJECT_ID }} \
-            key list --filter-platforms android --filter-tags ${tag})
+            key list --filter-platforms android --filter-tags ${tag} --filter-filenames ${file_name})
             # Extract only 'key_name.android' values from 'keys' array
             remote_keys=$(jq -r '.keys[].key_name.android' <<< ${response_json})
             # Create array of remote keys
@@ -298,6 +299,7 @@ jobs:
             echo "Parsing ${file_path} to get list of local keys..."
             # Parse '*strings.xml' to get list of all name attributes as json
             local_keys_json=$(yq -p=xml --xml-attribute-prefix=attr_ -o=json '.resources' ${file_path})
+            echo "${local_keys_json}"
             # Extract only 'attr_name' values from 'string' array
             local_keys=$(jq -r '.string[].attr_name' <<< ${local_keys_json} || jq -r '.string.attr_name' <<< ${local_keys_json} )
             # Create array of local keys
@@ -316,7 +318,7 @@ jobs:
                 edited_tags=$(jq -r -c --arg tag "${tag}" 'map(select(. != $tag))' <<< ${tags_json} | tr -d '[],"' | tr " " ",")
                 # Update remote key tags
                 lokalise2 --token ${{ env.LOKALISE_TOKEN }} --project-id ${{ env.LOKALISE_PROJECT_ID }} \
-                key update --key-id ${remote_key_id} --tags "${edited_tags}"
+                key update --key-id ${remote_key_id} --tags "${edited_tags}" &> /dev/null
               else 
                 echo "Remote key \"${remote_key}\" is present among local keys. Skipping..."
               fi
