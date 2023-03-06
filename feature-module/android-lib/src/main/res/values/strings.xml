@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
   <string name="feature_key">Feature key</string>
+  <plurals name="feature_plurals_key">
+    <item quantity="one">One</item>
+    <item quantity="other">Two</item>
+  </plurals>
+  <plurals name="feature_second_plurals_key">
+    <item quantity="one">Few</item>
+    <item quantity="other">Many</item>
+  </plurals>
 </resources>
