@@ -5,8 +5,8 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  schedule:
-    - cron: '0 0 * * 1,3' # at 00:00 every Mon and Wed
+#  schedule:
+#    - cron: '0 0 * * 1,3' # at 00:00 every Mon and Wed
   push:
     branches:
       - 'main' # on 'push' into 'main'/'master' branch
