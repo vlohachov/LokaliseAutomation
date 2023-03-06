@@ -26,11 +26,14 @@ jobs:
           response_json=$(lokalise2 --token ${{ env.TOKEN }} --project-id ${{ env.ORIGIN_ID }} \
           key list --filter-platforms android --filter-tags "BAD_TAGS_NEED_FIXING")
           # Extract only 'key_id' values from 'keys' array
-          broken_keys=$(jq -r '.keys[].key_id' <<< ${response_json})
+          broken_keys_names=$(jq -r '.keys[].key_name.android' <<< ${response_json})
+          broken_keys_ids=$(jq -r '.keys[].key_id' <<< ${response_json})
           # Create array of broken keys ids
-          broken_keys=(${broken_keys//$'\n'/ })
-          for counter in ${!broken_keys[*]}; do
-            broken_key_id=${broken_keys[counter]}
+          broken_keys_names=(${broken_keys_names//$'\n'/ })
+          broken_keys_ids=(${broken_keys_ids//$'\n'/ })
+          for counter in ${!broken_keys_ids[*]}; do
+            broken_key_id=${broken_keys_ids[counter]}
+            broken_key_name=${broken_keys_names[counter]}
             echo "${broken_key_id}"
             # Load correct tags for key 
             key_json=$(lokalise2 --token ${{ env.TOKEN }} --project-id ${{ env.COPY_ID }} \
