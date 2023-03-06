@@ -25,14 +25,21 @@ jobs:
         run: |
           response_json=$(lokalise2 --token ${{ env.TOKEN }} --project-id ${{ env.ORIGIN_ID }} \
           key list --filter-platforms android --filter-tags "BAD_TAGS_NEED_FIXING")
-          # Extract only 'key_name.android' values from 'keys' array
-          broken_keys=$(jq -r '.keys[].key_name.android' <<< ${response_json})
-          # Create array of broken keys
+          # Extract only 'key_id' values from 'keys' array
+          broken_keys=$(jq -r '.keys[].key_id' <<< ${response_json})
+          # Create array of broken keys ids
           broken_keys=(${broken_keys//$'\n'/ })
           for counter in ${!broken_keys[*]}; do
-            broken_key=${broken_keys[counter]}
-            echo "${broken_key}"
+            broken_key_id=${broken_keys[counter]}
             # Load correct tags for key 
+            key_json=$(lokalise2 --token ${{ env.TOKEN }} --project-id ${{ env.COPY_ID }} \
+            key retrieve --key-id ${broken_key_id})
+            # Parse key name
+            key_name=$(jq -r '.key.key_name.android' <<< ${key_json})
+            echo "${key_name}"
+            # Parse key tags
+            key_tags=$(jq -r '.key.tags' <<< ${key_json})
+            echo "${key_tags[*]}"
           done
 
   push-translations:
