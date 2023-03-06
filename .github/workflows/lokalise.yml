@@ -320,7 +320,7 @@ jobs:
                 echo "Original tags"
                 echo "${tags_json[*]}"
                 # Remove tag
-#                edited_tags=$(jq -r -c --arg tag "${tag}" 'map(select(. != $tag))' <<< ${tags_json} | tr -d '[],"' | tr " " ",")
+                #edited_tags=$(jq -r -c --arg tag "${tag}" 'map(select(. != $tag))' <<< ${tags_json} | tr -d '[],"' | tr " " ",")
                 edited_tags=$(jq -r -c --arg tag "${tag}" 'map(select(. != $tag))' <<< ${tags_json})
                 echo "Edited tags"
                 echo "${edited_tags[*]}"
