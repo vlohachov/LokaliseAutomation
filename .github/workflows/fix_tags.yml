@@ -29,9 +29,13 @@ jobs:
           broken_keys=$(jq -r '.keys[].key_name.android' <<< ${response_json})
           # Create array of broken keys ids
           broken_keys=(${broken_keys//$'\n'/ })
+          keys_restored=0
           for counter in ${!broken_keys[*]}; do
             broken_key=${broken_keys[counter]}
             echo "${broken_key}"
+            # Get broken key id
+            origin_key_id=$(jq -r -c --arg key_name "${broken_key}" '.keys[] | select(.key_name.android == $key_name) | .key_id' <<< ${response_json})
+            echo "${origin_key_id}"
             # Load correct tags for key 
             key_json=$(lokalise2 --token ${{ env.TOKEN }} --project-id ${{ env.COPY_ID }} \
             key list --filter-platforms android --filter-keys "${broken_key}")
@@ -40,6 +44,11 @@ jobs:
             echo "${tags_json[*]}"
             original_tags=$(jq -r -c --arg tag "${tag}" 'map(select(. != $tag))' <<< ${tags_json} | tr -d '[]"')
             echo "${original_tags}"
+            # Update remote key tags
+            lokalise2 --token ${{ env.TOKEN }} --project-id ${{ env.ORIGIN_ID }} \
+            key update --key-id ${origin_key_id} --tags "${edited_tags}" &> /dev/null
+            # Increment counter
+            keys_restored=$((keys_removed+1))
           done
 
   push-translations:
