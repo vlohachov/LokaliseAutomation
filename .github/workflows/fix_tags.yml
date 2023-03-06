@@ -1,4 +1,4 @@
-name: Sync strings with Lokalise
+name: Fix tags
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
