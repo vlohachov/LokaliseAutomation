@@ -34,7 +34,7 @@ jobs:
             echo "${broken_key_id}"
             # Load correct tags for key 
             key_json=$(lokalise2 --token ${{ env.TOKEN }} --project-id ${{ env.COPY_ID }} \
-            key retrieve --key-id ${broken_key_id})
+            key retrieve --key-id ${broken_key_id} || true)
             # Parse key name
             key_name=$(jq -r '.key.key_name.android' <<< ${key_json})
             echo "${key_name}"
