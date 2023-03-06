@@ -317,8 +317,12 @@ jobs:
                 remote_key_id=$(jq -r -c --arg key_name "${remote_key}" '.keys[] | select(.key_name.android == $key_name) | .key_id' <<< ${response_json})
                 # Get tags of the key
                 tags_json=$(jq -r -c --arg key_name "${remote_key}" '.keys[] | select(.key_name.android == $key_name) | .tags' <<< ${response_json})
+                echo "Original tags"
+                echo "${tags_json[*]}"
                 # Remove tag
                 edited_tags=$(jq -r -c --arg tag "${tag}" 'map(select(. != $tag))' <<< ${tags_json} | tr -d '[],"' | tr " " ",")
+                echo "Edited tags"
+                echo "${edited_tags[*]}"
                 # Update remote key tags
                 lokalise2 --token ${{ env.LOKALISE_TOKEN }} --project-id ${{ env.LOKALISE_PROJECT_ID }} \
                 key update --key-id ${remote_key_id} --tags "${edited_tags}" &> /dev/null
