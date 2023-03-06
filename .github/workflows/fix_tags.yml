@@ -26,28 +26,20 @@ jobs:
           response_json=$(lokalise2 --token ${{ env.TOKEN }} --project-id ${{ env.ORIGIN_ID }} \
           key list --filter-platforms android --filter-tags "BAD_TAGS_NEED_FIXING")
           # Extract only 'key_id' values from 'keys' array
-          broken_keys_names=$(jq -r '.keys[].key_name.android' <<< ${response_json})
-          broken_keys_ids=$(jq -r '.keys[].key_id' <<< ${response_json})
+          broken_keys=$(jq -r '.keys[].key_name.android' <<< ${response_json})
           # Create array of broken keys ids
-          broken_keys_names=(${broken_keys_names//$'\n'/ })
-          broken_keys_ids=(${broken_keys_ids//$'\n'/ })
-          for counter in ${!broken_keys_ids[*]}; do
-            broken_key_id=${broken_keys_ids[counter]}
-            broken_key_name=${broken_keys_names[counter]}
-            echo "${broken_key_id}"
-            echo "${broken_key_name}"
+          broken_keys=(${broken_keys//$'\n'/ })
+          for counter in ${!broken_keys[*]}; do
+            broken_key=${broken_keys[counter]}
+            echo "${broken_key}"
             # Load correct tags for key 
-            broken_key_json=$(lokalise2 --token ${{ env.TOKEN }} --project-id ${{ env.ORIGIN_ID }} \
-            key retrieve --key-id ${broken_key_id} || true)
-            echo "${broken_key_json}"
             key_json=$(lokalise2 --token ${{ env.TOKEN }} --project-id ${{ env.COPY_ID }} \
-            key retrieve --key-id ${broken_key_id} || true)
-            # Parse key name
-            key_name=$(jq -r '.key.key_name.android' <<< ${key_json})
-            echo "${key_name}"
+            key list --filter-platforms android --filter-keys "${broken_key}")
             # Parse key tags
-            key_tags=$(jq -r '.key.tags' <<< ${key_json})
-            echo "${key_tags[*]}"
+            tags_json=$(jq -r -c --arg key_name "${broken_key}" '.keys[] | select(.key_name.android == $key_name) | .tags' <<< ${response_json})
+            echo "${tags_json[*]}"
+            original_tags=$(jq -r -c --arg tag "${tag}" 'map(select(. != $tag))' <<< ${tags_json} | tr -d '[]"')
+            echo "${original_tags}"
           done
 
   push-translations:
