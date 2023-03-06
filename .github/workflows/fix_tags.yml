@@ -31,6 +31,7 @@ jobs:
           broken_keys=(${broken_keys//$'\n'/ })
           for counter in ${!broken_keys[*]}; do
             broken_key_id=${broken_keys[counter]}
+            echo "${broken_key_id}"
             # Load correct tags for key 
             key_json=$(lokalise2 --token ${{ env.TOKEN }} --project-id ${{ env.COPY_ID }} \
             key retrieve --key-id ${broken_key_id})
