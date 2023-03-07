@@ -49,4 +49,5 @@ jobs:
             key update --key-id ${origin_key_id} --tags "${original_tags}" &> /dev/null
             # Increment counter
             keys_restored=$((keys_removed+1))
+            echo "${keys_restored} processed."
           done
