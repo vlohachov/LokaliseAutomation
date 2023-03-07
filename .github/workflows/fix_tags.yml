@@ -21,7 +21,7 @@ jobs:
         with:
           lokalise-version: 'latest' # or specify version (ex. '2.6.3')
 
-      - name: Get corrupted keys list
+      - name: Revert broken tags
         run: |
           response_json=$(lokalise2 --token ${{ env.TOKEN }} --project-id ${{ env.ORIGIN_ID }} \
           key list --filter-platforms android --filter-tags "BAD_TAGS_NEED_FIXING")
@@ -49,71 +49,4 @@ jobs:
             key update --key-id ${origin_key_id} --tags "${original_tags}" &> /dev/null
             # Increment counter
             keys_restored=$((keys_removed+1))
-          done
-
-  push-translations:
-    if: ${{ github.event_name == 'push' }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Setup Lokalise CLI
-        uses: sudosubin/setup-lokalise-action@v1.0.1
-        with:
-          lokalise-version: 'latest' # or specify version (ex. '2.6.3')
-
-      - name: Cleanup tags for unused keys
-        run: |
-          shopt -s globstar
-          arr=(**/values/*strings.xml)
-          for counter in ${!arr[*]}; do
-            file_path="./${arr[counter]}"
-            file_name=${file_path##*/}
-            echo "Process ${file_path} file..."
-            # Get module from path, by cutting "/src/..." part out of original path
-            module_path=${file_path%%/src/*}
-            # Skip if excluded
-            if [[ ${module_path#./} == ${{ env.SKIP_MODULES_PATTERN }} ]]; then
-              echo "Skipping \"${module_path}\" module..."
-              continue
-            fi
-            # Replace "." in module path with project name to generate tag that consists of
-            # project name and module path
-            tag=${module_path/./${{ steps.read_project_name.outputs.project_name }}}
-            echo "Cleanup strings from \"${module_path}\" module with \"${tag}\" tag..."
-            echo "Loading remote keys tagged with \"${tag}\""
-            response_json=$(lokalise2 --token ${{ env.LOKALISE_TOKEN }} --project-id ${{ env.LOKALISE_PROJECT_ID }} \
-            key list --filter-platforms android --filter-tags ${tag} --filter-filenames ${file_name})
-            # Extract only 'key_name.android' values from 'keys' array
-            remote_keys=$(jq -r '.keys[].key_name.android' <<< ${response_json})
-            # Create array of remote keys
-            remote_keys=(${remote_keys//$'\n'/ })
-            echo "Remote keys: ${remote_keys[*]}"
-            echo "Parsing ${file_path} to get list of local keys..."
-            # Parse '*strings.xml' to get list of all name attributes as json
-            local_keys_json=$(yq -p=xml --xml-attribute-prefix=attr_ -o=json '.resources' ${file_path})
-            # Extract only 'attr_name' values from 'string' array
-            local_string_keys=$(jq -r '.string[].attr_name' <<< ${local_keys_json} || jq -r '.string.attr_name' <<< ${local_keys_json} )
-            local_plurals_keys=$(jq -r '.plurals[].attr_name' <<< ${local_keys_json} || jq -r '.plurals.attr_name' <<< ${local_keys_json})
-            # Create array of local keys
-            local_keys=( ${local_string_keys//$'\n'/ } ${local_plurals_keys//$'\n'/ } )
-            echo "Local keys: ${local_keys[*]}"
-            # Declare int to count removed/untagged keys
-            keys_removed=0
-            for counter in ${!remote_keys[*]}; do
-              remote_key=${remote_keys[counter]}
-              if ! [[ " ${local_keys[*]} " =~ " ${remote_key} " ]]; then
-                echo "Removing \"${tag}\" tag for \"${remote_key}\" key..."
-                # Get remote key id
-                remote_key_id=$(jq -r -c --arg key_name "${remote_key}" '.keys[] | select(.key_name.android == $key_name) | .key_id' <<< ${response_json})
-                # Get tags of the key
-                tags_json=$(jq -r -c --arg key_name "${remote_key}" '.keys[] | select(.key_name.android == $key_name) | .tags' <<< ${response_json})
-                # Remove tag
-                edited_tags=$(jq -r -c --arg tag "${tag}" 'map(select(. != $tag))' <<< ${tags_json} | tr -d '[]"')
-                # Update remote key tags
-                lokalise2 --token ${{ env.LOKALISE_TOKEN }} --project-id ${{ env.LOKALISE_PROJECT_ID }} \
-                key update --key-id ${remote_key_id} --tags "${edited_tags}" &> /dev/null
-                # Increment counter
-                keys_removed=$((keys_removed+1))
-              fi
-            done
-            echo "${keys_removed} were removed (untagged)."
           done
