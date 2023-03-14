@@ -11,6 +11,12 @@ env:
 
 on:
   workflow_dispatch:
+    inputs:
+      tags:
+        description: 'Single or comma separated Lokalise Key tag(s)'
+        type: string
+        default: "BAD_TAGS_NEED_FIXING"
+        required: true
 
 jobs:
   fix-tags:
@@ -24,7 +30,7 @@ jobs:
       - name: Revert broken tags
         run: |
           response_json=$(lokalise2 --token ${{ env.TOKEN }} --project-id ${{ env.ORIGIN_ID }} \
-          key list --filter-platforms android --filter-tags "BAD_TAGS_NEED_FIXING")
+          key list --filter-platforms android --filter-tags "${{ github.event.inputs.tags }}")
           # Extract only 'key_id' values from 'keys' array
           broken_keys=$(jq -r '.keys[].key_name.android' <<< ${response_json})
           # Create array of broken keys ids
