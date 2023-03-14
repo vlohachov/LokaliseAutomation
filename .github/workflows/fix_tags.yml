@@ -24,7 +24,7 @@ jobs:
       - name: Revert broken tags
         run: |
           response_json=$(lokalise2 --token ${{ env.TOKEN }} --project-id ${{ env.ORIGIN_ID }} \
-          key list --filter-platforms android --filter-tags "BAD_TAGS_NEED_FIXING")
+          key list --filter-platforms android --filter-tags "Of")
           # Extract only 'key_id' values from 'keys' array
           broken_keys=$(jq -r '.keys[].key_name.android' <<< ${response_json})
           # Create array of broken keys ids
@@ -45,8 +45,8 @@ jobs:
             original_tags=$(jq -r -c --arg tag "${tag}" 'map(select(. != $tag))' <<< ${tags_json} | tr -d '[]"')
             echo "${original_tags}"
             # Update remote key tags
-            lokalise2 --token ${{ env.TOKEN }} --project-id ${{ env.ORIGIN_ID }} \
-            key update --key-id ${origin_key_id} --tags "${original_tags}" &> /dev/null
+            #lokalise2 --token ${{ env.TOKEN }} --project-id ${{ env.ORIGIN_ID }} \
+            #key update --key-id ${origin_key_id} --tags "${original_tags}" &> /dev/null
             # Increment counter
             keys_restored=$((keys_removed+1))
             echo "${keys_restored} processed."
