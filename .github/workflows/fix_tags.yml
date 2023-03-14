@@ -24,7 +24,7 @@ jobs:
       - name: Revert broken tags
         run: |
           response_json=$(lokalise2 --token ${{ env.TOKEN }} --project-id ${{ env.ORIGIN_ID }} \
-          key list --filter-platforms android --filter-tags "Sign")
+          key list --filter-platforms android --filter-tags "BAD_TAGS_NEED_FIXING")
           # Extract only 'key_id' values from 'keys' array
           broken_keys=$(jq -r '.keys[].key_name.android' <<< ${response_json})
           # Create array of broken keys ids
