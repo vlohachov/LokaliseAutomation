@@ -1,4 +1,3 @@
 package com.example.kotlin_lib
 
-class MyClass {
-}
+data class MyClass(val value: String)
