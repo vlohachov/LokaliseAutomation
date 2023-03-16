@@ -1,8 +1,8 @@
--keep class com.example.testlibrary.MainActivity {
+-keep class com.example.testlibrary.HomeActivity {
     <init>();
     protected void onCreate(android.os.Bundle);
 }
--keep class com.example.testlibrary.MainActivityKt {
+-keep class com.example.testlibrary.HomeActivityKt {
     public static void DefaultPreview();
     public static void Greeting(java.lang.String);
 }
