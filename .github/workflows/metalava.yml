@@ -22,7 +22,7 @@ jobs:
         continue-on-error: true
         run: |
           if ./gradlew metalavaCheckCompatibility 2>&1 | tee gradle_output.log | grep -q 'metalavaCheckCompatibility FAILED'; then
-            echo "::set-output name=compat-error::$(grep -oP '(?<=error: ).*' gradle_output.log)"
+            echo "::set-output name=compat-error::$(grep -oP '(?<=error: ).*' gradle_output.log | paste -sd ',')"
             exit 1
           fi
 
@@ -31,7 +31,7 @@ jobs:
         continue-on-error: true
         run: |
           if ./gradlew metalavaCheckCompatibilityDebug 2>&1 | tee gradle_output.log | grep -q 'metalavaCheckCompatibilityDebug FAILED'; then
-            echo "::set-output name=compat-error::$(grep -oP '(?<=error: ).*' gradle_output.log)"
+            echo "::set-output name=compat-error::$(grep -oP '(?<=error: ).*' gradle_output.log | paste -sd ',')"
             exit 1
           fi
 
