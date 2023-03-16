@@ -39,9 +39,11 @@ jobs:
         if: ${{ always() }}
         run: |
           # Extract errors from compat-error output into an array
-          errors=($(echo "${{ steps.compat-kotlin.outputs.compat-error }} ${{ steps.compat-android.outputs.compat-error }}" | tr ',' '\n' | tr -d '[]'))
+          errors_combined="${{ steps.compat-kotlin.outputs.compat-error }},${{ steps.compat-android.outputs.compat-error }}"
+          echo "${errors_combined}"
+          errors=($(echo "${{ steps.compat-kotlin.outputs.compat-error }},${{ steps.compat-android.outputs.compat-error }}" | tr ',' '\n'))
           echo "${errors[*]}"
           # Print each error
           for error in "${errors[@]}"; do
-            echo "$error"
+            echo "${error}"
           done
