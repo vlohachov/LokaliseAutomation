@@ -32,7 +32,7 @@ jobs:
         run: |
           if [[ "${{ steps.compat-kotlin.outcome }}" == "failure" ]]; then
             echo "One or more Kotlin libraries have a breaking change."
-          elif [[ "${{ steps.compat-android.outcome }}" == "failure" ]]
+          elif [[ "${{ steps.compat-android.outcome }}" == "failure" ]]; then
             echo "One or more Android libraries have a breaking change."
           else
             echo "No breaking changes detected."
