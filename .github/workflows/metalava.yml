@@ -1,0 +1,37 @@
+name: Metalava
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  metalava-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.1.0
+
+      - name: Check compatibility (Kotlin)
+        id: compat-kotlin
+        run: ./gradlew metalavaCheckCompatibility
+
+      - name: Check compatibility (Android)
+        id: compat-android
+        run: ./gradlew metalavaCheckCompatibilityDebug
+
+      - name: Check for breaking change
+        if: ${{ always() }}
+        run: |
+          if [[ "${{ steps.compat-kotlin.resolution }}" == "failure" ]]; then
+            echo "One or more Kotlin libraries have a breaking change."
+          elif [[ "${{ steps.compat-android.resolution }}" == "failure" ]]
+            echo "One or more Android libraries have a breaking change."
+          else
+            echo "No breaking changes detected."
+          fi

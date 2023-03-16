@@ -1,9 +1,16 @@
 plugins {
     id 'java-library'
     id 'org.jetbrains.kotlin.jvm'
+    id 'me.tylerbwong.gradle.metalava'
 }
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_7
     targetCompatibility = JavaVersion.VERSION_1_7
+}
+
+metalava {
+    filename = "api/$name-api.txt"
+    outputKotlinNulls = false
+    includeSignatureVersion = false
 }

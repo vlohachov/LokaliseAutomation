@@ -1,0 +1,8 @@
+package com.example.kotlin_lib {
+
+  public final class MyClass {
+    ctor public MyClass();
+  }
+
+}
+
