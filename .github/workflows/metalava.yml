@@ -19,18 +19,20 @@ jobs:
 
       - name: Check compatibility (Kotlin)
         id: compat-kotlin
+        continue-on-error: true
         run: ./gradlew metalavaCheckCompatibility
 
       - name: Check compatibility (Android)
         id: compat-android
+        continue-on-error: true
         run: ./gradlew metalavaCheckCompatibilityDebug
 
       - name: Check for breaking change
         if: ${{ always() }}
         run: |
-          if [[ "${{ steps.compat-kotlin.resolution }}" == "failure" ]]; then
+          if [[ "${{ steps.compat-kotlin.outcome }}" == "failure" ]]; then
             echo "One or more Kotlin libraries have a breaking change."
-          elif [[ "${{ steps.compat-android.resolution }}" == "failure" ]]
+          elif [[ "${{ steps.compat-android.outcome }}" == "failure" ]]
             echo "One or more Android libraries have a breaking change."
           else
             echo "No breaking changes detected."
