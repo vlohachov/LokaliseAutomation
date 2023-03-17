@@ -100,7 +100,7 @@ jobs:
           
           pr_prefix="BREAKING:"
           issues_section="### ❗ Compatibility Issues ❗"
-          appendix="${issues_section}\n${{ steps.appendix-message.outputs.message }}"
+          appendix="${issues_section}"$'\n'"${{ steps.appendix-message.outputs.message }}"
           
           # Update PR title if needed
           if ! [[ "$pr_title" =~ "$pr_prefix" ]]; then
@@ -109,7 +109,7 @@ jobs:
           fi
           
           # Check if the Compatibility issues section already exists in the PR body
-          if [[ "$pr_body" == *"$compatibility_header"* ]]; then
+          if [[ "$pr_body" == *"issues_section"* ]]; then
             # Replace the old message with the new message
             pr_body=$(echo "$pr_body" | sed "/${issues_section}/ {N; s/${issues_section}.*\n.*/${appendix}/}")
           else
