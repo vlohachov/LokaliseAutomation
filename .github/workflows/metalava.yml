@@ -103,7 +103,7 @@ jobs:
           pr_prefix="BREAKING: "
           issues_section="## ❗ Compatibility Issues ❗"
           incompatible_modules="${{ steps.appendix-message.outputs.incompatible_modules_count }} incompatible modules detected."
-          pr_body_appendix="${issues_section}"$'\n'"${incompatible_modules}"$'\n\"${{ steps.appendix-message.outputs.message }}"
+          pr_body_appendix="${issues_section}"$'\n'"${incompatible_modules}"$'\n'"${{ steps.appendix-message.outputs.message }}"
           
           # Update PR title if needed
           if ! [[ "$pr_title" =~ "$pr_prefix" ]]; then
