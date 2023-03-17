@@ -86,8 +86,8 @@ jobs:
           details_footer="</p></details>"
           errors=""
           for module in "${!module_errors[@]}"; do
-            errors+="${module}:"$'\n'
-            errors+="${module_errors[$module]}"$'\n'
+            errors+="${module}:\n"
+            errors+="${module_errors[$module]}\n"
           done
           
           # Get PR body
