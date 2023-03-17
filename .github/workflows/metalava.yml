@@ -39,7 +39,7 @@ jobs:
         if: ${{ always() }}
         run: |
           # Extract errors from compat-error output into an array
-          errors="${{ steps.compat-kotlin.outputs.compat-error }},${{ steps.compat-android.outputs.compat-error }}"
+          errors="${{ steps.compat-kotlin.outputs.compat-error }}|${{ steps.compat-android.outputs.compat-error }}"
           IFS='|' read -ra errors_arr <<< "$errors"
           for error in "${errors[@]}"; do
             echo "${error}"
