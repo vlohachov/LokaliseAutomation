@@ -45,7 +45,7 @@ jobs:
           # Group errors by module
           declare -A module_errors
           for error in "${errors_arr[@]}"; do
-            module=$(echo "${error}" | awk '{print $2}' | awk -F'[.]' '{print $1}')
+            module=$(echo "${error}" | awk -F'[ .]' '{print $(NF-1)}')
             if [[ -z "${module_errors[$module]}" ]]; then
               module_errors[$module]="${error}"
             else
