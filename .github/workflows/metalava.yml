@@ -92,6 +92,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          appendix_message="${{ steps.appendix-message.outputs.message }}"
+          
           # Get PR title
           gh pr view ${{ github.event.number }} --json title > pr_title.json
           pr_title=$(jq -r '.title' pr_title.json)
@@ -102,7 +104,7 @@ jobs:
           
           # Update PR title
           pr_prefix="BREAKING: "
-          appendix_message="${{ steps.appendix-message.outputs.message }}"
+
           # Add prefix if not yet added and appendix is not empty
           if [[ "${pr_title}" != "${pr_prefix}"* ]] && [[ -n "${appendix_message}" ]]; then
             pr_title="${pr_prefix}${pr_title}"
@@ -119,9 +121,9 @@ jobs:
             pr_body=$(sed "/${issues_section}/,\$d" <<< "${pr_body}")
           fi
           # Add appendix if not empty
-          if [[ "${{ steps.appendix-message.outputs.message }}" != "" ]]; then
+          if [[ -z "${appendix_message}" ]]; then
             incompatible_modules="${{ steps.appendix-message.outputs.incompatible_modules_count }} incompatible modules detected"
-            pr_body_appendix="${issues_section}"$'\n'"${incompatible_modules}"$'\n'"${{ steps.appendix-message.outputs.message }}"
+            pr_body_appendix="${issues_section}"$'\n'"${incompatible_modules}"$'\n'"${appendix_message}"
             pr_body="${pr_body}"$'\n\n'"${pr_body_appendix}"
           fi
           gh pr edit ${{ github.event.number }} --body "${pr_body}"
