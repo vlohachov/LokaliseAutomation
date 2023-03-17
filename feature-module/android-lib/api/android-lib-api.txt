@@ -1,17 +1,17 @@
 // Signature format: 4.0
 package com.example.android_lib {
 
-  public final class BlankFragment extends androidx.fragment.app.Fragment {
-    ctor public BlankFragment();
-    method public static com.example.android_lib.BlankFragment newInstance(String param1, String param2);
-    field public static final com.example.android_lib.BlankFragment.Companion Companion;
+  public final class HomeFragment extends androidx.fragment.app.Fragment {
+    ctor public HomeFragment();
+    method public static com.example.android_lib.HomeFragment newInstance(String param1, String param2);
+    field public static final com.example.android_lib.HomeFragment.Companion Companion;
   }
 
-  public static final class BlankFragment.Companion {
-    method public com.example.android_lib.BlankFragment newInstance(String param1, String param2);
+  public static final class HomeFragment.Companion {
+    method public com.example.android_lib.HomeFragment newInstance(String param1, String param2);
   }
 
-  public final class BlankFragmentKt {
+  public final class HomeFragmentKt {
   }
 
 }
