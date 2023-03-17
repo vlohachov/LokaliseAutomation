@@ -67,8 +67,8 @@ jobs:
             fi
           done
           
-          comment_message=""
           # Print errors grouped by module
+          comment_message=""
           for module in "${!module_errors[@]}"; do
             comment_message+="${module}:"
             comment_message+="${module_errors[$module]}"
