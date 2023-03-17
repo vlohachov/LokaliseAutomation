@@ -52,7 +52,7 @@ jobs:
           echo "::set-output name=combined-compat-errors::combined_errors"
 
       - name: Update PR with errors
-        if: ${{ steps.combine-compat-errors.outputs.combined-compat-errors != "" }}
+        if: ${{ steps.combine-compat-errors.outputs.combined-compat-errors != '' }}
         run: |
           message=""
           
