@@ -10,6 +10,10 @@ on:
       - main
   workflow_dispatch:
 
+env:
+  DETAILS_HEADER: '<details><summary>Compatibility errors</summary><p>'
+  DETAILS_FOOTER: '</p></details>'
+
 jobs:
   metalava-compatibility-check:
     runs-on: ubuntu-latest
@@ -55,22 +59,10 @@ jobs:
           
           echo combined-compat-errors=$combined_errors >> $GITHUB_OUTPUT;
 
-      - name: Update PR
+      - name: Generate PR body appendix message
+        id: appendix-message
         if: ${{ steps.combine-compat-errors.outputs.combined-compat-errors != '' }}
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
-          # Get PR title
-          gh pr view ${{ github.event.number }} --json title > pr_title.json
-          pr_title=$(jq -r '.title' pr_title.json)
-          pr_prefix="BREAKING:"
-          
-          # Update PR title if needed
-          if ! [[ "$pr_title" =~ "$pr_prefix" ]]; then
-            pr_title="$pr_prefix ${pr_title}"
-            gh pr edit ${{ github.event.number }} --title "${pr_title}"
-          fi
-          
           # Create bash array of combined errors
           IFS=',' read -ra errors_arr <<< "${{ steps.combine-compat-errors.outputs.combined-compat-errors }}"
           
@@ -86,14 +78,34 @@ jobs:
           done
           
           # Details with errors grouped by module
-          details_header="<details><summary>Compatibility errors</summary><p>"
-          details_footer="</p></details>"
           errors=$(
             for module in "${!module_errors[@]}"; do
               echo "${module}:"
               echo "${module_errors[$module]}"
             done
           )
+          
+          message="${{ env.DETAILS_HEADER }}${errors}${{ env.DETAILS_FOOTER }}"
+          delimiter="$(openssl rand -hex 8)"
+          echo "message<<${delimiter}" >> ${GITHUB_OUTPUT}
+          echo "message" >> ${GITHUB_OUTPUT}
+          echo "${delimiter}" >> ${GITHUB_OUTPUT}
+
+      - name: Update PR
+        if: ${{ steps.appendix-message.outputs.message != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Get PR title
+          gh pr view ${{ github.event.number }} --json title > pr_title.json
+          pr_title=$(jq -r '.title' pr_title.json)
+          pr_prefix="BREAKING:"
+          
+          # Update PR title if needed
+          if ! [[ "$pr_title" =~ "$pr_prefix" ]]; then
+            pr_title="$pr_prefix ${pr_title}"
+            gh pr edit ${{ github.event.number }} --title "${pr_title}"
+          fi
           
           # Get PR body
           gh pr view ${{ github.event.number }} --json body > pr_body.json
@@ -102,8 +114,8 @@ jobs:
           # Update PR body
           if echo "$pr_body" | grep -qF "$details_header" && echo "$pr_body" | grep -qF "$details_footer"; then
             # Replace substring between header and footer with errors
-            pr_body=$(echo "$pr_body" | sed "/$details_header/,/$details_footer/c\\$details_header$errors$details_footer")
+            pr_body=$(echo "$pr_body" | sed "/${{ env.DETAILS_HEADER }}/,/${{ env.DETAILS_FOOTER }}/c\\${{ steps.appendix-message.outputs.message }}")
           else 
-            pr_body="${pr_body}"$'\n\n'"$details_header$errors$details_footer"
+            pr_body="${pr_body}"$'\n\n'"${{ steps.appendix-message.outputs.message }}"
           fi
           gh pr edit ${{ github.event.number }} --body "${pr_body}"
