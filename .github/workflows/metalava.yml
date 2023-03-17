@@ -43,7 +43,7 @@ jobs:
           if [[ "${{ steps.compat-kotlin.outputs.compat-errors }}" != "" ]]; then
             combined_errors+="${{ steps.compat-kotlin.outputs.compat-errors }}"
           fi
-          if [[ "${{ steps.compat-android.outputs.compat-errors }}" != null ]]; then
+          if [[ "${{ steps.compat-android.outputs.compat-errors }}" != "" ]]; then
             if [[ combined_errors != "" ]]; then
               combined_errors+=","
             fi
