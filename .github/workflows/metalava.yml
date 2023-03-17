@@ -38,7 +38,6 @@ jobs:
       - name: Combine possible compatibility errors
         id: combine-compat-errors
         if: ${{ always() }}
-        continue-on-error: true
         run: |
           combined_errors=""
           if [[ "${{ steps.compat-kotlin.outputs.compat-errors }}" != "" ]]; then
