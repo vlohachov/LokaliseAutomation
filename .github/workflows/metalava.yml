@@ -102,8 +102,8 @@ jobs:
           # Update PR body
           if echo "$pr_body" | grep -qF "$details_header" && echo "$pr_body" | grep -qF "$details_footer"; then
             # Replace substring between header and footer with errors
-            pr_body=$(echo "$pr_body" | sed "/$details_header/,/$details_footer/c\\$details_header\n$errors\n$details_footer")
+            pr_body=$(echo "$pr_body" | sed "/$details_header/,/$details_footer/c\\$details_header$errors$details_footer")
           else 
-            pr_body="${pr_body}"$'\n\n'"$details_header"$'\n'"$errors"$'\n'"$details_footer"
+            pr_body="${pr_body}"$'\n\n'"$details_header$errors$details_footer"
           fi
           gh pr edit ${{ github.event.number }} --body "${pr_body}"
