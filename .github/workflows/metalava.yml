@@ -102,20 +102,23 @@ jobs:
           
           # Update PR title
           pr_prefix="BREAKING: "
+          # Add prefix if not yet added and appendix not empty
           if ! [[ "${pr_title}" =~ "${pr_prefix}" && "${{ steps.appendix-message.outputs.message }}" != "" ]]; then
             pr_title="${pr_prefix}${pr_title}"
-          else 
+          # Remove prefix if already added and appendix is empty
+          elif [[ "${pr_title}" =~ "${pr_prefix}" && "${{ steps.appendix-message.outputs.message }}" == "" ]]; then
             pr_title=$(echo "${pr_title}" | sed "s/${pr_prefix}//g")
           fi
           gh pr edit ${{ github.event.number }} --title "${pr_title}"
           
           # Update PR body
           issues_section="### ❗ Compatibility Issues ❗"
+          # Remove old appendix if present
           if grep -q "${issues_section}" <<< "${pr_body}"; then
-            # Remove old appendix
             pr_body=$(sed "/${issues_section}/,\$d" <<< "${pr_body}")
-          # Add appendix to the PR body
-          elif [[ "${{ steps.appendix-message.outputs.message }}" != "" ]]; then
+          fi
+          # Add appendix if not empty
+          if [[ "${{ steps.appendix-message.outputs.message }}" != "" ]]; then
             incompatible_modules="${{ steps.appendix-message.outputs.incompatible_modules_count }} incompatible modules detected"
             pr_body_appendix="${issues_section}"$'\n'"${incompatible_modules}"$'\n'"${{ steps.appendix-message.outputs.message }}"
             pr_body="${pr_body}"$'\n\n'"${pr_body_appendix}"
