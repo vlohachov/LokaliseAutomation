@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 env:
-  DETAILS_HEADER: 'Compatibility errors'
+  DETAILS_HEADER: '### ❗ Compatibility errors ❗'
 
 jobs:
   metalava-compatibility-check:
@@ -84,7 +84,7 @@ jobs:
             done
           )
           
-          message="${{ env.DETAILS_HEADER }}\n${errors}"
+          message="${{ env.DETAILS_HEADER }}"$'\n'"${errors}"
           delimiter="$(openssl rand -hex 8)"
           echo "message<<${delimiter}" >> ${GITHUB_OUTPUT}
           echo "$message" >> ${GITHUB_OUTPUT}
