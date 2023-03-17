@@ -1,4 +1,4 @@
-name: Metalava
+name: Metalava compatibility check
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  metalava-check:
+  metalava-compatibility-check:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -22,7 +22,7 @@ jobs:
         run: |
           if ./gradlew metalavaCheckCompatibility 2>&1 | tee gradle_output.log | grep -q 'metalavaCheckCompatibility FAILED'; then
             errors=$(grep -oP '(?<=error: ).*' gradle_output.log | paste -sd ',')
-            errors=$(sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" <<< "errors")
+            errors=$(sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" <<< "$errors")
             echo compat-errors=$errors >> $GITHUB_OUTPUT;
           fi
 
@@ -31,7 +31,7 @@ jobs:
         run: |
           if ./gradlew metalavaCheckCompatibilityDebug 2>&1 | tee gradle_output.log | grep -q 'metalavaCheckCompatibilityDebug FAILED'; then
             errors=$(grep -oP '(?<=error: ).*' gradle_output.log | paste -sd ',')
-            errors=$(sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" <<< "errors")
+            errors=$(sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" <<< "$errors")
             echo compat-errors=$errors >> $GITHUB_OUTPUT;
           fi
 
