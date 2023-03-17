@@ -102,12 +102,13 @@ jobs:
           
           # Update PR title
           pr_prefix="BREAKING: "
-          # Add prefix if not yet added and appendix not empty
-          if ! [[ "${pr_title}" =~ "${pr_prefix}" && "${{ steps.appendix-message.outputs.message }}" != "" ]]; then
+          appendix_message="${{ steps.appendix-message.outputs.message }}"
+          # Add prefix if not yet added and appendix is not empty
+          if [[ "${pr_title}" != "${pr_prefix}"* ]] && [[ -n "${appendix_message}" ]]; then
             pr_title="${pr_prefix}${pr_title}"
-          # Remove prefix if already added and appendix is empty
-          elif [[ "${pr_title}" =~ "${pr_prefix}" && "${{ steps.appendix-message.outputs.message }}" == "" ]]; then
-            pr_title=$(echo "${pr_title}" | sed "s/${pr_prefix}//g")
+          # Remove prefix if added and appendix is empty
+          elif [[ "${pr_title}" == "${pr_prefix}"* ]] && [[ -z "${appendix_message}" ]]; then
+            pr_title="${pr_title/#${pr_prefix}/}"
           fi
           gh pr edit ${{ github.event.number }} --title "${pr_title}"
           
