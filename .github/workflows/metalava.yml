@@ -108,12 +108,12 @@ jobs:
             gh pr edit ${{ github.event.number }} --title "${pr_title}"
           fi
           
-          # Check if the Compatibility issues section already exists in the PR body
+          # Check if appendix is already in PR body
           if grep -q "${issues_section}" <<< "${pr_body}"; then
             # Remove old appendix
-            pr_body=$(echo "$pr_body" | sed -i '/${issues_section}/,$d')
+            pr_body=$(sed -i "/${issues_section}/,\$d" <<< "${pr_body}")
           fi
           
-          # Add the appendix to the PR body
+          # Add appendix to the PR body
           pr_body="${pr_body}"$'\n\n'"${pr_body_appendix}"
           gh pr edit ${{ github.event.number }} --body "${pr_body}"
