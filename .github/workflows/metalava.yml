@@ -41,6 +41,6 @@ jobs:
           # Extract errors from compat-error output into an array
           errors="${{ steps.compat-kotlin.outputs.compat-error }}|${{ steps.compat-android.outputs.compat-error }}"
           IFS='|' read -ra errors_arr <<< "$errors"
-          for error in "${errors[@]}"; do
+          for error in "${errors_arr[@]}"; do
             echo "${error}"
           done
