@@ -23,7 +23,7 @@ jobs:
           if ./gradlew metalavaCheckCompatibility 2>&1 | tee gradle_output.log | grep -q 'metalavaCheckCompatibility FAILED'; then
             errors=$(grep -oP '(?<=error: ).*' gradle_output.log | paste -sd ',')
             errors=$(sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" <<< "errors")
-            echo "compat-errors=$errors" >> $GITHUB_OUTPUT;
+            echo compat-errors=$errors >> $GITHUB_OUTPUT;
           fi
 
       - name: Check Android libs compatibility
@@ -32,7 +32,7 @@ jobs:
           if ./gradlew metalavaCheckCompatibilityDebug 2>&1 | tee gradle_output.log | grep -q 'metalavaCheckCompatibilityDebug FAILED'; then
             errors=$(grep -oP '(?<=error: ).*' gradle_output.log | paste -sd ',')
             errors=$(sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" <<< "errors")
-            echo "compat-errors=$errors" >> $GITHUB_OUTPUT;
+            echo compat-errors=$errors >> $GITHUB_OUTPUT;
           fi
 
       - name: Combine possible compatibility errors
@@ -53,7 +53,7 @@ jobs:
             combined_errors+="${{ steps.check-compat-android.outputs.compat-errors }}"
           fi
           
-          echo "combined-compat-errors=$combined_errors" >> $GITHUB_OUTPUT;
+          echo combined-compat-errors=$combined_errors >> $GITHUB_OUTPUT;
 
       - name: Update PR
         if: ${{ steps.combine-compat-errors.outputs.combined-compat-errors != '' }}
