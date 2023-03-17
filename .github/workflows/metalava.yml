@@ -17,31 +17,48 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3.1.0
 
-      - name: Check compatibility (Kotlin)
+      - name: Check Kotlin libs compatibility
         id: compat-kotlin
         continue-on-error: true
         run: |
           if ./gradlew metalavaCheckCompatibility 2>&1 | tee gradle_output.log | grep -q 'metalavaCheckCompatibility FAILED'; then
-            echo "::set-output name=compat-error::$(grep -oP '(?<=error: ).*' gradle_output.log | paste -sd ',')"
+            echo "::set-output name=compat-errors::$(grep -oP '(?<=error: ).*' gradle_output.log | paste -sd ',')"
             exit 1
           fi
 
-      - name: Check compatibility (Android)
+      - name: Check Android libs compatibility
         id: compat-android
         continue-on-error: true
         run: |
           if ./gradlew metalavaCheckCompatibilityDebug 2>&1 | tee gradle_output.log | grep -q 'metalavaCheckCompatibilityDebug FAILED'; then
-            echo "::set-output name=compat-error::$(grep -oP '(?<=error: ).*' gradle_output.log | paste -sd ',')"
+            echo "::set-output name=compat-errors::$(grep -oP '(?<=error: ).*' gradle_output.log | paste -sd ',')"
             exit 1
           fi
 
-      - name: Check for breaking change
+      - name: Combine possible compatibility errors
+        id: combine-compat-errors
         if: ${{ always() }}
+        continue-on-error: true
         run: |
-          # Extract errors from compat-error output into an array
-          errors="${{ steps.compat-kotlin.outputs.compat-error }},${{ steps.compat-android.outputs.compat-error }}"
-          IFS=',' read -ra errors_arr <<< "$errors"
+          combined_errors=""
+          if [[ "${{ steps.compat-kotlin.outputs.compat-errors }}" != "" ]]; then
+            combined_errors+="${{ steps.compat-kotlin.outputs.compat-errors }}"
+          fi
+          if [[ "${{ steps.compat-android.outputs.compat-errors }}" != null ]]; then
+            if [[ combined_errors != "" ]]; then
+              combined_errors+=","
+            fi
+            combined_errors+="${{ steps.compat-android.outputs.compat-errors }}"
+          fi
+          echo "::set-output name=combined-compat-errors::combined_errors"
+
+      - name: Update PR with errors
+        if: ${{ steps.combine-compat-errors.outputs.combined-compat-errors != "" }}
+        run: |
+          message=""
           
+          IFS=',' read -ra errors_arr <<< "${{ steps.combine-compat-errors.outputs.combined-compat-errors }}"
+
           # Group errors by module
           declare -A module_errors
           for error in "${errors_arr[@]}"; do
@@ -55,6 +72,8 @@ jobs:
           
           # Print errors grouped by module
           for module in "${!module_errors[@]}"; do
-            echo "${module}:"
-            echo "${module_errors[$module]}"
+            message+="${module}:"
+            message+="${module_errors[$module]}"
           done
+          
+          echo "$message"
