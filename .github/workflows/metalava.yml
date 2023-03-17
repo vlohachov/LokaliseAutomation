@@ -76,7 +76,7 @@ jobs:
           # Details with errors grouped by module
           message=$(
             for module in "${!module_errors[@]}"; do
-              echo "##${module}:"
+              echo "### ${module}:"
               echo "${module_errors[$module]}"
             done
           )
@@ -99,7 +99,7 @@ jobs:
           pr_body=$(jq -r '.body' pr_body.json)
           
           pr_prefix="BREAKING: "
-          issues_section="### ❗ Compatibility Issues ❗"
+          issues_section="## ❗ Compatibility Issues ❗"
           pr_body_appendix="${issues_section}"$'\n'"${{ steps.appendix-message.outputs.message }}"
           
           # Update PR title if needed
