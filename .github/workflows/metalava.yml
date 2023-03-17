@@ -68,10 +68,11 @@ jobs:
           done
           
           # Print errors grouped by module
-          comment_message=""
-          for module in "${!module_errors[@]}"; do
-            comment_message+="${module}:"$'\n'
-            comment_message+="${module_errors[$module]}"
-          done
+          comment_message=$(
+            for module in "${!module_errors[@]}"; do
+              echo "${module}:"
+              echo "${module_errors[$module]}"
+            done
+          )
           
           echo "$comment_message"
