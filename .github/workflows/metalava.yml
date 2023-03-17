@@ -41,6 +41,20 @@ jobs:
           # Extract errors from compat-error output into an array
           errors="${{ steps.compat-kotlin.outputs.compat-error }}|${{ steps.compat-android.outputs.compat-error }}"
           IFS='|' read -ra errors_arr <<< "$errors"
+          
+          # Group errors by module
+          declare -A module_errors
           for error in "${errors_arr[@]}"; do
-            echo "${error}"
+            module=$(echo "${error}" | awk '{print $2}' | awk -F'[.]' '{print $1}')
+            if [[ -z "${module_errors[$module]}" ]]; then
+              module_errors[$module]="${error}"
+            else
+              module_errors[$module]+=$'\n'"${error}"
+            fi
+          done
+          
+          # Print errors grouped by module
+          for module in "${!module_errors[@]}"; do
+            echo "${module}:"
+            echo "${module_errors[$module]}"
           done
