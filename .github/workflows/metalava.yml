@@ -86,7 +86,7 @@ jobs:
           echo "$message" >> ${GITHUB_OUTPUT}
           echo "${delimiter}" >> ${GITHUB_OUTPUT}
 
-      - name: Update PR
+      - name: Update PR (title & body)
         if: ${{ steps.appendix-message.outputs.message != '' }}
         env:
           GH_TOKEN: ${{ github.token }}
