@@ -82,7 +82,7 @@ jobs:
           done
           
           # Details with errors grouped by module
-          details_header="<details><summary>Compatibility errors</summary><p>"
+          details_header="<details><summary>### Compatibility errors</summary><p>"
           details_footer="</p></details>"
           errors=""
           for module in "${!module_errors[@]}"; do
