@@ -109,7 +109,7 @@ jobs:
           fi
           
           # Check if the Compatibility issues section already exists in the PR body
-          if [[ "$pr_body" == *"issues_section"* ]]; then
+          if [[ "$pr_body" == *"$issues_section"* ]]; then
             # Replace the old message with the new message
             pr_body=$(echo "$pr_body" | sed "/${issues_section}/ {N; s/${issues_section}.*\n.*/${appendix}/}")
           else
