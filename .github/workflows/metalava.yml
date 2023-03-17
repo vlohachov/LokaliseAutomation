@@ -109,12 +109,11 @@ jobs:
           fi
           
           # Check if the Compatibility issues section already exists in the PR body
-          if [[ "$pr_body" == *"${issues_section}"* ]]; then
-            # Replace the old message with the new message
-            pr_body=$(echo "$pr_body" | sed "/${issues_section}/ {N; s/${issues_section}.*\n.*/${pr_body_appendix}/}")
-          else
-            # Add the new message to the PR body
-            pr_body="${pr_body}"$'\n\n'"${pr_body_appendix}"
+          if grep -q "${issues_section}" <<< "${pr_body}"; then
+            # Remove old appendix
+            pr_body=$(echo "$pr_body" | sed -i '/${issues_section}/,$d')
           fi
           
+          # Add the appendix to the PR body
+          pr_body="${pr_body}"$'\n\n'"${pr_body_appendix}"
           gh pr edit ${{ github.event.number }} --body "${pr_body}"
