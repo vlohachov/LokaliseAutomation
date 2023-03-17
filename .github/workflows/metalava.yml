@@ -21,14 +21,18 @@ jobs:
         id: check-compat-kotlin
         run: |
           if ./gradlew metalavaCheckCompatibility 2>&1 | tee gradle_output.log | grep -q 'metalavaCheckCompatibility FAILED'; then
-            echo "::set-output name=compat-errors::$(grep -oP '(?<=error: ).*' gradle_output.log | paste -sd ',')"
+            errors=$(grep -oP '(?<=error: ).*' gradle_output.log | paste -sd ',')
+            errors=$(sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" <<< "errors")
+            echo "compat-errors=$errors" >> $GITHUB_OUTPUT;
           fi
 
       - name: Check Android libs compatibility
         id: check-compat-android
         run: |
           if ./gradlew metalavaCheckCompatibilityDebug 2>&1 | tee gradle_output.log | grep -q 'metalavaCheckCompatibilityDebug FAILED'; then
-            echo "::set-output name=compat-errors::$(grep -oP '(?<=error: ).*' gradle_output.log | paste -sd ',')"
+            errors=$(grep -oP '(?<=error: ).*' gradle_output.log | paste -sd ',')
+            errors=$(sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" <<< "errors")
+            echo "compat-errors=$errors" >> $GITHUB_OUTPUT;
           fi
 
       - name: Combine possible compatibility errors
@@ -84,11 +88,12 @@ jobs:
           # Details with errors grouped by module
           details_header="<details><summary>Compatibility errors</summary><p>"
           details_footer="</p></details>"
-          errors=""
-          for module in "${!module_errors[@]}"; do
-            errors+="${module}:"$'\n'
-            errors+="${module_errors[$module]}"$'\n'
-          done
+          errors=$(
+            for module in "${!module_errors[@]}"; do
+              echo "${module}:"
+              echo "${module_errors[$module]}"
+            done
+          )
           
           # Get PR body
           gh pr view ${{ github.event.number }} --json body > pr_body.json
