@@ -74,4 +74,4 @@ jobs:
             comment_message+="${module_errors[$module]}"
           done
           
-          echo "comment_message"
+          echo "$comment_message"
