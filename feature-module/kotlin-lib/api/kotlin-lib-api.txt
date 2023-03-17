@@ -12,9 +12,9 @@ package com.example.kotlin_lib {
   }
 
   public interface MyInterface {
-    method @NonNull public String foo(long param);
-    method public int getValue();
-    property public abstract int value;
+    method public int foo(long param);
+    method @NonNull public String getValue();
+    property @NonNull public abstract String value;
   }
 
 }
