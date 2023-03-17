@@ -88,7 +88,7 @@ jobs:
           message="${{ env.DETAILS_HEADER }}${errors}${{ env.DETAILS_FOOTER }}"
           delimiter="$(openssl rand -hex 8)"
           echo "message<<${delimiter}" >> ${GITHUB_OUTPUT}
-          echo "message" >> ${GITHUB_OUTPUT}
+          echo "$message" >> ${GITHUB_OUTPUT}
           echo "${delimiter}" >> ${GITHUB_OUTPUT}
 
       - name: Update PR
@@ -99,6 +99,10 @@ jobs:
           # Get PR title
           gh pr view ${{ github.event.number }} --json title > pr_title.json
           pr_title=$(jq -r '.title' pr_title.json)
+          # Get PR body
+          gh pr view ${{ github.event.number }} --json body > pr_body.json
+          pr_body=$(jq -r '.body' pr_body.json)
+          
           pr_prefix="BREAKING:"
           
           # Update PR title if needed
@@ -106,10 +110,6 @@ jobs:
             pr_title="$pr_prefix ${pr_title}"
             gh pr edit ${{ github.event.number }} --title "${pr_title}"
           fi
-          
-          # Get PR body
-          gh pr view ${{ github.event.number }} --json body > pr_body.json
-          pr_body=$(jq -r '.body' pr_body.json)
           
           # Update PR body
           if echo "$pr_body" | grep -qF "$details_header" && echo "$pr_body" | grep -qF "$details_footer"; then
