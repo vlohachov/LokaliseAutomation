@@ -67,16 +67,16 @@ jobs:
           for error in "${errors_arr[@]}"; do
             module=$(echo "${error}" | sed -E 's/.* ([^ ]+)\..*/\1/')
             if [[ ! "${module_errors[$module]}" ]]; then
-              module_errors[$module]="${error}"
+              module_errors[$module]="- ${error}"
             else
-              module_errors[$module]+=$'\n'"${error}"
+              module_errors[$module]+=$'\n'"- ${error}"
             fi
           done
           
           # Details with errors grouped by module
           message=$(
             for module in "${!module_errors[@]}"; do
-              echo "${module}:"
+              echo "##${module}:"
               echo "${module_errors[$module]}"
             done
           )
@@ -98,20 +98,20 @@ jobs:
           gh pr view ${{ github.event.number }} --json body > pr_body.json
           pr_body=$(jq -r '.body' pr_body.json)
           
-          pr_prefix="BREAKING:"
+          pr_prefix="BREAKING: "
           issues_section="### ❗ Compatibility Issues ❗"
           pr_body_appendix="${issues_section}"$'\n'"${{ steps.appendix-message.outputs.message }}"
           
           # Update PR title if needed
           if ! [[ "$pr_title" =~ "$pr_prefix" ]]; then
-            pr_title="${pr_prefix} ${pr_title}"
+            pr_title="${pr_prefix}${pr_title}"
             gh pr edit ${{ github.event.number }} --title "${pr_title}"
           fi
           
           # Check if appendix is already in PR body
           if grep -q "${issues_section}" <<< "${pr_body}"; then
             # Remove old appendix
-            pr_body=$(sed -i "/${issues_section}/,\$d" <<< "${pr_body}")
+            pr_body=$(sed "/${issues_section}/,\$d" <<< "${pr_body}")
           fi
           
           # Add appendix to the PR body
