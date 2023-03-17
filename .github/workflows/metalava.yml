@@ -22,7 +22,7 @@ jobs:
         continue-on-error: true
         run: |
           if ./gradlew metalavaCheckCompatibility 2>&1 | tee gradle_output.log | grep -q 'metalavaCheckCompatibility FAILED'; then
-            echo "::set-output name=compat-error::$(grep -oP '(?<=error: ).*' gradle_output.log | paste -sd '|')"
+            echo "::set-output name=compat-error::$(grep -oP '(?<=error: ).*' gradle_output.log | paste -sd ',')"
             exit 1
           fi
 
@@ -31,7 +31,7 @@ jobs:
         continue-on-error: true
         run: |
           if ./gradlew metalavaCheckCompatibilityDebug 2>&1 | tee gradle_output.log | grep -q 'metalavaCheckCompatibilityDebug FAILED'; then
-            echo "::set-output name=compat-error::$(grep -oP '(?<=error: ).*' gradle_output.log | paste -sd '|')"
+            echo "::set-output name=compat-error::$(grep -oP '(?<=error: ).*' gradle_output.log | paste -sd ',')"
             exit 1
           fi
 
@@ -39,8 +39,8 @@ jobs:
         if: ${{ always() }}
         run: |
           # Extract errors from compat-error output into an array
-          errors="${{ steps.compat-kotlin.outputs.compat-error }}|${{ steps.compat-android.outputs.compat-error }}"
-          IFS='|' read -ra errors_arr <<< "$errors"
+          errors="${{ steps.compat-kotlin.outputs.compat-error }},${{ steps.compat-android.outputs.compat-error }}"
+          IFS=',' read -ra errors_arr <<< "$errors"
           
           # Group errors by module
           declare -A module_errors
