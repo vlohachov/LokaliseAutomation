@@ -51,9 +51,21 @@ jobs:
           
           echo "::set-output name=combined-compat-errors::${combined_errors}"
 
-      - name: Update PR with errors
+      - name: Update PR
         if: ${{ steps.combine-compat-errors.outputs.combined-compat-errors != '' }}
         run: |
+          # Get PR title
+          gh pr view ${{ github.event.number }} --json title > pr_title.json
+          pr_title=$(jq -r '.title' pr_title.json)
+          pr_prefix="BREAKING:"
+          
+          # Update PR title if needed
+          if ! [[ "$pr_title" =~ "$pr_prefix"]]; then
+            pr_title="$pr_prefix ${pr_title}"
+            gh pr edit ${{ github.event.number }} --title "${pr_title}"
+          fi
+          
+          # Create bash array of combined errors
           IFS=',' read -ra errors_arr <<< "${{ steps.combine-compat-errors.outputs.combined-compat-errors }}"
           
           # Group errors by module
@@ -67,12 +79,25 @@ jobs:
             fi
           done
           
-          # Print errors grouped by module
-          comment_message=$(
+          # Details with errors grouped by module
+          details_header="<details><summary>Compatibility errors</summary><p>"
+          details_footer="</p></details>"
+          errors+=$(
             for module in "${!module_errors[@]}"; do
               echo "${module}:"
               echo "${module_errors[$module]}"
             done
           )
           
-          echo "$comment_message"
+          # Get PR body
+          gh pr view ${{ github.event.number }} --json body > pr_body.json
+          pr_body=$(jq -r '.body' pr_body.json)
+          
+          # Update PR body
+          if echo "$pr_body" | grep -qF "$details_header" && echo "$pr_body" | grep -qF "$details_footer"; then
+            # Replace substring between header and footer with errors
+            pr_body=$(echo "$pr_body" | sed "/$details_header/,/$details_footer/c\\$details_header\n$errors\n$details_footer")
+          else 
+            pr_body="${pr_body}"$'\n\n'"$details_header"$'\n'"$errors"$'\n'"$details_footer"
+          fi
+          gh pr edit ${{ github.event.number }} --body "${pr_body}"
