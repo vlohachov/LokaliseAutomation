@@ -62,7 +62,7 @@ jobs:
           pr_prefix="BREAKING:"
           
           # Update PR title if needed
-          if ! [[ "$pr_title" =~ "$pr_prefix"]]; then
+          if ! [[ "$pr_title" =~ "$pr_prefix" ]]; then
             pr_title="$pr_prefix ${pr_title}"
             gh pr edit ${{ github.event.number }} --title "${pr_title}"
           fi
