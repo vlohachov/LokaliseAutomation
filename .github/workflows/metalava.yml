@@ -10,9 +10,6 @@ on:
       - main
   workflow_dispatch:
 
-env:
-  DETAILS_HEADER: '### ❗ Compatibility errors ❗'
-
 jobs:
   metalava-compatibility-check:
     runs-on: ubuntu-latest
@@ -77,14 +74,13 @@ jobs:
           done
           
           # Details with errors grouped by module
-          errors=$(
+          message=$(
             for module in "${!module_errors[@]}"; do
               echo "${module}:"
               echo "${module_errors[$module]}"
             done
           )
           
-          message="${{ env.DETAILS_HEADER }}"$'\n'"${errors}"
           delimiter="$(openssl rand -hex 8)"
           echo "message<<${delimiter}" >> ${GITHUB_OUTPUT}
           echo "$message" >> ${GITHUB_OUTPUT}
@@ -103,6 +99,7 @@ jobs:
           pr_body=$(jq -r '.body' pr_body.json)
           
           pr_prefix="BREAKING:"
+          details_header="### ❗ Compatibility issues ❗"
           
           # Update PR title if needed
           if ! [[ "$pr_title" =~ "$pr_prefix" ]]; then
@@ -110,5 +107,5 @@ jobs:
             gh pr edit ${{ github.event.number }} --title "${pr_title}"
           fi
           
-          pr_body="${pr_body}"$'\n\n'"${{ steps.appendix-message.outputs.message }}"
+          pr_body="${pr_body}"$'\n\n'"{$details_header}"$'\n'"${{ steps.appendix-message.outputs.message }}"
           gh pr edit ${{ github.event.number }} --body "${pr_body}"
