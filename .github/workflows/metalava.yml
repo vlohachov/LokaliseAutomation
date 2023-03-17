@@ -53,6 +53,8 @@ jobs:
 
       - name: Update PR
         if: ${{ steps.combine-compat-errors.outputs.combined-compat-errors != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           # Get PR title
           gh pr view ${{ github.event.number }} --json title > pr_title.json
