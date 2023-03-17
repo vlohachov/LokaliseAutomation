@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@v3.1.0
 
       - name: Check Kotlin libs compatibility
-        id: compat-kotlin
+        id: check-compat-kotlin
         continue-on-error: true
         run: |
           if ./gradlew metalavaCheckCompatibility 2>&1 | tee gradle_output.log | grep -q 'metalavaCheckCompatibility FAILED'; then
@@ -27,7 +27,7 @@ jobs:
           fi
 
       - name: Check Android libs compatibility
-        id: compat-android
+        id: check-compat-android
         continue-on-error: true
         run: |
           if ./gradlew metalavaCheckCompatibilityDebug 2>&1 | tee gradle_output.log | grep -q 'metalavaCheckCompatibilityDebug FAILED'; then
@@ -40,14 +40,14 @@ jobs:
         if: ${{ always() }}
         run: |
           combined_errors=""
-          if [[ "${{ steps.compat-kotlin.outputs.compat-errors }}" != "" ]]; then
-            combined_errors+="${{ steps.compat-kotlin.outputs.compat-errors }}"
+          if [[ "${{ steps.check-compat-kotlin.outputs.compat-errors }}" != "" ]]; then
+            combined_errors+="${{ steps.check-compat-kotlin.outputs.compat-errors }}"
           fi
-          if [[ "${{ steps.compat-android.outputs.compat-errors }}" != "" ]]; then
+          if [[ "${{ steps.check-compat-android.outputs.compat-errors }}" != "" ]]; then
             if [[ combined_errors != "" ]]; then
               combined_errors+=","
             fi
-            combined_errors+="${{ steps.compat-android.outputs.compat-errors }}"
+            combined_errors+="${{ steps.check-compat-android.outputs.compat-errors }}"
           fi
           echo "::set-output name=combined-compat-errors::combined_errors"
 
