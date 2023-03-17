@@ -99,7 +99,8 @@ jobs:
           pr_body=$(jq -r '.body' pr_body.json)
           
           pr_prefix="BREAKING:"
-          details_header="### ❗ Compatibility issues ❗"
+          issues_section="### ❗ Compatibility Issues ❗"
+          appendix="${issues_section}\n${{ steps.appendix-message.outputs.message }}"
           
           # Update PR title if needed
           if ! [[ "$pr_title" =~ "$pr_prefix" ]]; then
@@ -107,5 +108,13 @@ jobs:
             gh pr edit ${{ github.event.number }} --title "${pr_title}"
           fi
           
-          pr_body="${pr_body}"$'\n\n'"${details_header}"$'\n'"${{ steps.appendix-message.outputs.message }}"
+          # Check if the Compatibility issues section already exists in the PR body
+          if [[ "$pr_body" == *"$compatibility_header"* ]]; then
+            # Replace the old message with the new message
+            pr_body=$(echo "$pr_body" | sed "/${issues_section}/ {N; s/${issues_section}.*\n.*/${appendix}/}")
+          else
+            # Add the new message to the PR body
+            pr_body="${pr_body}"$'\n\n'"${appendix}"
+          fi
+          
           gh pr edit ${{ github.event.number }} --body "${pr_body}"
