@@ -84,11 +84,12 @@ jobs:
           # Details with errors grouped by module
           details_header="<details><summary>Compatibility errors</summary><p>"
           details_footer="</p></details>"
-          errors=""
+          errors+=$(
           for module in "${!module_errors[@]}"; do
-            errors+="${module}:\n"
-            errors+="${module_errors[$module]}\n"
+            echo "${module}:"
+            echo "${module_errors[$module]}"
           done
+          ) 
           
           # Get PR body
           gh pr view ${{ github.event.number }} --json body > pr_body.json
