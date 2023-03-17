@@ -11,8 +11,7 @@ on:
   workflow_dispatch:
 
 env:
-  DETAILS_HEADER: '<details><summary>Compatibility errors</summary><p>'
-  DETAILS_FOOTER: '</p></details>'
+  DETAILS_HEADER: 'Compatibility errors'
 
 jobs:
   metalava-compatibility-check:
@@ -85,7 +84,7 @@ jobs:
             done
           )
           
-          message="${{ env.DETAILS_HEADER }}${errors}${{ env.DETAILS_FOOTER }}"
+          message="${{ env.DETAILS_HEADER }}\n${errors}"
           delimiter="$(openssl rand -hex 8)"
           echo "message<<${delimiter}" >> ${GITHUB_OUTPUT}
           echo "$message" >> ${GITHUB_OUTPUT}
@@ -111,11 +110,5 @@ jobs:
             gh pr edit ${{ github.event.number }} --title "${pr_title}"
           fi
           
-          # Update PR body
-          if echo "$pr_body" | grep -qF "$details_header" && echo "$pr_body" | grep -qF "$details_footer"; then
-            # Replace substring between header and footer with errors
-            pr_body=$(echo "$pr_body" | sed "/${{ env.DETAILS_HEADER }}/,/${{ env.DETAILS_FOOTER }}/c\\${{ steps.appendix-message.outputs.message }}")
-          else 
-            pr_body="${pr_body}"$'\n\n'"${{ steps.appendix-message.outputs.message }}"
-          fi
+          pr_body="${pr_body}"$'\n\n'"${{ steps.appendix-message.outputs.message }}"
           gh pr edit ${{ github.event.number }} --body "${pr_body}"
