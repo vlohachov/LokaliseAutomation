@@ -19,7 +19,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           LATEST_RELEASE_TAG=$(
-            gh api -X GET /repos/vlohachov/LokaliseAutomation/git/matching-refs/tags/ | jq -r '.[].ref' | grep -E '^refs/tags/v.*' | sed 's/^refs\/tags\///'
+            gh api -X GET /repos/vlohachov/LokaliseAutomation/git/matching-refs/tags/ \
+              | jq -r '.[].ref' \
+              | grep -E '^refs/tags/v.*' \
+              | sed 's/^refs\/tags\///' \
+              | sort -V -r \
+              | head -n 1
           )
           echo "${LATEST_RELEASE_TAG}"
           #export LATEST_RELEASE_TAG=${GITHUB_REF/refs\/tags\//}
