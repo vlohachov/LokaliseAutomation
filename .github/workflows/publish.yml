@@ -14,23 +14,30 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3.1.0
 
-      - name: Set version
+      - name: Get version
+        id: get-version
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          LATEST_RELEASE_TAG=$(
-            gh api -X GET /repos/vlohachov/LokaliseAutomation/git/matching-refs/tags/ \
+          latest_version=$(
+            gh api -X GET /repos/${{ github.event.repository }}/git/matching-refs/tags/ \
               | jq -r '.[].ref' \
               | grep -E '^refs/tags/v.*' \
               | sed 's/^refs\/tags\///' \
               | sort -V -r \
               | head -n 1
           )
-          echo "${LATEST_RELEASE_TAG}"
-          #export LATEST_RELEASE_TAG=${GITHUB_REF/refs\/tags\//}
+          echo "Latest release tag: ${latest_version}"
+          
+          
           #export VERSION=${LATEST_RELEASE_TAG:1}
           #echo "VERSION=${VERSION}" >> $GITHUB_ENV
           #echo "Detected Version is '${VERSION_NAME}'"
+          echo version=$latest_version >> $GITHUB_OUTPUT;
+
+      - name: Check for breaking changes
+        run: |
+          
 
       - name: Publish
         if: false
