@@ -25,14 +25,14 @@ jobs:
 
       - name: Print apis
         run: |
-          files=(`find . -type f -name *-api.txt`)
+          files=(`find . -type f -name *-api.(txt|pro)`)
           echo "${files[@]}"
 
       - name: Save signature files
         uses: actions/upload-artifact@v3
         with:
           name: signatures
-          path: ~/**/api/
+          path: **/api/
 
       - name: Checkout current
         uses: actions/checkout@v3.1.0
