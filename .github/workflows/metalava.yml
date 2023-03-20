@@ -31,6 +31,7 @@ jobs:
       - name: Save signature files
         uses: actions/upload-artifact@v3
         with:
+          name: signatures
           path: ~/**/api/
 
       - name: Checkout current
@@ -39,7 +40,7 @@ jobs:
       - name: Load signature files
         uses: actions/download-artifact@v3
         with:
-          path: ~/**/api/
+          name: signatures
 
       - name: Print apis
         run: |
