@@ -1,4 +1,5 @@
 plugins {
+    id 'maven-publish'
     id 'java-library'
     id 'org.jetbrains.kotlin.jvm'
     id 'me.tylerbwong.gradle.metalava'
@@ -13,4 +14,28 @@ metalava {
     filename = "api/$name-api.txt"
     outputKotlinNulls = false
     includeSignatureVersion = false
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "VersionCatalogPlugin"
+            url = uri("https://maven.pkg.github.com/vlohachov/LokaliseAutomation")
+            credentials {
+                username = System.getenv("GITHUB_USER")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+    publications {
+        maven(MavenPublication) {
+            groupId = 'com.example.feature-module'
+            artifactId = 'kotlin-lib'
+            version = System.getenv("VERSION") ?: '0.0.1'
+
+            afterEvaluate {
+                from(components["java"])
+            }
+        }
+    }
 }

@@ -14,6 +14,39 @@ jobs:
   metalava-compatibility-check:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout master/main
+        uses: actions/checkout@v3.1.0
+        with:
+          ref: main # or master
+
+      - name: Generate signature files
+        run: |
+          ./gradlew metalavaGenerateSignature metalavaGenerateSignatureDebug
+
+      - name: Print apis
+        run: |
+          files=(`find . -type f -name *-api.txt -o -name *-api.pro`)
+          echo "${files[@]}"
+
+      - name: Save signature files
+        uses: actions/upload-artifact@v3
+        with:
+          name: signatures
+          path: ./**/api/
+
+      - name: Checkout current
+        uses: actions/checkout@v3.1.0
+
+      - name: Load signature files
+        uses: actions/download-artifact@v3
+        with:
+          name: signatures
+
+      - name: Print apis
+        run: |
+          files=(`find . -type f -name *-api.txt -o -name *-api.pro`)
+          echo "${files[@]}"
+
       - name: Checkout
         uses: actions/checkout@v3.1.0
 
