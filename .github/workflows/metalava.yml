@@ -106,7 +106,7 @@ jobs:
           pr_body=$(jq -r '.body' pr_body.json)
           
           # Update PR title
-          pr_prefix="BREAKING: "
+          pr_prefix="BREAKING CHANGE: "
 
           # Add prefix if not yet added and appendix is not empty
           if [[ "${pr_title}" != "${pr_prefix}"* ]] && [[ -n "${appendix_message}" ]]; then
