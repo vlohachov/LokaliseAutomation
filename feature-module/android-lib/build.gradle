@@ -40,7 +40,7 @@ android {
 metalava {
     filename.set("api/$name-api.txt")
     sourcePaths.setFrom("src/main")
-    keepFilename.set("public-api.pro")
+    keepFilename.set("$name-api.pro")
 }
 
 publishing {
