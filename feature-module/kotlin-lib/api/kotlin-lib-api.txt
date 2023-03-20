@@ -1,0 +1,21 @@
+package com.example.kotlin_lib {
+
+  public final class MyClass {
+    ctor public MyClass(@NonNull String value);
+    method @NonNull public String component1();
+    method @NonNull public com.example.kotlin_lib.MyClass copy(@NonNull String value);
+    method public boolean equals(@Nullable Object other);
+    method @NonNull public String getValue();
+    method public int hashCode();
+    method @NonNull public String toString();
+    property @NonNull public final String value;
+  }
+
+  public interface MyInterface {
+    method public int foo(long param);
+    method @NonNull public String getValue();
+    property @NonNull public abstract String value;
+  }
+
+}
+
