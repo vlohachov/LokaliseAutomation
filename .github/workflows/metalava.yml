@@ -25,7 +25,7 @@ jobs:
 
       - name: Print apis
         run: |
-          files=(**/*-api.txt)
+          files=(`find . -type f -name *-api.txt`)
           echo "${files[@]}"
 
       - name: Checkout current
@@ -33,7 +33,7 @@ jobs:
 
       - name: Print apis
         run: |
-          files=(**/*-api.txt)
+          files=(`find . -type f -name *-api.txt`)
           echo "${files[@]}"
 
       - name: Checkout
