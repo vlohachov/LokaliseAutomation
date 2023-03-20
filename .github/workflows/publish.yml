@@ -20,7 +20,8 @@ jobs:
         run: |
           gh api -X GET /repos/vlohachov/LokaliseAutomation/git/matching-refs/tags/v*
           LATEST_RELEASE_TAG=$(gh api -X GET /repos/vlohachov/LokaliseAutomation/git/matching-refs/tags/v*)
-          echo "$LATEST_RELEASE_TAG"
+          echo "TAGS:"
+          echo "${LATEST_RELEASE_TAG}"
           #export LATEST_RELEASE_TAG=${GITHUB_REF/refs\/tags\//}
           #export VERSION=${LATEST_RELEASE_TAG:1}
           #echo "VERSION=${VERSION}" >> $GITHUB_ENV
