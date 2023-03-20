@@ -38,7 +38,7 @@ jobs:
         id: check-compat-kotlin
         run: |
           if ./gradlew metalavaCheckCompatibility 2>&1 | tee gradle_output.log | grep -q 'metalavaCheckCompatibility FAILED'; then
-            errors=$(grep -oP '(?<=error: ).*' gradle_output.log | paste -sd ',')
+            errors=$(grep -oP '(?<=error: ).*' gradle_output.log | paste -sd '|')
             errors=$(sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" <<< "$errors")
             echo compat-errors=$errors >> $GITHUB_OUTPUT;
           fi
@@ -47,7 +47,7 @@ jobs:
         id: check-compat-android
         run: |
           if ./gradlew metalavaCheckCompatibilityDebug 2>&1 | tee gradle_output.log | grep -q 'metalavaCheckCompatibilityDebug FAILED'; then
-            errors=$(grep -oP '(?<=error: ).*' gradle_output.log | paste -sd ',')
+            errors=$(grep -oP '(?<=error: ).*' gradle_output.log | paste -sd '|')
             errors=$(sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" <<< "$errors")
             echo compat-errors=$errors >> $GITHUB_OUTPUT;
           fi
@@ -64,8 +64,8 @@ jobs:
           
           # Append Android libs compat errors
           if [[ "${{ steps.check-compat-android.outputs.compat-errors }}" != "" ]]; then
-            if [[ combined_errors != "" ]]; then
-              combined_errors+=","
+            if [[ ${combined_errors} != "" ]]; then
+              combined_errors+="|"
             fi
             combined_errors+="${{ steps.check-compat-android.outputs.compat-errors }}"
           fi
@@ -77,7 +77,7 @@ jobs:
         if: ${{ steps.combine-compat-errors.outputs.combined-compat-errors != '' }}
         run: |
           # Create bash array of combined errors
-          IFS=',' read -ra errors_arr <<< "${{ steps.combine-compat-errors.outputs.combined-compat-errors }}"
+          IFS='|' read -ra errors_arr <<< "${{ steps.combine-compat-errors.outputs.combined-compat-errors }}"
           
           # Details with errors grouped by module
           message=$(
