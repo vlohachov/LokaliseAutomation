@@ -85,7 +85,7 @@ jobs:
           # Group errors by class
           declare -A class_errors
           for error in "${errors_arr[@]}"; do
-            class=$(echo "${error}" | sed -E 's/.* ([^ ]+)\([^(]+\).*/\1/')
+            class=$(echo "${error}" | sed -n 's/.*\.\([A-Z][a-zA-Z]*\)[^\.]*$/\1/p')
             if [[ ! "${class_errors[$class]}" ]]; then
               class_errors[$class]="- ${error}"
             else
