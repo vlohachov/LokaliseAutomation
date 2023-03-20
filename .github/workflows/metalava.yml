@@ -23,29 +23,19 @@ jobs:
         run: |
           ./gradlew metalavaGenerateSignature metalavaGenerateSignatureDebug
 
-      - name: Print apis
-        run: |
-          files=(`find . -type f -name *-api.txt -o -name *-api.pro`)
-          echo "${files[@]}"
-
-      - name: Save signature files
+      - name: Save signature files (main)
         uses: actions/upload-artifact@v3
         with:
-          name: signatures
+          name: signatures-main
           path: ./**/api/
 
       - name: Checkout current
         uses: actions/checkout@v3.1.0
 
-      - name: Load signature files
+      - name: Load signature files (main)
         uses: actions/download-artifact@v3
         with:
-          name: signatures
-
-      - name: Print apis
-        run: |
-          files=(`find . -type f -name *-api.txt -o -name *-api.pro`)
-          echo "${files[@]}"
+          name: signatures-main
 
       - name: Check Kotlin libs compatibility
         id: check-compat-kotlin
@@ -157,3 +147,13 @@ jobs:
             pr_body="${pr_body}"$'\n\n'"${pr_body_appendix}"
           fi
           gh pr edit ${{ github.event.number }} --body "${pr_body}"
+
+      - name: Generate signature files (current)
+        run: |
+          ./gradlew metalavaGenerateSignature metalavaGenerateSignatureDebug
+
+      - name: Save signature files (current)
+        uses: actions/upload-artifact@v3
+        with:
+          name: signatures-current
+          path: ./**/api/
