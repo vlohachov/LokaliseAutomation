@@ -19,7 +19,7 @@ jobs:
         with:
           ref: main # or master
 
-      - name: Generate signature files
+      - name: Generate signature files (main)
         run: |
           ./gradlew metalavaGenerateSignature metalavaGenerateSignatureDebug
 
@@ -85,7 +85,7 @@ jobs:
           # Details with errors grouped by module
           message=$(
             for error in "${!errors_arr[@]}"; do
-              echo "${errors_arr[error]}"
+              echo "- ${errors_arr[error]}"
             done
           )
           
