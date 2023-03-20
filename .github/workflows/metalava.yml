@@ -6,36 +6,33 @@ concurrency:
 
 on:
   pull_request:
-    branches:
-      - main
-  workflow_dispatch:
 
 jobs:
   metalava-compatibility-check:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout master/main
+      - name: Checkout base
         uses: actions/checkout@v3.1.0
         with:
-          ref: main # or master
+          ref: ${{ github.base_ref }}
 
-      - name: Generate signature files (main)
+      - name: Generate signature files (base)
         run: |
           ./gradlew metalavaGenerateSignature metalavaGenerateSignatureDebug
 
-      - name: Save signature files (main)
+      - name: Save signature files (base)
         uses: actions/upload-artifact@v3
         with:
-          name: signatures-main
+          name: signatures-base
           path: ./**/api/
 
       - name: Checkout current
         uses: actions/checkout@v3.1.0
 
-      - name: Load signature files (main)
+      - name: Load signature files (base)
         uses: actions/download-artifact@v3
         with:
-          name: signatures-main
+          name: signatures-base
 
       - name: Check Kotlin libs compatibility
         id: check-compat-kotlin
