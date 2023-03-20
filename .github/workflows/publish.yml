@@ -20,7 +20,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           latest_version=$(
-            gh api -X GET /repos/${{ github.event.repository }}/git/matching-refs/tags/ \
+            gh api -X GET /repos/${{ github.repository }}/git/matching-refs/tags/ \
               | jq -r '.[].ref' \
               | grep -E '^refs/tags/v.*' \
               | sed 's/^refs\/tags\///' \
