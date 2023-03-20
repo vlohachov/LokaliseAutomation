@@ -47,9 +47,6 @@ jobs:
           files=(`find . -type f -name *-api.txt -o -name *-api.pro`)
           echo "${files[@]}"
 
-      - name: Checkout
-        uses: actions/checkout@v3.1.0
-
       - name: Check Kotlin libs compatibility
         id: check-compat-kotlin
         run: |
