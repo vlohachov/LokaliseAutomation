@@ -82,24 +82,10 @@ jobs:
           # Create bash array of combined errors
           IFS=',' read -ra errors_arr <<< "${{ steps.combine-compat-errors.outputs.combined-compat-errors }}"
           
-          # Group errors by class
-          declare -A class_errors
-          for error in "${errors_arr[@]}"; do
-            class=$(echo "${error}" | sed -n 's/.*\.\([A-Z][a-zA-Z]*\)[^\.]*$/\1/p')
-            if [[ ! "${class_errors[$class]}" ]]; then
-              class_errors[$class]="- ${error}"
-            else
-              class_errors[$class]+=$'\n'"- ${error}"
-            fi
-          done
-          
-          echo incompatible_classes_count=${#class_errors[@]} >> ${GITHUB_OUTPUT}
-          
           # Details with errors grouped by module
           message=$(
-            for class in "${!class_errors[@]}"; do
-              echo "#### ${class}:"
-              echo "${class_errors[class]}"
+            for error in "${!errors_arr[@]}"; do
+              echo "${error}"
             done
           )
           
