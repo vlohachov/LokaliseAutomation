@@ -97,7 +97,7 @@ jobs:
           
           # Details with errors grouped by module
           message=$(
-            for module in "${!class_errors[@]}"; do
+            for class in "${!class_errors[@]}"; do
               echo "#### ${class}:"
               echo "${class_errors[class]}"
             done
