@@ -28,8 +28,18 @@ jobs:
           files=(`find . -type f -name *-api.txt`)
           echo "${files[@]}"
 
+      - name: Save signature files
+        uses: actions/upload-artifact@v3
+        with:
+          path: ~/**/api/
+
       - name: Checkout current
         uses: actions/checkout@v3.1.0
+
+      - name: Load signature files
+        uses: actions/download-artifact@v3
+        with:
+          path: ~/**/api/
 
       - name: Print apis
         run: |
