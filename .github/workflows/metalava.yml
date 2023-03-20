@@ -19,36 +19,23 @@ jobs:
         with:
           ref: main # or master
 
-      - name: Generate signature files
+      - name: Generate signature files (main)
         run: |
           ./gradlew metalavaGenerateSignature metalavaGenerateSignatureDebug
 
-      - name: Print apis
-        run: |
-          files=(`find . -type f -name *-api.txt -o -name *-api.pro`)
-          echo "${files[@]}"
-
-      - name: Save signature files
+      - name: Save signature files (main)
         uses: actions/upload-artifact@v3
         with:
-          name: signatures
+          name: signatures-main
           path: ./**/api/
 
       - name: Checkout current
         uses: actions/checkout@v3.1.0
 
-      - name: Load signature files
+      - name: Load signature files (main)
         uses: actions/download-artifact@v3
         with:
-          name: signatures
-
-      - name: Print apis
-        run: |
-          files=(`find . -type f -name *-api.txt -o -name *-api.pro`)
-          echo "${files[@]}"
-
-      - name: Checkout
-        uses: actions/checkout@v3.1.0
+          name: signatures-main
 
       - name: Check Kotlin libs compatibility
         id: check-compat-kotlin
@@ -95,24 +82,10 @@ jobs:
           # Create bash array of combined errors
           IFS=',' read -ra errors_arr <<< "${{ steps.combine-compat-errors.outputs.combined-compat-errors }}"
           
-          # Group errors by module
-          declare -A module_errors
-          for error in "${errors_arr[@]}"; do
-            module=$(echo "${error}" | sed -E 's/.* ([^ ]+)\..*/\1/')
-            if [[ ! "${module_errors[$module]}" ]]; then
-              module_errors[$module]="- ${error}"
-            else
-              module_errors[$module]+=$'\n'"- ${error}"
-            fi
-          done
-          
-          echo incompatible_modules_count=${#module_errors[@]} >> ${GITHUB_OUTPUT}
-          
           # Details with errors grouped by module
           message=$(
-            for module in "${!module_errors[@]}"; do
-              echo "#### ${module}:"
-              echo "${module_errors[$module]}"
+            for error in "${!errors_arr[@]}"; do
+              echo "- ${errors_arr[error]}"
             done
           )
           
@@ -155,8 +128,17 @@ jobs:
           fi
           # Add appendix if not empty
           if [[ -n "${appendix_message}" ]]; then
-            incompatible_modules="${{ steps.appendix-message.outputs.incompatible_modules_count }} incompatible modules detected"
-            pr_body_appendix="${issues_section}"$'\n'"${incompatible_modules}"$'\n'"${appendix_message}"
+            pr_body_appendix="${issues_section}"$'\n'"${appendix_message}"
             pr_body="${pr_body}"$'\n\n'"${pr_body_appendix}"
           fi
           gh pr edit ${{ github.event.number }} --body "${pr_body}"
+
+      - name: Generate signature files (current)
+        run: |
+          ./gradlew metalavaGenerateSignature metalavaGenerateSignatureDebug
+
+      - name: Save signature files (current)
+        uses: actions/upload-artifact@v3
+        with:
+          name: signatures-current
+          path: ./**/api/
