@@ -11,8 +11,8 @@ on:
         description: 'Update type'
         type: choice
         options:
-          - minor
           - patch
+          - minor
 
 jobs:
   publish:
@@ -55,7 +55,7 @@ jobs:
             new_version="$((major_version+1)).0.0"
           elif [[ ${{ github.event.inputs.update == 'minor' }} ]]; then
             new_version="${major_version}.$((minor_version+1)).0"
-          elif [[ ${{ github.event.inputs.update == 'patch' }}]]; then
+          elif [[ ${{ github.event.inputs.update == 'patch' }} ]]; then
             new_version="${major_version}.${minor_version}.$((patch_version+1))"
           fi
           
