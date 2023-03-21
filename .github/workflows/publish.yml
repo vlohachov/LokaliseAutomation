@@ -19,6 +19,7 @@ jobs:
       - name: Get version
         id: get-version
         run: |
+          gh api -X GET /repos/${{ github.repository }}/git/matching-refs/tags/
           latest_version=$(
             gh api -X GET /repos/${{ github.repository }}/git/matching-refs/tags/ \
               | jq -r '.[].ref' \
@@ -37,7 +38,7 @@ jobs:
         run: |
           latest_release_sha=$(git rev-list -n 1 ${{ steps.get-version.outputs.version }})
           echo "${latest_release_sha}"
-          gh api repos/${{ github.repository }}/commits --paginate
+#          gh api repos/${{ github.repository }}/commits --paginate
 
       - name: Publish
         if: false
