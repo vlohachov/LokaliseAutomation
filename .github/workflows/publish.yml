@@ -44,7 +44,7 @@ jobs:
           commits_since_sha=$(echo "$commits" | awk -v start_sha="$sha" 'BEGIN {found=0} {if (found || $2 == start_sha) {found=1; next} print}')
 
           echo "Commits since ${tag}:"
-          echo "commits_since_sha"
+          echo "${commits_since_sha}"
 
       - name: Publish
         if: false
