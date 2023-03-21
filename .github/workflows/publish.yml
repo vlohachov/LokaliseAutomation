@@ -39,21 +39,13 @@ jobs:
           
           commits=$(
             gh api repos/${{ github.repository }}/commits --paginate \
-              -q ".[] | {sha: .sha, message: .commit.message}"
+              -q '[.[] | {sha: .sha, message: .commit.message}]'
           )
-          IFS=$'\n' read -ra commit_array <<< "$commits"
+          commits_since_sha=$(
+            echo "${commits}" | jq --arg sha "$sha" \
+              '[.[] | select(.sha != $sha)] | until(.[-1].sha == $sha; .[:-1])'
+          )
   
-          commits_since_sha=""
-          for commit in "${commit_array[@]}"; do
-            commit_sha=$(echo "$commit" | awk '{print $2}')
-            echo "SHA: ${commit_sha}"
-            echo "Commit: ${commit_array[$commit]}"
-            if [ "$commit_sha" == "$sha" ]; then
-              break
-            fi
-            commits_since_sha+="$commit"$'\n'
-          done
-          
           echo "Commits since ${tag}:"
           echo "${commits_since_sha}"
 
