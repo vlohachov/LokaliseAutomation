@@ -81,7 +81,6 @@ jobs:
           echo version=${new_version} >> $GITHUB_OUTPUT;
 
   release:
-    if: false
     needs: [ update-version ]
     runs-on: ubuntu-latest
     steps:
@@ -117,7 +116,6 @@ jobs:
           gh release create ${{ steps.new-tag.outputs.tag }} --prerelease --generate-notes
 
   publish:
-    if: false
     needs: [ update-version, release ]
     runs-on: ubuntu-latest
     steps:
