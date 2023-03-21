@@ -28,16 +28,14 @@ jobs:
               | head -n 1
           )
           echo "Latest release tag: ${latest_version}"
-          
-          
           #export VERSION=${LATEST_RELEASE_TAG:1}
           #echo "VERSION=${VERSION}" >> $GITHUB_ENV
           #echo "Detected Version is '${VERSION_NAME}'"
-          echo version=$latest_version >> $GITHUB_OUTPUT;
+          echo version=${latest_version:-v0.0.1} >> $GITHUB_OUTPUT;
 
       - name: Check for breaking changes
         run: |
-          gh api repos/${{ github.repository }}/commits --paginate -q ".[] | select(.commit.message) | .sha" --jq --since ${{ steps.git-version.outputs.version }}
+          gh api repos/${{ github.repository }}/commits --paginate -q ".[] | select(.commit.message) | .sha" --jq --since ${{ steps.get-version.outputs.version }}
 
       - name: Publish
         if: false
