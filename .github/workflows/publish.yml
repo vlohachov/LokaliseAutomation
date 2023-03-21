@@ -47,11 +47,18 @@ jobs:
           current_version=${latest_release_tag:1}
           echo "Current version: ${current_version}"
           
+          major_version=$(echo "${current_version}" | cut -d "." -f 1)
+          minor_version=$(echo "${current_version}" | cut -d "." -f 2)
+          patch_version=$(echo "${current_version}" | cut -d "." -f 3)
+          
           if [[ ${{ steps.breaking-changes.outputs.result == 'true' }} ]]; then
-            new_version="$((current_version[0]+1)).0.0"
-          else
-            new_version="${current_version[0]}.${current_version[1]+1}.0"
+            new_version="$((major_version+1)).0.0"
+          elif [[ ${{ github.event.inputs.update == 'minor' }} ]]; then
+            new_version="${major_version}.$((minor_version+1)).0"
+          elif [[ ${{ github.event.inputs.update == 'patch' }}]]; then
+            new_version="${major_version}.${minor_version}.$((patch_version+1))"
           fi
+          
           echo "New version: ${new_version}"
 
       - name: Publish
