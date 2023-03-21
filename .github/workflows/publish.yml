@@ -41,7 +41,7 @@ jobs:
             gh api repos/${{ github.repository }}/commits --paginate \
               -q '[.[] | {sha: .sha, message: .commit.message}]'
           )
-          commits_since_sha=$(echo "${commits}" | jq --arg sha "$sha" '.[:(. | map(.sha == $sha) | index(true))]')
+          commits_since_sha=$(echo "${commits}" | jq --arg sha "$sha" 'until(.[].sha == $sha; .[]) | .[:-1]')
   
           echo "Commits since ${tag}:"
           echo "${commits_since_sha}"
