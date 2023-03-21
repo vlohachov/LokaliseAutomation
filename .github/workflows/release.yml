@@ -62,7 +62,7 @@ jobs:
           
           major_version=$(echo "${current_version}" | cut -d "." -f 1)
           minor_version=$(echo "${current_version}" | cut -d "." -f 2)
-          patch_version=$(echo "${current_version}" | cut -d "." -f 3)
+          patch_version=$(echo "${current_version}" | cut -d "." -f 3 | sed -E 's/-alpha[0-9]+$//')
           
           if echo "${current_version}" | grep -q -- '-alpha[0-9]\+$'; then
             alpha_version=$(echo "${current_version}" | sed -E 's/.*-alpha([0-9]+)$/\1/')
