@@ -28,7 +28,7 @@ jobs:
       - name: Check for breaking changes
         id: breaking-changes
         run: |
-          output=$(git log ${{ steps.get-tag.outputs.tag }}..HEAD --format=%B --grep="BREAKING CHANGE: ")
+          output=$(git log ${{ steps.get-tag.outputs.tag }}..HEAD --format=%B --grep="BREAKING CHANGE: " | xargs)
           echo "${output}"
           result=false
           if [[ -z ${output} ]]; then
