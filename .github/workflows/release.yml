@@ -84,8 +84,6 @@ jobs:
 
       - name: Configure Git
         run: |
-          echo "Sender:"
-          echo "${{ github.event.sender }}"
           git config --global user.email "${{ github.event.sender.email }}"
           git config --global user.name "${{ github.event.sender.login }}"
 
