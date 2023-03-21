@@ -79,6 +79,9 @@ jobs:
     needs: [ update-version ]
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3.1.0
+
       - name: Add new release tag
         id: new-tag
         run: |
@@ -105,6 +108,9 @@ jobs:
     needs: [ update-version, release ]
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3.1.0
+
       - name: Set version
         env:
           GITHUB_TOKEN: ${{ secrets.CRICUT_GPR_TOKEN }}
