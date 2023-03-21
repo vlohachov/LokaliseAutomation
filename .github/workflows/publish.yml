@@ -42,7 +42,7 @@ jobs:
           )
           
           # Convert JSON array to Bash associative array
-          declare -A commit_map
+          declare -A commits_map
           while IFS=$'\t' read -r key message; do
             commits_map["$key"]="$message"
           done < <(echo "$commits" | jq -r '.[] | "\(.sha)\t\(.message)"')
