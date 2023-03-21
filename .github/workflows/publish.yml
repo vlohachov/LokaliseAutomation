@@ -39,7 +39,7 @@ jobs:
           tag=${{ steps.tag-and-sha.outputs.tag }}
           sha=${{ steps.tag-and-sha.outputs.sha }}
           #git log ${tag}..HEAD --grep="BREAKING: "
-          git log ${tag}..HEAD"
+          git log ${tag}..HEAD
 
       - name: Publish
         if: false
