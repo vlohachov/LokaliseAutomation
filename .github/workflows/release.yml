@@ -34,7 +34,7 @@ jobs:
       - name: Get latest release TAG
         id: get-tag
         run: |
-          latest_release_tag=$(git for-each-ref --sort=-committerdate --format='%(refname:short)' 'refs/tags/v*' | head -n 1)
+          latest_release_tag=$(git tag -l 'v*' | sort -V -r | head -n 1)
           echo "Latest release tag: ${latest_release_tag}"
           echo tag=${latest_release_tag} >> $GITHUB_OUTPUT;
 
@@ -59,6 +59,11 @@ jobs:
           minor_version=$(echo "${current_version}" | cut -d "." -f 2)
           patch_version=$(echo "${current_version}" | cut -d "." -f 3)
           
+          if echo "${current_version}" | grep -q -- '-alpha[0-9]\+$'; then
+            alpha_version=$(echo "${current_version}" | sed -E 's/.*-alpha([0-9]+)$/\1/')
+            echo "Alpha version: ${alpha_version}"
+          fi
+          
           if [[ "${{ steps.breaking-changes.outputs.result }}" == "true" ]]; then
             new_version="$((major_version+1)).0.0"
           elif [[ "${{ github.event.inputs.update-type }}" == "minor" ]]; then
@@ -76,6 +81,7 @@ jobs:
           echo version=${new_version} >> $GITHUB_OUTPUT;
 
   release:
+    if: false
     needs: [ update-version ]
     runs-on: ubuntu-latest
     steps:
@@ -111,6 +117,7 @@ jobs:
           gh release create ${{ steps.new-tag.outputs.tag }} --prerelease --generate-notes
 
   publish:
+    if: false
     needs: [ update-version, release ]
     runs-on: ubuntu-latest
     steps:
