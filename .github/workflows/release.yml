@@ -15,10 +15,10 @@ on:
           - minor
       release-type:
         description: 'Release type'
-          type: choice
-          options:
-            - stable
-            - pre-release
+        type: choice
+        options:
+          - stable
+          - pre-release
 
 jobs:
   update-version:
