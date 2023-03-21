@@ -16,23 +16,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3.1.0
 
-      - name: Get version
-        id: get-version
+      - name: Get latest release TAG and SHA
+        id: tag-and-sha
         run: |
-          versions_and_sha=$(
+          tag_and_sha=$(
             gh api -X GET /repos/${{ github.repository }}/git/matching-refs/tags/ \
               | jq -r '.[] | select(.ref | test("^refs/tags/v.*")) | .ref[10:] + " " + .object.sha' \
               | sort -V -r \
               | head -n 1
           )
-          latest_version=$(echo "$versions_and_sha" | awk '{print $1}')
-          latest_commit_sha=$(echo "$versions_and_sha" | awk '{print $2}')
+          tag=$(echo "tag_and_sha" | awk '{print $1}')
+          sha=$(echo "tag_and_sha" | awk '{print $2}')
           echo "Latest release tag: ${latest_version}"
           echo "Latest release sha: ${latest_commit_sha}"
-          echo version=${latest_version} >> $GITHUB_OUTPUT;
+          echo tag=${tag} >> $GITHUB_OUTPUT;
+          echo sha=${sha} >> $GITHUB_OUTPUT;
 
       - name: Check for breaking changes
         run: |
+          tag=${{ steps.tag-and-sha.outputs.tag }}
+          sha=${{ steps.tag-and-sha.outputs.sha }}
           gh api repos/${{ github.repository }}/commits --paginate
 
       - name: Publish
