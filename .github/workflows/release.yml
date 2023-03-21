@@ -82,6 +82,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3.1.0
 
+      - name: Configure Git
+        run: |
+          git config --global user.email "${github.event.sender.email}"
+          git config --global user.name "${github.event.sender.login}"
+
       - name: Add new release tag
         id: new-tag
         run: |
