@@ -39,11 +39,12 @@ jobs:
           #gh api repos/${{ github.repository }}/commits --paginate
           commits=$(
             gh api repos/${{ github.repository }}/commits --paginate \
-            -q ".[] | {sha: .sha, message: .commit.message, author: .commit.author.name, date: .commit.author.date}" \
-            --since "$sha"
+              -q ".[] | {sha: .sha, message: .commit.message}"
           )
+          commits_since_sha=$(echo "$commits" | awk -v start_sha="$sha" 'BEGIN {found=0} {if (found || $2 == start_sha) {found=1; next} print}')
+
           echo "Commits since ${tag}:"
-          echo "$commits"
+          echo "commits_since_sha"
 
       - name: Publish
         if: false
