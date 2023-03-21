@@ -37,7 +37,7 @@ jobs:
       - name: Generate new version
         run: |
           breaking=${{ steps.breaking-changes.output.result }}
-          echo "Is breaking: ${breaking:-false}"
+          echo "Is breaking: ${breaking}"
           latest_release_tag=${{ steps.get-tag.outputs.tag }}
           current_version=${latest_release_tag:1}
           echo "Current version: ${current_version}"
