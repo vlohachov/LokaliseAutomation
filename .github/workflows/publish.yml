@@ -26,9 +26,24 @@ jobs:
           echo tag=${latest_release_tag} >> $GITHUB_OUTPUT;
 
       - name: Check for breaking changes
+        id: breaking-changes
         run: |
-          tag=${{ steps.get-tag.outputs.tag }}
-          git log ${tag}..HEAD --format=%B --grep="BREAKING CHANGE: "
+          result=false
+          if [[ -z $(git log ${{ steps.get-tag.outputs.tag }}..HEAD --format=%B --grep="BREAKING CHANGE: ") ]]; then
+            result=true
+          fi
+          echo result=${result} >> $GITHUB_OUTPUT;
+
+      - name: Generate new version
+        run: |
+          current_version=${latest_release_tag:1}
+          echo "Current version: ${current_version}"
+          if [[ ${{ steps.breaking-changes.output.result }} ]]; then
+            new_version="$((current_version[0]+1)).0.0"
+          else
+            new_version="${current_version[0]}.${current_version[1]+1}.0"
+          fi
+          echo "New version: ${new_version}"
 
       - name: Publish
         if: false
