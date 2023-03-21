@@ -46,6 +46,8 @@ jobs:
           commits_since_sha=""
           for commit in "${commit_array[@]}"; do
             commit_sha=$(echo "$commit" | awk '{print $2}')
+            echo "SHA: ${commit_sha}"
+            echo "Commit: ${commit_array[$commit]}"
             if [ "$commit_sha" == "$sha" ]; then
               break
             fi
