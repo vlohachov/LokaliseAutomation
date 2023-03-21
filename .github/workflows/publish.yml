@@ -39,7 +39,7 @@ jobs:
           
           commits=$(
             gh api repos/${{ github.repository }}/commits --paginate \
-              -q '[.[] | {sha: .sha, message: .commit.message}]'
+              -q '[.[] | {sha: .sha, message: .commit.message}]' -j
           )
           index=$(echo "${commits}" | jq --arg sha "$sha" 'to_entries | map(select(.value.sha == $sha)) | first | .key')
           echo "Commit sha index: ${index}"
