@@ -36,7 +36,7 @@ jobs:
         run: |
           tag=${{ steps.tag-and-sha.outputs.tag }}
           sha=${{ steps.tag-and-sha.outputs.sha }}
-          git log tag..HEAD --grep="BREAKING CHANGE: "
+          git log ${tag}..HEAD --grep="BREAKING CHANGE: "
 
       - name: Publish
         if: false
