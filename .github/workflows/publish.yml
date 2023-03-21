@@ -28,8 +28,7 @@ jobs:
       - name: Check for breaking changes
         run: |
           tag=${{ steps.get-tag.outputs.tag }}
-          #git log ${tag}..HEAD --grep="BREAKING: "
-          git log ${tag}..HEAD --format=%B --grep="BREAKING: "
+          git log ${tag}..HEAD --format=%B --grep="BREAKING CHANGE: "
 
       - name: Publish
         if: false
