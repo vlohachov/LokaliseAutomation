@@ -52,8 +52,11 @@ jobs:
             commits_since_sha+="$commit"$'\n'
           done
           
-          echo "Commits since ${tag}:"
-          echo "${commits_since_sha}"
+          # Convert the commits_since_sha string into an array
+          IFS=$'\n' read -ra commits_since_sha_array <<< "${commits_since_sha}"
+
+          echo "${#commits_since_sha_array[@]}} commits since ${tag}:"
+          echo "${commits_since_sha_array[@]}"
 
       - name: Publish
         if: false
