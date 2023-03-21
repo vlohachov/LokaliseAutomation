@@ -18,26 +18,16 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get latest release TAG and SHA
-        id: tag-and-sha
+      - name: Get latest release TAG
+        id: get-tag
         run: |
-          tag_and_sha=$(
-            gh api -X GET /repos/${{ github.repository }}/git/matching-refs/tags/ \
-              | jq -r '.[] | select(.ref | test("^refs/tags/v.*")) | .ref[10:] + " " + .object.sha' \
-              | sort -V -r \
-              | head -n 1
-          )
-          tag=$(echo "${tag_and_sha}" | awk '{print $1}')
-          sha=$(echo "${tag_and_sha}" | awk '{print $2}')
-          echo "Latest release tag: ${tag}"
-          echo "Latest release sha: ${sha}"
-          echo tag=${tag} >> $GITHUB_OUTPUT;
-          echo sha=${sha} >> $GITHUB_OUTPUT;
+          latest_release_tag=$(git for-each-ref --sort=-taggerdate --format='%(refname:short)' 'refs/tags/v*' | head -n 1)
+          echo "Latest release tag: ${latest_release_tag}"
+          echo tag=${latest_release_tag} >> $GITHUB_OUTPUT;
 
       - name: Check for breaking changes
         run: |
-          tag=${{ steps.tag-and-sha.outputs.tag }}
-          sha=${{ steps.tag-and-sha.outputs.sha }}
+          tag=${{ steps.get-tag.outputs.tag }}
           #git log ${tag}..HEAD --grep="BREAKING: "
           git log ${tag}..HEAD
 
