@@ -42,6 +42,8 @@ jobs:
               -q '[.[] | {sha: .sha, message: .commit.message}]'
           )
           index=$(echo "${commits}" | jq --arg sha "$sha" 'to_entries | map(select(.value.sha == "$sha")) | first | .key')
+          echo "Commit sha index: ${index}"
+          
           commits_until_sha=$(echo "${commits}" | jq --arg index "${index}" '.[:$index]')
           
           echo "Commits since ${tag}:"
