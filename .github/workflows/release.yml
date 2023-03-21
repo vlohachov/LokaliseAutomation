@@ -91,25 +91,29 @@ jobs:
         id: new-tag
         run: |
           tag="v${{ needs.update-version.outputs.version }}"
-          git tag -a $tag -m "Release $tag"
-          git push origin $tag
+          echo "TAG: ${tag}"
+#          git tag -a $tag -m "Release $tag"
+#          git push origin $tag
           echo tag=${tag} >> $GITHUB_OUTPUT;
 
       - name: Create stable release
-        if: ${{ github.event.inputs.release-type == 'stable' }}
+        if: false
+#        if: ${{ github.event.inputs.release-type == 'stable' }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create ${{ steps.new-tag.outputs.tag }} --generate-notes
 
       - name: Create pre release
-        if: ${{ github.event.inputs.release-type == 'pre-release' }}
+        if: false
+#        if: ${{ github.event.inputs.release-type == 'pre-release' }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create ${{ steps.new-tag.outputs.tag }} --prerelease --generate-notes
 
   publish:
+    if: false
     needs: [ update-version, release ]
     runs-on: ubuntu-latest
     steps:
