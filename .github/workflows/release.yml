@@ -88,14 +88,14 @@ jobs:
           echo tag=${tag} >> $GITHUB_OUTPUT;
 
       - name: Create stable release
-        if: ${{ ${{ github.event.inputs.release-type == 'stable' }} }}
+        if: ${{ github.event.inputs.release-type == 'stable' }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create ${{ steps.new-tag.outputs.tag }} --notes-from-commits
 
       - name: Create pre release
-        if: ${{ ${{ github.event.inputs.release-type == 'pre-release' }} }}
+        if: ${{ github.event.inputs.release-type == 'pre-release' }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
