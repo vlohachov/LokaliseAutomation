@@ -36,7 +36,14 @@ jobs:
         run: |
           tag=${{ steps.tag-and-sha.outputs.tag }}
           sha=${{ steps.tag-and-sha.outputs.sha }}
-          gh api repos/${{ github.repository }}/commits --paginate
+          #gh api repos/${{ github.repository }}/commits --paginate
+          commits=$(
+            gh api repos/${{ github.repository }}/commits --paginate \
+            -q ".[] | {sha: .sha, message: .commit.message, author: .commit.author.name, date: .commit.author.date}" \
+            --since "$sha"
+          )
+          echo "Commits since ${tag}:"
+          echo "$commits"
 
       - name: Publish
         if: false
