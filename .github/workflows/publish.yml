@@ -31,7 +31,7 @@ jobs:
           output=$(git log ${{ steps.get-tag.outputs.tag }}..HEAD --format=%B --grep="BREAKING CHANGE: ")
           echo "${output}"
           result=false
-          if [[ -z output ]]; then
+          if [[ -z ${output} ]]; then
             result=true
           fi
           echo "Is breaking: $result"
