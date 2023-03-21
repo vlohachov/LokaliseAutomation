@@ -4,7 +4,7 @@ class Printer {
 
     private val default: String = "Default"
 
-    fun print() {
+    fun printDefault() {
         println(default)
     }
 
