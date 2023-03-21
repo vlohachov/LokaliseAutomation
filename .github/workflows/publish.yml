@@ -35,8 +35,9 @@ jobs:
 
       - name: Check for breaking changes
         run: |
+          latest_release_hash=$(git rev-list -n 1 ${{ steps.get-version.outputs.version }})
+          echo "${latest_release_hash}"
           gh api repos/${{ github.repository }}/commits --paginate
-          #gh api repos/${{ github.repository }}/commits --paginate -q ".[] | select(.commit.message) | .sha" --jq --since ${{ steps.get-version.outputs.version }}
 
       - name: Publish
         if: false
