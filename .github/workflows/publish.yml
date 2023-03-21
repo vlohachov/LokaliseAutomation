@@ -36,23 +36,7 @@ jobs:
         run: |
           tag=${{ steps.tag-and-sha.outputs.tag }}
           sha=${{ steps.tag-and-sha.outputs.sha }}
-          commits=$(
-            gh api repos/${{ github.repository }}/commits --paginate \
-              -q '[.[] | {sha: .sha, message: .commit.message}]'
-          )
-          
-          # Convert JSON array to Bash associative array
-          declare -A commits_map
-          while IFS=$'\t' read -r key message; do
-            commits_map["$key"]="$message"
-          done < <(echo "$commits" | jq -r '.[] | "\(.sha)\t\(.message)"')
-          
-          # Example usage: print all shas and messages
-          for key in "${!commits_map[@]}"; do
-            if [[ $key == $sha ]]; then break
-            echo "SHA: $key"
-            echo "Message: ${commits_map[$key]}"
-          done
+          git log tag..HEAD --grep="BREAKING CHANGE: "
 
       - name: Publish
         if: false
