@@ -1,4 +1,4 @@
-name: Publish
+name: Create new release
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -7,18 +7,24 @@ concurrency:
 on:
   workflow_dispatch:
     inputs:
-      update:
+      update-type:
         description: 'Update type'
         type: choice
         options:
           - patch
           - minor
+      release-type:
+        description: 'Release type'
+          type: choice
+          options:
+            - stable
+            - pre-release
 
 jobs:
-  publish:
+  update-version:
     runs-on: ubuntu-latest
-    env:
-      GH_TOKEN: ${{ github.token }}
+    outputs:
+      version: ${{ steps.new-version.outputs.version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3.1.0
@@ -42,9 +48,11 @@ jobs:
           echo result=${result:-false} >> $GITHUB_OUTPUT;
 
       - name: Generate new version
+        id: new-version
         run: |
           latest_release_tag=${{ steps.get-tag.outputs.tag }}
           current_version=${latest_release_tag:1}
+          
           echo "Current version: ${current_version}"
           
           major_version=$(echo "${current_version}" | cut -d "." -f 1)
@@ -53,18 +61,54 @@ jobs:
           
           if [[ ${{ steps.breaking-changes.outputs.result == 'true' }} ]]; then
             new_version="$((major_version+1)).0.0"
-          elif [[ ${{ github.event.inputs.update == 'minor' }} ]]; then
+          elif [[ ${{ github.event.inputs.update-type == 'minor' }} ]]; then
             new_version="${major_version}.$((minor_version+1)).0"
-          elif [[ ${{ github.event.inputs.update == 'patch' }} ]]; then
+          elif [[ ${{ github.event.inputs.update-type == 'patch' }} ]]; then
             new_version="${major_version}.${minor_version}.$((patch_version+1))"
           fi
           
+          if [[ ${{ github.event.inputs.release-type == 'pre-release' ]]; then
+            new_version+="-alpha"
+          fi
+          
           echo "New version: ${new_version}"
+          
+          echo version=${new_version} >> $GITHUB_OUTPUT;
 
-      - name: Publish
-        if: false
+  release:
+    needs: [ update-version ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add new release tag
+        id: new-tag
+        run: |
+          tag="v${{ jobs.update-version.outputs.version }}"
+          git tag -a $tag -m "Release $tag"
+          git push origin $tag
+          echo tag=${tag} >> $GITHUB_OUTPUT;
+
+      - name: Create stable release
+        if: ${{ ${{ github.event.inputs.release-type == 'stable' }} }}
         env:
-          GITHUB_USER: ${{ secrets.GITHUB_USER }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create ${{ steps.new-tag.outputs.tag }} --notes-from-commits
+
+      - name: Create pre release
+        if: ${{ ${{ github.event.inputs.release-type == 'pre-release' }} }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create ${{ steps.new-tag.outputs.tag }} --prerelease --notes-from-commits
+
+  publish:
+    needs: [ update-version, release ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set version
+        env:
+          GITHUB_TOKEN: ${{ secrets.CRICUT_GPR_TOKEN }}
+          GITHUB_USER: cricut-builduser
+          VERSION: ${{ jobs.update-version.outputs.version }}
         run: |
           ./gradlew publish
