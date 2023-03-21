@@ -39,15 +39,20 @@ jobs:
           
           commits=$(
             gh api repos/${{ github.repository }}/commits --paginate \
-              -q '[.[] | {sha: .sha, message: .commit.message}]' -j
+              -q '[.[] | {sha: .sha, message: .commit.message}]'
           )
-          index=$(echo "${commits}" | jq --arg sha "$sha" 'to_entries | map(select(.value.sha == $sha)) | first | .key')
-          echo "Commit sha index: ${index}"
+          # Convert JSON array to Bash associative array
+          declare -A commit_map
+          while IFS=$'\t' read -r sha message; do
+            commit_map["$sha"]="$message"
+          done < <(echo "$commits" | jq -r '.[] | "\(.sha)\t\(.message)"')
           
-          commits_until_sha=$(echo "${commits}" | jq --arg index "${index}" '.[:($index | tonumber)]')
-          
-          echo "Commits until ${tag}:"
-          echo "${commits_until_sha}"
+          # Example usage: print all shas and messages
+          for key in "${!commit_map[@]}"; do
+            if [[ $key == %sha ]]; then break
+            echo "SHA: $key"
+            echo "Message: ${commit_map[$key]}"
+          done
 
       - name: Publish
         if: false
