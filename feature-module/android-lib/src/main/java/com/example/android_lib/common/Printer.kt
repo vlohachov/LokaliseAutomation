@@ -7,4 +7,8 @@ class Printer {
     fun print() {
         println(default)
     }
+
+    fun printf(value: String) {
+        println(value)
+    }
 }
