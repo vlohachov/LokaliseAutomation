@@ -19,19 +19,16 @@ jobs:
       - name: Get version
         id: get-version
         run: |
-          gh api -X GET /repos/${{ github.repository }}/git/matching-refs/tags/
-          latest_version=$(
+          versions_and_sha=$(
             gh api -X GET /repos/${{ github.repository }}/git/matching-refs/tags/ \
-              | jq -r '.[].ref' \
-              | grep -E '^refs/tags/v.*' \
-              | sed 's/^refs\/tags\///' \
+              | jq -r '.[] | select(.ref | test("^refs/tags/v.*")) | .ref[10:] + " " + .object.sha' \
               | sort -V -r \
               | head -n 1
           )
+          latest_version=$(echo "$versions_and_sha" | awk '{print $1}')
+          latest_commit_sha=$(echo "$versions_and_sha" | awk '{print $2}')
           echo "Latest release tag: ${latest_version}"
-          #export VERSION=${LATEST_RELEASE_TAG:1}
-          #echo "VERSION=${VERSION}" >> $GITHUB_ENV
-          #echo "Detected Version is '${VERSION_NAME}'"
+          echo "Latest release sha: ${latest_commit_sha}"
           echo version=${latest_version:-v0.0.1} >> $GITHUB_OUTPUT;
 
       - name: Check for breaking changes
