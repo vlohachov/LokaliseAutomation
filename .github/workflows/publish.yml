@@ -10,14 +10,14 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3.1.0
 
       - name: Get version
         id: get-version
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
           latest_version=$(
             gh api -X GET /repos/${{ github.repository }}/git/matching-refs/tags/ \
