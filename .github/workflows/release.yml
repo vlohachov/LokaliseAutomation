@@ -87,7 +87,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3.1.0
 
-      - name: Add new release tag
+      - name: New release tag
         id: new-tag
         run: |
           tag="v${{ needs.update-version.outputs.version }}"
