@@ -59,17 +59,15 @@ jobs:
           minor_version=$(echo "${current_version}" | cut -d "." -f 2)
           patch_version=$(echo "${current_version}" | cut -d "." -f 3)
           
-          if [[ ${{ steps.breaking-changes.outputs.result == 'true' }} ]]; then
+          if [[ "${{ steps.breaking-changes.outputs.result }}" == "true" ]]; then
             new_version="$((major_version+1)).0.0"
-          elif [[ ${{ github.event.inputs.update-type == 'minor' }} ]]; then
+          elif [[ "${{ github.event.inputs.update-type }}" == "minor" ]]; then
             new_version="${major_version}.$((minor_version+1)).0"
-          elif [[ ${{ github.event.inputs.update-type == 'patch' }} ]]; then
+          elif [[ "${{ github.event.inputs.update-type }}" == "patch" ]]; then
             new_version="${major_version}.${minor_version}.$((patch_version+1))"
           fi
           
-          release-type=${{ github.event.inputs.release-type }}
-          
-          if [[ ${{ github.event.inputs.release-type == 'pre-release' }} ]]; then
+          if [[ "${{ github.event.inputs.release-type }}" == "pre-release" ]]; then
             new_version+="-alpha"
           fi
           
