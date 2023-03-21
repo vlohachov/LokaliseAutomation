@@ -44,7 +44,7 @@ jobs:
           index=$(echo "${commits}" | jq --arg sha "$sha" 'to_entries | map(select(.value.sha == $sha)) | first | .key')
           echo "Commit sha index: ${index}"
           
-          commits_until_sha=$(echo "${commits}" | jq --argjson index "${index}" '.[:$index]')
+          commits_until_sha=$(echo "${commits}" | jq --arg index "${index}" '.[:($index | tonumber)]')
           
           echo "Commits until ${tag}:"
           echo "${commits_until_sha}"
