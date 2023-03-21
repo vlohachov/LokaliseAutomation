@@ -29,7 +29,7 @@ jobs:
           latest_commit_sha=$(echo "$versions_and_sha" | awk '{print $2}')
           echo "Latest release tag: ${latest_version}"
           echo "Latest release sha: ${latest_commit_sha}"
-          echo version=${latest_version:-v0.0.1} >> $GITHUB_OUTPUT;
+          echo version=${latest_version} >> $GITHUB_OUTPUT;
 
       - name: Check for breaking changes
         run: |
