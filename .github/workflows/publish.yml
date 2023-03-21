@@ -25,10 +25,10 @@ jobs:
               | sort -V -r \
               | head -n 1
           )
-          tag=$(echo "tag_and_sha" | awk '{print $1}')
-          sha=$(echo "tag_and_sha" | awk '{print $2}')
-          echo "Latest release tag: ${latest_version}"
-          echo "Latest release sha: ${latest_commit_sha}"
+          tag=$(echo "${tag_and_sha}" | awk '{print $1}')
+          sha=$(echo "${tag_and_sha}" | awk '{print $2}')
+          echo "Latest release tag: ${tag}"
+          echo "Latest release sha: ${sha}"
           echo tag=${tag} >> $GITHUB_OUTPUT;
           echo sha=${sha} >> $GITHUB_OUTPUT;
 
