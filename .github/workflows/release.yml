@@ -67,6 +67,8 @@ jobs:
             new_version="${major_version}.${minor_version}.$((patch_version+1))"
           fi
           
+          release-type=${{ github.event.inputs.release-type }}
+          
           if [[ ${{ github.event.inputs.release-type == 'pre-release' }} ]]; then
             new_version+="-alpha"
           fi
