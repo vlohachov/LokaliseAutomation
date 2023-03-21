@@ -35,7 +35,8 @@ jobs:
 
       - name: Check for breaking changes
         run: |
-          gh api repos/${{ github.repository }}/commits --paginate -q ".[] | select(.commit.message) | .sha" --jq --since ${{ steps.get-version.outputs.version }}
+          gh api repos/${{ github.repository }}/commits --paginate
+          #gh api repos/${{ github.repository }}/commits --paginate -q ".[] | select(.commit.message) | .sha" --jq --since ${{ steps.get-version.outputs.version }}
 
       - name: Publish
         if: false
