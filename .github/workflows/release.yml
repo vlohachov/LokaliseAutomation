@@ -84,8 +84,10 @@ jobs:
 
       - name: Configure Git
         run: |
-          git config --global user.email "${github.event.sender.email}"
-          git config --global user.name "${github.event.sender.login}"
+          echo "Sender:"
+          echo "${{ github.event.sender }}"
+          git config --global user.email "${{ github.event.sender.email }}"
+          git config --global user.name "${{ github.event.sender.login }}"
 
       - name: Add new release tag
         id: new-tag
