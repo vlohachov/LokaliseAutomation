@@ -39,7 +39,7 @@ jobs:
       - name: Get latest release TAG
         id: get-tag
         run: |
-          latest_release_tag=$(git tag -l 'v*' | sort -V -r | head -n 1)
+          latest_release_tag=$(git for-each-ref --sort=committerdate --format '%(refname:short)' 'refs/tags/v*' | tail -1)
           echo "Latest release tag: ${latest_release_tag}"
           echo tag=${latest_release_tag} >> $GITHUB_OUTPUT;
 
@@ -64,39 +64,16 @@ jobs:
           minor_version=$(echo "${current_version}" | cut -d "." -f 2)
           patch_version=$(echo "${current_version}" | cut -d "." -f 3 | sed -E 's/-alpha[0-9]+$//')
           
-          if echo "${current_version}" | grep -q -- '-alpha[0-9]\+$'; then
-            alpha_version=$(echo "${current_version}" | sed -E 's/.*-alpha([0-9]+)$/\1/')
-          else 
-            alpha_version=0
-          fi
-          
-          if [[ "${{ github.event.inputs.release-type }}" == "stable" ]]; then
-            if [[ "${alpha_version}" == "0" ]]; then
-              if [[ "${{ steps.breaking-changes.outputs.result }}" == "true" || "${{ github.event.inputs.update-type }}" == "major" ]]; then
-                new_version="$((major_version+1)).0.0"
-              elif [[ "${{ github.event.inputs.update-type }}" == "minor" ]]; then
-                new_version="${major_version}.$((minor_version+1)).0"
-              elif [[ "${{ github.event.inputs.update-type }}" == "patch" ]]; then
-                new_version="${major_version}.${minor_version}.$((patch_version+1))"
-              fi
-            else 
-              new_version="${major_version}.${minor_version}.${patch_version}"
-            fi
+          if [[ "${{ steps.breaking-changes.outputs.result }}" == "true" || "${{ github.event.inputs.update-type }}" == "major" ]]; then
+            new_version="$((major_version+1)).0.0"
+          elif [[ "${{ github.event.inputs.update-type }}" == "minor" ]]; then
+            new_version="${major_version}.$((minor_version+1)).0"
+          elif [[ "${{ github.event.inputs.update-type }}" == "patch" ]]; then
+            new_version="${major_version}.${minor_version}.$((patch_version+1))"
           fi
           
           if [[ "${{ github.event.inputs.release-type }}" == "pre-release" ]]; then
-            if [[ "${alpha_version}" == "0" ]]; then
-              if [[ "${{ steps.breaking-changes.outputs.result }}" == "true" || "${{ github.event.inputs.update-type }}" == "major" ]]; then
-                new_version="$((major_version+1)).0.0"
-              elif [[ "${{ github.event.inputs.update-type }}" == "minor" ]]; then
-                new_version="${major_version}.$((minor_version+1)).0"
-              elif [[ "${{ github.event.inputs.update-type }}" == "patch" ]]; then
-                new_version="${major_version}.${minor_version}.$((patch_version+1))"
-              fi
-            else
-              new_version="${major_version}.${minor_version}.${patch_version}"
-            fi
-            new_version+="-alpha$((alpha_version+1))"
+            new_version+="-alpha"
           fi
           
           echo "New version: ${new_version}"
