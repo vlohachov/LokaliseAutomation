@@ -96,8 +96,6 @@ jobs:
         id: new-tag
         run: |
           tag="v${{ needs.update-version.outputs.version }}"
-          git tag -a $tag -m "Release $tag"
-          git push origin $tag
           echo tag=${tag} >> $GITHUB_OUTPUT;
 
       - name: Create stable release
