@@ -118,10 +118,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3.1.0
 
-      - name: Set version
+      - name: Publish
         env:
-          GITHUB_TOKEN: ${{ secrets.CRICUT_GPR_TOKEN }}
-          GITHUB_USER: cricut-builduser
+          GITHUB_USER: ${{ secrets.GITHUB_USER }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ needs.update-version.outputs.version }}
         run: |
           ./gradlew publish
