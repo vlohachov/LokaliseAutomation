@@ -44,7 +44,7 @@ jobs:
           # Convert JSON array to Bash associative array
           declare -A commit_map
           while IFS=$'\t' read -r key message; do
-            commits_map["key"]="$message"
+            commits_map["$key"]="$message"
           done < <(echo "$commits" | jq -r '.[] | "\(.sha)\t\(.message)"')
           
           # Example usage: print all shas and messages
