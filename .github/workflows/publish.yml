@@ -42,7 +42,7 @@ jobs:
               -q '[.[] | {sha: .sha, message: .commit.message}]'
           )
           echo "${commits}"
-#          commits_until_sha=$(echo "${commits}" | jq --arg sha "$sha" 'until(.[0].sha == $sha; .[1:])')
+          #commits_until_sha=$(echo "${commits}" | jq --arg sha "$sha" 'until(.[0].sha == $sha; .[1:])')
           
           echo "Commits since ${tag}:"
           echo "${commits_since_sha}"
