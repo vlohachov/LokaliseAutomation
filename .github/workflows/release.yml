@@ -82,7 +82,7 @@ jobs:
       - name: Add new release tag
         id: new-tag
         run: |
-          tag="v${{ jobs.update-version.outputs.version }}"
+          tag="v${{ needs.update-version.outputs.version }}"
           git tag -a $tag -m "Release $tag"
           git push origin $tag
           echo tag=${tag} >> $GITHUB_OUTPUT;
@@ -109,6 +109,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.CRICUT_GPR_TOKEN }}
           GITHUB_USER: cricut-builduser
-          VERSION: ${{ jobs.update-version.outputs.version }}
+          VERSION: ${{ needs.update-version.outputs.version }}
         run: |
           ./gradlew publish
