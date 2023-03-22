@@ -135,6 +135,7 @@ jobs:
           gh pr edit ${{ github.event.number }} --body "${pr_body}"
 
   current-signatures:
+    needs: [ check-compatibilities ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
