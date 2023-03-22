@@ -118,7 +118,7 @@ jobs:
           # Details with errors grouped by package
           message=$(
             for package in "${!package_errors[@]}"; do
-              echo "### $package:"
+              echo "#### $package:"
               echo "${package_errors["$package"]}"
             done
           )
