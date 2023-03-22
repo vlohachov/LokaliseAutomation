@@ -1,7 +1,7 @@
 package com.example.kotlin_lib
 
 interface MyInterface {
-    val value: String
+    val value: Int
 
-    fun foo(param: Long): Long
+    fun foo(param: Long): Int
 }
