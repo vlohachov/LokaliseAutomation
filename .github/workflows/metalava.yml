@@ -26,11 +26,25 @@ jobs:
           name: base-signatures
           path: ./**/api/
 
-  check-compatibilities:
-    needs: [ base-signatures ]
+  current-signatures:
     runs-on: ubuntu-latest
-    outputs:
-      errors: ${{ steps.combine-compat-errors.outputs.combined-errors }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.1.0
+
+      - name: Generate signature files
+        run: |
+          ./gradlew metalavaGenerateSignature metalavaGenerateSignatureDebug
+
+      - name: Save signature files
+        uses: actions/upload-artifact@v3
+        with:
+          name: current-signatures
+          path: ./**/api/
+
+  check-compatibilities:
+    needs: [ base-signatures, current-signatures ]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout current
         uses: actions/checkout@v3.1.0
@@ -78,31 +92,34 @@ jobs:
           
           echo combined-compat-errors=$combined_errors >> $GITHUB_OUTPUT;
 
-      - name: Generate signature files
-        run: |
-          ./gradlew metalavaGenerateSignature metalavaGenerateSignatureDebug
-
-      - name: Save signature files
-        uses: actions/upload-artifact@v3
-        with:
-          name: current-signatures
-          path: ./**/api/
-
-  update-pr:
-    needs: [ check-compatibilities ]
-    runs-on: ubuntu-latest
-    steps:
       - name: Generate PR body appendix message
         id: appendix-message
-        if: ${{ needs.check-compatibilities.outputs.errors != '' }}
+        if: ${{ steps.combine-compat-errors.outputs.combined-compat-errors != '' }}
         run: |
           # Create bash array of combined errors
-          IFS='|' read -ra errors_arr <<< "${{ needs.check-compatibilities.outputs.errors }}"
+          IFS='|' read -ra errors_arr <<< "${{ steps.combine-compat-errors.outputs.combined-compat-errors }}"
           
-          # Details with errors grouped by module
+          # Declare an associative array to store the packages and their corresponding errors
+          declare -A package_errors
+          
+          # Iterate through each error in the errors_arr
+          for error in "${errors_arr[@]}"; do
+            # Extract the package name
+            package_name=$(echo "$error" | sed -E 's/.* ([a-z]+\.[A-Za-z._]+\([A-Za-z0-9 ()]*\)).*/\1/' | sed -E 's/\.[A-Z].*//')
+
+            # Check if the package name is already in the associative array
+            if [[ -z "${package_errors[$package_name]}" ]]; then
+              package_errors["$package_name"]="- $error"
+            else
+              package_errors["$package_name"]+=$'\n'"- ${error}"
+            fi
+          done
+          
+          # Details with errors grouped by package
           message=$(
-            for error in "${!errors_arr[@]}"; do
-              echo "- ${errors_arr[error]}"
+            for package in "${!package_errors[@]}"; do
+              echo "#### $package:"
+              echo "${package_errors["$package"]}"
             done
           )
           
