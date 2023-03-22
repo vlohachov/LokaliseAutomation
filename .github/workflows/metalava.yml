@@ -99,27 +99,10 @@ jobs:
           # Create bash array of combined errors
           IFS='|' read -ra errors_arr <<< "${{ steps.combine-compat-errors.outputs.combined-compat-errors }}"
           
-          # Declare an associative array to store the packages and their corresponding errors
-          declare -A package_errors
-          
-          # Iterate through each error in the errors_arr
-          for error in "${errors_arr[@]}"; do
-            # Extract the package name
-            package_name=$(echo "$error" | sed -E 's/.* ([a-z]+\.[A-Za-z._]+\([A-Za-z0-9 ()]*\)).*/\1/' | sed -E 's/\.[A-Z].*//')
-
-            # Check if the package name is already in the associative array
-            if [[ -z "${package_errors[$package_name]}" ]]; then
-              package_errors["$package_name"]="- $error"
-            else
-              package_errors["$package_name"]+=$'\n'"- ${error}"
-            fi
-          done
-          
-          # Details with errors grouped by package
+          # Details with errors
           message=$(
-            for package in "${!package_errors[@]}"; do
-              echo "#### $package:"
-              echo "${package_errors["$package"]}"
+            for error in "${!errors_arr[@]}"; do
+              echo "- ${errors_arr[error]}"
             done
           )
           
