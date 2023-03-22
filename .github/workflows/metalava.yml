@@ -8,31 +8,37 @@ on:
   pull_request:
 
 jobs:
-  metalava-compatibility-check:
+  base-signatures:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout base
+      - name: Checkout
         uses: actions/checkout@v3.1.0
         with:
           ref: ${{ github.base_ref }}
 
-      - name: Generate signature files (base)
+      - name: Generate signature files
         run: |
           ./gradlew metalavaGenerateSignature metalavaGenerateSignatureDebug
 
-      - name: Save signature files (base)
+      - name: Save signature files
         uses: actions/upload-artifact@v3
         with:
-          name: signatures-base
+          name: base-signatures
           path: ./**/api/
 
+  check-compatibilities:
+    needs: [ base-signatures ]
+    runs-on: ubuntu-latest
+    outputs:
+      errors: ${{ steps.combine-compat-errors.outputs.combined-errors }}
+    steps:
       - name: Checkout current
         uses: actions/checkout@v3.1.0
 
-      - name: Load signature files (base)
+      - name: Load signature files
         uses: actions/download-artifact@v3
         with:
-          name: signatures-base
+          name: base-signatures
 
       - name: Check Kotlin libs compatibility
         id: check-compat-kotlin
@@ -72,12 +78,26 @@ jobs:
           
           echo combined-compat-errors=$combined_errors >> $GITHUB_OUTPUT;
 
+      - name: Generate signature files
+        run: |
+          ./gradlew metalavaGenerateSignature metalavaGenerateSignatureDebug
+
+      - name: Save signature files
+        uses: actions/upload-artifact@v3
+        with:
+          name: current-signatures
+          path: ./**/api/
+
+  update-pr:
+    needs: [ check-compatibilities ]
+    runs-on: ubuntu-latest
+    steps:
       - name: Generate PR body appendix message
         id: appendix-message
-        if: ${{ steps.combine-compat-errors.outputs.combined-compat-errors != '' }}
+        if: ${{ needs.check-compatibilities.outputs.errors != '' }}
         run: |
           # Create bash array of combined errors
-          IFS='|' read -ra errors_arr <<< "${{ steps.combine-compat-errors.outputs.combined-compat-errors }}"
+          IFS='|' read -ra errors_arr <<< "${{ needs.check-compatibilities.outputs.errors }}"
           
           # Details with errors grouped by module
           message=$(
@@ -129,13 +149,3 @@ jobs:
             pr_body="${pr_body}"$'\n\n'"${pr_body_appendix}"
           fi
           gh pr edit ${{ github.event.number }} --body "${pr_body}"
-
-      - name: Generate signature files (current)
-        run: |
-          ./gradlew metalavaGenerateSignature metalavaGenerateSignatureDebug
-
-      - name: Save signature files (current)
-        uses: actions/upload-artifact@v3
-        with:
-          name: signatures-current
-          path: ./**/api/
