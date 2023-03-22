@@ -26,8 +26,24 @@ jobs:
           name: base-signatures
           path: ./**/api/
 
+  current-signatures:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.1.0
+
+      - name: Generate signature files
+        run: |
+          ./gradlew metalavaGenerateSignature metalavaGenerateSignatureDebug
+
+      - name: Save signature files
+        uses: actions/upload-artifact@v3
+        with:
+          name: current-signatures
+          path: ./**/api/
+
   check-compatibilities:
-    needs: [ base-signatures ]
+    needs: [ base-signatures, current-signatures ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout current
@@ -133,20 +149,3 @@ jobs:
             pr_body="${pr_body}"$'\n\n'"${pr_body_appendix}"
           fi
           gh pr edit ${{ github.event.number }} --body "${pr_body}"
-
-  current-signatures:
-    needs: [ check-compatibilities ]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3.1.0
-
-      - name: Generate signature files
-        run: |
-          ./gradlew metalavaGenerateSignature metalavaGenerateSignatureDebug
-
-      - name: Save signature files
-        uses: actions/upload-artifact@v3
-        with:
-          name: current-signatures
-          path: ./**/api/
