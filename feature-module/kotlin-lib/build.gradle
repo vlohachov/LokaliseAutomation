@@ -3,6 +3,7 @@ plugins {
     id 'java-library'
     id 'org.jetbrains.kotlin.jvm'
     id 'me.tylerbwong.gradle.metalava'
+    id 'org.jetbrains.kotlinx.kover'
 }
 
 java {
@@ -38,4 +39,23 @@ publishing {
             }
         }
     }
+}
+
+kover {
+    useKoverTool()
+}
+
+koverReport {
+    verify {
+        rule {
+            entity = kotlinx.kover.gradle.plugin.dsl.GroupingEntityType.APPLICATION
+
+            minBound(40)
+            maxBound(99)
+        }
+    }
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.13.2'
 }
