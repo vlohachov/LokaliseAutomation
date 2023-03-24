@@ -12,9 +12,17 @@ plugins {
     id 'org.jetbrains.kotlin.android' version '1.8.10' apply false
     id 'org.jetbrains.kotlin.jvm' version '1.8.10' apply false
     id 'me.tylerbwong.gradle.metalava' version '0.3.3' apply false
-    id 'org.jetbrains.kotlinx.kover' version "0.7.0-Alpha" apply false
+    id 'org.jetbrains.kotlinx.kover' version "0.7.0-Alpha" apply true
 }
 
 task printProjectName() {
     println("${rootProject.name}")
 }
+
+//dependencies {
+//    kover(project(":app"))
+//    kover(project(":feature-module:android-lib"))
+//    kover(project(":feature-module:kotlin-lib"))
+//    kover(project(":testlibrary"))
+//}
+

@@ -50,8 +50,7 @@ koverReport {
         rule {
             entity = kotlinx.kover.gradle.plugin.dsl.GroupingEntityType.APPLICATION
 
-            minBound(40)
-            maxBound(99)
+            minBound(70)
         }
     }
 }
