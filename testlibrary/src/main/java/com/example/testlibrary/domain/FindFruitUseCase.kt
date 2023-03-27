@@ -1,6 +1,6 @@
 package com.example.testlibrary.domain
 
-import com.example.kotlin_lib.sealed.Fruit
+import com.example.kotlinlib.sealed.Fruit
 import com.example.testlibrary.data.FruitDataSource
 import kotlinx.coroutines.flow.Flow
 

@@ -38,13 +38,13 @@ class ResultTest {
 
     @Test
     fun testError() = runTest {
-        flow<String> { throw RuntimeException("error") }
+        flow<String> { throw NoSuchElementException() }
             .asResult()
             .test {
                 skipItems(count = 1)
                 with(awaitItem()) {
                     Assert.assertTrue(this is Result.Error)
-                    Assert.assertTrue((this as Result.Error).exception is RuntimeException)
+                    Assert.assertTrue((this as Result.Error).exception is NoSuchElementException)
                 }
                 awaitComplete()
             }

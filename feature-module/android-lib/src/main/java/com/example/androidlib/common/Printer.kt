@@ -1,4 +1,4 @@
-package com.example.android_lib.common
+package com.example.androidlib.common
 
 class Printer {
 

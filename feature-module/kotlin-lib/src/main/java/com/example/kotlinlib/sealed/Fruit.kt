@@ -1,4 +1,4 @@
-package com.example.kotlin_lib.sealed
+package com.example.kotlinlib.sealed
 
 sealed class Fruit(val name: String) {
     object Apple : Fruit(name = "Apple")

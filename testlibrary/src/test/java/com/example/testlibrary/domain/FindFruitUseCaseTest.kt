@@ -1,7 +1,7 @@
 package com.example.testlibrary.domain
 
 import app.cash.turbine.test
-import com.example.kotlin_lib.sealed.Fruit
+import com.example.kotlinlib.sealed.Fruit
 import com.example.testlibrary.data.FruitDataSource
 import com.example.testlibrary.rule.TestDispatcherRule
 import io.mockk.every

@@ -1,4 +1,4 @@
-package com.example.kotlin_lib.sealed
+package com.example.kotlinlib.sealed
 
 import org.junit.Assert
 import org.junit.Test

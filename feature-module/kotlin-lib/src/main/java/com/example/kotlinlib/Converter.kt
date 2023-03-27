@@ -1,4 +1,4 @@
-package com.example.kotlin_lib
+package com.example.kotlinlib
 
 object Converter {
 

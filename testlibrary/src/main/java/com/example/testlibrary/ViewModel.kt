@@ -1,6 +1,6 @@
 package com.example.testlibrary
 
-import com.example.kotlin_lib.sealed.Fruit
+import com.example.kotlinlib.sealed.Fruit
 import com.example.testlibrary.domain.FindFruitUseCase
 import com.example.testlibrary.domain.Result
 import kotlinx.coroutines.ExperimentalCoroutinesApi

@@ -4,6 +4,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'me.tylerbwong.gradle.metalava'
     id 'org.jetbrains.kotlinx.kover'
+    id 'io.gitlab.arturbosch.detekt'
 }
 
 android {

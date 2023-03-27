@@ -1,4 +1,4 @@
-package com.example.kotlin_lib
+package com.example.kotlinlib
 
 import org.junit.Assert
 import org.junit.Test
@@ -12,6 +12,6 @@ class ExtensionsTest {
 
     @Test
     fun testIntPlusFive() {
-        Assert.assertTrue(6.plusFive() == 11)
+        Assert.assertTrue(6.plusTwo() == 8)
     }
 }

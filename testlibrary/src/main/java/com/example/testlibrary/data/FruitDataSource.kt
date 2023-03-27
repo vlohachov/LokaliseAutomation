@@ -1,6 +1,6 @@
 package com.example.testlibrary.data
 
-import com.example.kotlin_lib.sealed.Fruit
+import com.example.kotlinlib.sealed.Fruit
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf

@@ -1,4 +1,4 @@
-package com.example.kotlin_lib.sub
+package com.example.kotlinlib.sub
 
 interface MyInterface {
     val value: Int
