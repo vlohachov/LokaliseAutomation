@@ -61,6 +61,7 @@ jobs:
           name: detekt-reports
 
       - name: Generate message
+        id: generate-message
         run: |
           # Resulting message
           message=""
@@ -95,4 +96,14 @@ jobs:
             done
           done
           
-          echo "${message}"
+          delimiter="$(openssl rand -hex 8)"
+          echo "message<<${delimiter}" >> ${GITHUB_OUTPUT}
+          echo "$message" >> ${GITHUB_OUTPUT}
+          echo "${delimiter}" >> ${GITHUB_OUTPUT}
+          
+      - name: Fail
+        if: ${{ steps.generate-message.outputs.message != '' }}
+        run: |
+          echo "Detekt run failed with errors:"
+          echo "${{ steps.generate-message.outputs.message }}"
+          exit 1
