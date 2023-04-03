@@ -84,15 +84,23 @@ jobs:
             message+="### ${report%%/build/*}"
             
             # Gather list of all files
-            files=$(jq -r '.[].name' <<< ${json} || jq -r '.name' <<< ${json} )
+            files=($(jq -r '.[].name' <<< ${json} || jq -r '.name' <<< ${json}))
           
-            echo "Affected files: ${files}"
+            for index in ${!files[*]}; do
+              file=${files[index]}
+              
+              message+=$'\n'"$(basename ${file}):"
+              
+              file_errors_json=$(jq -r --arg name "@{file}" '.[] | select(.name == $name) | .error' <<< ${json} || jq -r '.error' <<< ${json)
+              
+              echo "${file_errors_json}"
+              
+              #for index in ${!errors[*]}; do
+              # error=${errors[index]}
+              #done
           
-            #for index in ${!files[*]}; do
-            #  file=${files[file]}
-            #  message+=$'\n'"$(basename ${file})"
-            #  
-            #  errors=$(jq -r '.[].error[]' <<< ${json} || jq -r '.name' <<< ${json} )
-            #done
+            done
             
           done
+          
+          echo "${message}"
