@@ -27,6 +27,7 @@ jobs:
           path: ./**/detekt-baseline.xml
 
   detekt:
+    needs: [ 'baselines' ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
