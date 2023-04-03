@@ -72,7 +72,7 @@ jobs:
             report=${reports[index]}
             echo "Report: ${report}"
             # Parse report as json
-            json=$(yq -p=xml --xml-attribute-prefix=attr_ -o=json '.checkstyle.file' ${report})
+            json=$(yq -p=xml --xml-attribute-prefix='' -o=json '.checkstyle.file' ${report})
             echo "${json}"
           
             # Skip if null
