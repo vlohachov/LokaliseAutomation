@@ -95,6 +95,10 @@ jobs:
               file_errors_json=$(jq -r --arg name "${file}" '.[] | select(.name == $name) | .error' <<< ${json} || jq -r '.error' <<< ${json})
               
               echo "${file_errors_json}"
+          
+              errors=$(jq -r '.[] | "\(.line):\(.column)" - \(.message)}' <<< ${file_errors_json || jq -r '"\(.line):\(.column)" - \(.message)}')
+          
+              echo "${errors}"
               
               #for index in ${!errors[*]}; do
               # error=${errors[index]}
