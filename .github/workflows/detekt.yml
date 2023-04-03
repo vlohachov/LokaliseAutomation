@@ -88,14 +88,15 @@ jobs:
           
             for index in ${!files[*]}; do
               file=${files[index]}
+              echo "File: ${file}"
               
               message+=$'\n'"$(basename ${file}):"
           
-              jq -r --arg name "@{file}" '.[] | select(.name == $name) | .error' <<< ${json} || jq -r '.error' <<< ${json}
+              jq -r --arg name "@{file}" '.[] | select(.name == $name) | .error' <<< ${json}
               
-              file_errors_json=$(jq -r --arg name "@{file}" '.[] | select(.name == $name) | .error' <<< ${json} || jq -r '.error' <<< ${json})
+              #file_errors_json=$(jq -r --arg name "@{file}" '.[] | select(.name == $name) | .error' <<< ${json} || jq -r '.error' <<< ${json})
               
-              echo "${file_errors_json}"
+              #echo "${file_errors_json}"
               
               #for index in ${!errors[*]}; do
               # error=${errors[index]}
