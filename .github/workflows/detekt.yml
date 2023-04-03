@@ -69,5 +69,6 @@ jobs:
           for index in ${!reports[*]}; do
             file=${reports[index]}
             echo "File: ${file}"
-            cat ${file}
+            yq -p=xml --xml-attribute-prefix=attr_ -o=json '.resources' ${file}
+#            json=$(yq -p=xml --xml-attribute-prefix=attr_ -o=json '.resources' ${file})
           done
