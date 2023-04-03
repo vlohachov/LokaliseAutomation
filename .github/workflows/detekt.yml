@@ -91,7 +91,7 @@ jobs:
               
               message+=$'\n'"$(basename ${file}):"
               
-              file_errors_json=$(jq -r --arg name "@{file}" '.[] | select(.name == $name) | .error' <<< ${json} || jq -r '.error' <<< ${json)
+              file_errors_json=$(jq -r --arg name "@{file}" '.[] | select(.name == $name) | .error' <<< ${json} || jq -r '.error' <<< ${json})
               
               echo "${file_errors_json}"
               
