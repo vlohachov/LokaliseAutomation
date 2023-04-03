@@ -43,7 +43,31 @@ jobs:
         run: |
           ./gradlew detekt
 
-      - name: Check for errors
+      - name: Save report files
+        uses: actions/upload-artifact@v3
+        with:
+          name: detekt-reports
+          path: |
+            ./**/build/reports/detekt/detekt.txt
+            ./**/build/reports/detekt/detekt.xml
+
+  notify:
+    needs: [ 'detekt' ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Load report files
+        uses: actions/upload-artifact@v3
+        with:
+          name: detekt-reports
+
+      - name: Find errors
         run: |
-          reports=(`find . -name detekt.txt`)
+          # Gather array of reports
+          reports=(`find . -name detekt.xml`)
           echo "${reports[@]}"
+          
+          for index in ${!reports[*]}; do
+            file=${reports[index]}
+            echo "File: ${file}"
+            cat ${file}
+          done
