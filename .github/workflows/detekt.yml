@@ -88,14 +88,10 @@ jobs:
               message+=$'\n'"$(basename ${file}):"
               # Create errors json
               file_errors_json=$(jq -r --arg name "${file}" '.[] | select(.name == $name) | .error' <<< ${json} || jq -r '.error' <<< ${json})
-              # Create array of errors
-              errors=($(jq -r '.[] | "\(.line):\(.column) - \(.message)"' <<< ${file_errors_json} || jq -r '"\(.line):\(.column) - \(.message)"' <<< ${file_errors_json}))
-              # Process each error
-              for index in ${!errors[*]}; do
-                error=${errors[index]}
-                # Add error
-                message+=$'\n'"- ${error}"
-              done
+              # Get errors
+              errors=$(jq -r '.[] | "- \(.line):\(.column) - \(.message)"' <<< ${file_errors_json} || jq -r '"- \(.line):\(.column) - \(.message)"' <<< ${file_errors_json})
+              # Add errors
+              message+=$'\n'"${errors}"
             done
           done
           
