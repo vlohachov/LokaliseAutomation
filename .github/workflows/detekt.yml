@@ -96,7 +96,7 @@ jobs:
               
               echo "${file_errors_json}"
           
-              errors=$(jq -r '.[] | "\(.line):\(.column)" - \(.message)}' <<< ${file_errors_json || jq -r '"\(.line):\(.column)" - \(.message)}')
+              errors=$(jq -r '.[] | "\(.line):\(.column) - \(.message)"' <<< ${file_errors_json || jq -r '"\(.line):\(.column) - \(.message)"')
           
               echo "${errors}"
               
