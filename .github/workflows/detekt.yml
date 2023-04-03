@@ -62,50 +62,41 @@ jobs:
 
       - name: Generate message
         run: |
+          # Resulting message
           message=""
-          
           # Gather array of reports
           reports=(`find . -name detekt.xml`)
-          echo "${reports[@]}"
-          
+          # Process each report file
           for index in ${!reports[*]}; do
+            # Report file
             report=${reports[index]}
-            echo "Report: ${report}"
             # Parse report as json
             json=$(yq -p=xml --xml-attribute-prefix='' -o=json '.checkstyle.file' ${report})
-            echo "${json}"
-          
             # Skip if null
             if [[ "${json}" == "null" ]]; then
               continue
             fi
-          
             # Add affected module
             message+="### ${report%%/build/*}"
-            
             # Gather list of all files
             files=($(jq -r '.[].name' <<< ${json} || jq -r '.name' <<< ${json}))
-          
+            # Process each file
             for index in ${!files[*]}; do
+              # Affected file
               file=${files[index]}
-              echo "File: ${file}"
-              
+              # Add affected file
               message+=$'\n'"$(basename ${file}):"
-              
+              # Create errors json
               file_errors_json=$(jq -r --arg name "${file}" '.[] | select(.name == $name) | .error' <<< ${json} || jq -r '.error' <<< ${json})
-              
-              echo "${file_errors_json}"
-          
-              errors=$(jq -r '.[] | "\(.line):\(.column) - \(.message)"' <<< ${file_errors_json} || jq -r '"\(.line):\(.column) - \(.message)"' <<< ${file_errors_json})
-          
-              echo "${errors}"
-              
-              #for index in ${!errors[*]}; do
-              # error=${errors[index]}
-              #done
-          
+              # Create array of errors
+              errors=($(jq -r '.[] | "\(.line):\(.column) - \(.message)"' <<< ${file_errors_json} || jq -r '"\(.line):\(.column) - \(.message)"' <<< ${file_errors_json}))
+              # Process each error
+              for index in ${!errors[*]}; do
+                error=${errors[index]}
+                # Add error
+                message+=$'\n'"- ${error}"
+              done
             done
-            
           done
           
           echo "${message}"
