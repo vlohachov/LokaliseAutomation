@@ -90,6 +90,8 @@ jobs:
               file=${files[index]}
               
               message+=$'\n'"$(basename ${file}):"
+          
+              jq -r --arg name "@{file}" '.[] | select(.name == $name) | .error' <<< ${json} || jq -r '.error' <<< ${json}
               
               file_errors_json=$(jq -r --arg name "@{file}" '.[] | select(.name == $name) | .error' <<< ${json} || jq -r '.error' <<< ${json})
               
