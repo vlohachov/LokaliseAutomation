@@ -78,7 +78,7 @@ jobs:
               continue
             fi
             # Add affected module
-            message+="### ${report%%/build/*}"
+            message+="Affected module: ${report%%/build/*}"
             # Gather list of all files
             files=($(jq -r '.[].name' <<< ${json} || jq -r '.name' <<< ${json}))
             # Process each file
