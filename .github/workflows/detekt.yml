@@ -1,0 +1,48 @@
+name: Detekt check
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+
+jobs:
+  baselines:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.5.0
+        with:
+          ref: ${{ github.base_ref }}
+
+      - name: Geberate baseline files
+        run: |
+          ./gradlew detektBaseline
+
+      - name: Save baseline files
+        uses: actions/upload-artifact@v3
+        with:
+          name: baseline-files
+          path: ./**/detekt-baseline.xml
+
+  detekt:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.5.0
+
+      - name: Load baseline files
+        uses: actions/download-artifact@v3
+        with:
+          name: baseline-files
+
+      - name: Detekt
+        continue-on-error: true
+        run: |
+          ./gradlew detekt
+
+      - name: Check for errors
+        run: |
+          reports=(`find . -name detekt.txt`)
+          echo "${reports[@]}"
