@@ -69,6 +69,6 @@ jobs:
           for index in ${!reports[*]}; do
             file=${reports[index]}
             echo "File: ${file}"
-            yq -p=xml --xml-attribute-prefix=attr_ -o=json '.checkstyle.file' ${file}
+            yq -p=xml --xml-attribute-prefix='' -o=json '.checkstyle.file' ${file}
             json=$(yq -p=xml --xml-attribute-prefix=attr_ -o=json '.checkstyle.file' ${file})
           done
