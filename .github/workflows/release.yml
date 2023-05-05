@@ -16,6 +16,11 @@ on:
           - patch
           - minor
           - major
+      hot-fix:
+        description: 'Check if hot-fix release'
+        type: boolean
+        required: true
+        default: false
       release-type:
         description: 'Release type'
         type: choice
