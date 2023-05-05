@@ -1,0 +1,109 @@
+name: Detekt check
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+
+jobs:
+  baselines:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.5.0
+        with:
+          ref: ${{ github.base_ref }}
+
+      - name: Geberate baseline files
+        run: |
+          ./gradlew detektBaseline
+
+      - name: Save baseline files
+        uses: actions/upload-artifact@v3
+        with:
+          name: baseline-files
+          path: ./**/detekt-baseline.xml
+
+  detekt:
+    needs: [ 'baselines' ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.5.0
+
+      - name: Load baseline files
+        uses: actions/download-artifact@v3
+        with:
+          name: baseline-files
+
+      - name: Detekt
+        continue-on-error: true
+        run: |
+          ./gradlew detekt
+
+      - name: Save report files
+        uses: actions/upload-artifact@v3
+        with:
+          name: detekt-reports
+          path: |
+            ./**/build/reports/detekt/detekt.txt
+            ./**/build/reports/detekt/detekt.xml
+
+  notify:
+    needs: [ 'detekt' ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Load report files
+        uses: actions/download-artifact@v3
+        with:
+          name: detekt-reports
+
+      - name: Generate message
+        id: generate-message
+        run: |
+          # Resulting message
+          message=""
+          # Gather array of reports
+          reports=(`find . -name detekt.xml`)
+          # Process each report file
+          for index in ${!reports[*]}; do
+            # Report file
+            report=${reports[index]}
+            # Parse report as json
+            json=$(yq -p=xml --xml-attribute-prefix='' -o=json '.checkstyle.file' ${report})
+            # Skip if null
+            if [[ "${json}" == "null" ]]; then
+              continue
+            fi
+            # Add affected module
+            message+="Affected module: ${report%%/build/*}"
+            # Gather list of all files
+            files=($(jq -r '.[].name' <<< ${json} || jq -r '.name' <<< ${json}))
+            # Process each file
+            for index in ${!files[*]}; do
+              # Affected file
+              file=${files[index]}
+              # Add affected file
+              message+=$'\n'"$(basename ${file}):"
+              # Create errors json
+              file_errors_json=$(jq -r --arg name "${file}" '.[] | select(.name == $name) | .error' <<< ${json} || jq -r '.error' <<< ${json})
+              # Get errors
+              errors=$(jq -r '.[] | "- \(.line):\(.column) - \(.message)"' <<< ${file_errors_json} || jq -r '"- \(.line):\(.column) - \(.message)"' <<< ${file_errors_json})
+              # Add errors
+              message+=$'\n'"${errors}"
+            done
+          done
+          
+          delimiter="$(openssl rand -hex 8)"
+          echo "message<<${delimiter}" >> ${GITHUB_OUTPUT}
+          echo "$message" >> ${GITHUB_OUTPUT}
+          echo "${delimiter}" >> ${GITHUB_OUTPUT}
+          
+      - name: Fail
+        if: ${{ steps.generate-message.outputs.message != '' }}
+        run: |
+          echo "Detekt run failed with errors:"
+          echo "${{ steps.generate-message.outputs.message }}"
+          exit 1

@@ -9,4 +9,8 @@ object Converter {
     fun toString(long: Long): String {
         return long.toString()
     }
+
+    fun some() {
+
+    }
 }
