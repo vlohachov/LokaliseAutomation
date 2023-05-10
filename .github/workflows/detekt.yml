@@ -16,6 +16,12 @@ jobs:
         with:
           ref: ${{ github.base_ref }}
 
+      - name: Setup JDK 1.17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'zulu'
+
       - name: Geberate baseline files
         run: |
           ./gradlew detektBaseline
@@ -32,6 +38,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3.5.0
+
+      - name: Setup JDK 1.17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'zulu'
 
       - name: Load baseline files
         uses: actions/download-artifact@v3
