@@ -12,6 +12,14 @@ java {
     targetCompatibility = JavaVersion.VERSION_11
 }
 
+compileKotlin {
+    kotlinOptions.jvmTarget = JavaVersion.VERSION_11
+}
+
+compileTestKotlin {
+    kotlinOptions.jvmTarget = JavaVersion.VERSION_11
+}
+
 metalava {
     filename = "api/$name-api.txt"
     outputKotlinNulls = false
