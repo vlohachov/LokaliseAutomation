@@ -42,20 +42,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Release list
+      - name: Current version
+        id: current-version
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release list --exclude-drafts --exclude-pre-releases
-
-      - name: Current version
-        id: current-version
-        run: |
-          tags=$(git log --simplify-by-decoration --pretty="format:%d" | grep tag)
-          echo "All tags:"
-          echo "${tags}"
-          tag=$(echo "${tags}" | head -1)
-          current_version=$(echo "${tag}" | grep -oP '(?<=tag: ).*(?=\))')
+          releases=$(gh release list --exclude-drafts --exclude-pre-releases | awk '{print $1}')
+          current_version=$(echo "${releases} | sort -Vr | head -1")
           echo "Current version: ${current_version}"
           echo version=${current_version} >> $GITHUB_OUTPUT;
 
@@ -79,7 +72,7 @@ jobs:
         id: new-version
         run: |
           current_version=${{ steps.current-version.outputs.version }}
-          current_version=${current_version#*v}
+          current_version=${current_version:1}
           
           echo "Current version: ${current_version}"
           
