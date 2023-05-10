@@ -48,6 +48,10 @@ jobs:
           echo "Latest release tag: ${latest_release_tag}"
           echo tag=${latest_release_tag} >> $GITHUB_OUTPUT;
 
+      - name: List branch tags
+        run:
+          git log --simplify-by-decoration --pretty="format:%d" | grep tag
+
       - name: Check for breaking changes
         id: breaking-changes
         if: ${{ !github.events.inputs.hot-fix }}
