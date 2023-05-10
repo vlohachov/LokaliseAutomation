@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       hot-fix:
-        description: 'Check if hot-fix release'
+        description: 'Hot-fix release'
         type: boolean
         required: true
         default: false
@@ -34,19 +34,24 @@ jobs:
   update-version:
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.new-version.outputs.version }}
+      current-version: ${{ steps.current-version.outputs.version }}
+      new-version: ${{ steps.new-version.outputs.version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.1.0
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: Get latest release TAG
-        id: get-tag
+      - name: Current version
+        id: current-version
         run: |
-          latest_release_tag=$(git for-each-ref --sort=committerdate --format '%(refname:short)' 'refs/tags/v*' | tail -1)
-          echo "Latest release tag: ${latest_release_tag}"
-          echo tag=${latest_release_tag} >> $GITHUB_OUTPUT;
+          tags=$(git log --simplify-by-decoration --pretty="format:%d" | grep tag)
+          echo "All tags:"
+          echo "${tags}"
+          tag=$(echo "${tags}" | head -1)
+          current_version=$(echo "${tag}" | grep -oP '(?<=tag: ).*(?=\))')
+          echo "Current version: ${current_version}"
+          echo version=${current_version} >> $GITHUB_OUTPUT;
 
       - name: List branch tags
         run: |
@@ -58,17 +63,17 @@ jobs:
         id: breaking-changes
         if: ${{ !github.events.inputs.hot-fix }}
         run: |
-          breaking_commits=$(git log ${{ steps.get-tag.outputs.tag }}..HEAD --format=%B --grep="BREAKING CHANGE: ")
+          breaking_commits=$(git log ${{ steps.current-version.outputs.version }}..HEAD --format=%B --grep="BREAKING CHANGE: ")
           if [[ ${breaking_commits} != "" ]]; then
             result=true
           fi
           echo result=${result:-false} >> $GITHUB_OUTPUT;
 
-      - name: Generate new version
+      - name: New version
         id: new-version
         run: |
-          latest_release_tag=${{ steps.get-tag.outputs.tag }}
-          current_version=${latest_release_tag:1}
+          current_version=${{ steps.current-version.outputs.version }}
+          current_version=${current_version#*v}
           
           echo "Current version: ${current_version}"
           
@@ -76,7 +81,7 @@ jobs:
           minor_version=$(echo "${current_version}" | cut -d "." -f 2)
           patch_version=$(echo "${current_version}" | cut -d "." -f 3 | sed -E 's/-alpha[0-9]+$//')
           
-          if [[ "${{ github.events.inputs.hot-fix }}" == "true" ]]; then
+          if [[ ${{ github.event.inputs.hot-fix }} ]]; then
             fix_version=$(echo "${current_version}" | cut -d "." -f 4)
             if [ -z "${fix_version}" ]; then 
               fix_version=0 
@@ -96,42 +101,14 @@ jobs:
           
           echo "New version: ${new_version}"
           
-          echo version=${new_version} >> $GITHUB_OUTPUT;
+          echo version="v${new_version}" >> $GITHUB_OUTPUT;
 
-  release:
-    if: false
+  publish:
     needs: [ update-version ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.1.0
-
-      - name: New release tag
-        id: new-tag
-        run: |
-          tag="v${{ needs.update-version.outputs.version }}"
-          echo tag=${tag} >> $GITHUB_OUTPUT;
-
-      - name: Create stable release
-        if: ${{ github.event.inputs.release-type == 'stable' }}
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release create ${{ steps.new-tag.outputs.tag }} --generate-notes
-
-      - name: Create pre release
-        if: ${{ github.event.inputs.release-type == 'pre-release' }}
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release create ${{ steps.new-tag.outputs.tag }} --prerelease --generate-notes
-
-  publish:
-    needs: [ update-version, release ]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3.1.0
+        uses: actions/checkout@v3
 
       - name: Setup JDK 1.17
         uses: actions/setup-java@v3
@@ -139,10 +116,42 @@ jobs:
           java-version: '17'
           distribution: 'zulu'
 
+      - name: Fix version
+        id: fix-version
+        run: |
+          version=${{ needs.update-version.outputs.new-version }}
+          version=${version:1}
+          echo version=${version} >> $GITHUB_OUTPUT;
+
       - name: Publish
         env:
           GITHUB_USER: ${{ secrets.GITHUB_USER }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VERSION: ${{ needs.update-version.outputs.version }}
+          VERSION: ${{ steps.fix-version.outputs.version }}
         run: |
           ./gradlew publish
+
+  release:
+    needs: [ update-version, publish ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Create stable release
+        if: ${{ github.event.inputs.release-type == 'stable' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create ${{ needs.update-version.outputs.new-version }} \
+          --target ${{ github.ref_name }} \
+          --generate-notes --notes-start-tag ${{ needs.update-version.outputs.current-version }}
+
+      - name: Create pre release
+        if: ${{ github.event.inputs.release-type == 'pre-release' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create ${{ needs.update-version.outputs.new-version }} --prerelease \
+          --target ${{ github.ref_name }} \
+          --generate-notes --notes-start-tag ${{ needs.update-version.outputs.current-version }}
