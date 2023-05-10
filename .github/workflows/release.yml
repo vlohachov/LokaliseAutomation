@@ -49,8 +49,10 @@ jobs:
           echo tag=${latest_release_tag} >> $GITHUB_OUTPUT;
 
       - name: List branch tags
-        run:
-          git log --simplify-by-decoration --pretty="format:%d" | grep tag | head -1
+        run: |
+          tag=$(git log --simplify-by-decoration --pretty="format:%d" | grep tag | head -1)
+          tag=$(echo "${tag}" | grep -oP '(?<=tag: ).*(?=\))')
+          echo "${tag}"
 
       - name: Check for breaking changes
         id: breaking-changes
