@@ -42,18 +42,18 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Release list
+        run: |
+          gh release list --exclude-drafts --exclude-pre-releases
+
       - name: Current version
         id: current-version
         run: |
-          if [[ ${{ github.event.inputs.hot-fix }} ]]; then
-            tags=$(git log --simplify-by-decoration --pretty="format:%d" | grep tag)
-            echo "All tags:"
-            echo "${tags}"
-            tag=$(echo "${tags}" | head -1)
-            current_version=$(echo "${tag}" | grep -oP '(?<=tag: ).*(?=\))')
-          else
-            current_version=$(git for-each-ref --sort=committerdate --format '%(refname:short)' 'refs/tags/v*' | tail -1)
-          fi
+          tags=$(git log --simplify-by-decoration --pretty="format:%d" | grep tag)
+          echo "All tags:"
+          echo "${tags}"
+          tag=$(echo "${tags}" | head -1)
+          current_version=$(echo "${tag}" | grep -oP '(?<=tag: ).*(?=\))')
           echo "Current version: ${current_version}"
           echo version=${current_version} >> $GITHUB_OUTPUT;
 
