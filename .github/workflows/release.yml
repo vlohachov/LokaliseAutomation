@@ -48,6 +48,12 @@ jobs:
           echo "Latest release tag: ${latest_release_tag}"
           echo tag=${latest_release_tag} >> $GITHUB_OUTPUT;
 
+      - name: List branch tags
+        run: |
+          tag=$(git log --simplify-by-decoration --pretty="format:%d" | grep tag | head -1)
+          tag=$(echo "${tag}" | grep -oP '(?<=tag: ).*(?=\))')
+          echo "${tag}"
+
       - name: Check for breaking changes
         id: breaking-changes
         if: ${{ !github.events.inputs.hot-fix }}
@@ -93,6 +99,7 @@ jobs:
           echo version=${new_version} >> $GITHUB_OUTPUT;
 
   release:
+    if: false
     needs: [ update-version ]
     runs-on: ubuntu-latest
     steps:
