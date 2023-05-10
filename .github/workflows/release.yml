@@ -121,12 +121,15 @@ jobs:
 
   release:
 #    needs: [ update-version, publish ]
-    if: false
     needs: [ update-version ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: Tag
+        run: |
+          git 
 
       - name: Create stable release
         if: ${{ github.event.inputs.release-type == 'stable' }}
@@ -134,6 +137,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create ${{ needs.update-version.outputs.new-version }} \
+          --target ${{ github.ref_name }} \
           --generate-notes --notes-start-tag ${{ needs.update-version.outputs.current-version }}
 
       - name: Create pre release
@@ -142,4 +146,5 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create ${{ needs.update-version.outputs.new-version }} --prerelease \
+          --target ${{ github.ref_name }} \
           --generate-notes --notes-start-tag ${{ needs.update-version.outputs.current-version }}
