@@ -67,14 +67,14 @@ jobs:
           
           echo "Current version: ${current_version}"
           
-          major_version=$(echo "${current_version}" | cut -d "." -f 1)
-          minor_version=$(echo "${current_version}" | cut -d "." -f 2)
+          #major_version=$(echo "${current_version}" | cut -d "." -f 1)
+          #minor_version=$(echo "${current_version}" | cut -d "." -f 2)
           #patch_version=$(echo "${current_version}" | cut -d "." -f 3)
           
           # If not stable release and patch has no suffix
           #if [[ "${{ github.event.inputs.release-type }}" != "stable" && $patch_version != *"-"* ]]; then
           #  suffix=0
-          ## Else if alpha release
+          # Else if alpha release
           #elif [[ "${{ github.event.inputs.release-type }}" == "alpha" ]]; then
           #  suffix=${patch_version#*alpha}
           # Else if hot-fix release
