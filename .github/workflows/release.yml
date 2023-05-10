@@ -52,12 +52,6 @@ jobs:
           echo "Current version: ${current_version}"
           echo version=${current_version} >> $GITHUB_OUTPUT;
 
-      - name: List branch tags
-        run: |
-          tag=$(git log --simplify-by-decoration --pretty="format:%d" | grep tag | head -1)
-          tag=$(echo "${tag}" | grep -oP '(?<=tag: ).*(?=\))')
-          echo "${tag}"
-
       - name: Check for breaking changes
         id: breaking-changes
         if: ${{ !github.event.inputs.hot-fix }}
