@@ -50,7 +50,7 @@ jobs:
 
       - name: List branch tags
         run:
-          git log --simplify-by-decoration --pretty="format:%d" | grep tag | tail -1
+          git log --simplify-by-decoration --pretty="format:%d" | grep tag | tail 1
 
       - name: Check for breaking changes
         id: breaking-changes
