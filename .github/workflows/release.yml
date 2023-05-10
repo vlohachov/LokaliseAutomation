@@ -67,34 +67,11 @@ jobs:
           
           echo "Current version: ${current_version}"
           
-          #major_version=$(echo "${current_version}" | cut -d "." -f 1)
-          #minor_version=$(echo "${current_version}" | cut -d "." -f 2)
-          #patch_version=$(echo "${current_version}" | cut -d "." -f 3)
+          major_version=$(echo "${current_version}" | cut -d "." -f 1)
+          minor_version=$(echo "${current_version}" | cut -d "." -f 2)
+          patch_version=$(echo "${current_version}" | cut -d "." -f 3)
           
-          # If not stable release and patch has no suffix
-          #if [[ "${{ github.event.inputs.release-type }}" != "stable" && $patch_version != *"-"* ]]; then
-          #  suffix=0
-          # Else if alpha release
-          #elif [[ "${{ github.event.inputs.release-type }}" == "alpha" ]]; then
-          #  suffix=${patch_version#*alpha}
-          # Else if hot-fix release
-          #elif [[ "${{ github.event.inputs.release-type }}" == "hot-fix" ]]; then
-          #  suffix=${patch_version#*rc}
-          #fi
           
-          #echo "Suffix: ${suffix}"
-          
-          #if [[ "${{ github.event.inputs.release-type }}" == "alpha" ]]; then
-          #  new_version="${major_version}.${minor_version}.${{patch_version}}-alpha$((suffix+1))"
-          #elif [[ "${{ github.event.inputs.release-type }}" == "hot-fix" ]]; then
-          #  new_version="${major_version}.${minor_version}.${{patch_version}}-rc$((suffix+1))"
-          #elif [[ "${{ steps.breaking-changes.outputs.result }}" == "true" || "${{ github.event.inputs.update-type }}" == "major" ]]; then
-          #  new_version="$((major_version+1)).0.0"
-          #elif [[ "${{ github.event.inputs.update-type }}" == "minor" ]]; then
-          #  new_version="${major_version}.$((minor_version+1)).0"
-          #elif [[ "${{ github.event.inputs.update-type }}" == "patch" ]]; then
-          #  new_version="${major_version}.${minor_version}.$((patch_version+1))"
-          #fi
           
           echo "New version: ${new_version}"
           
