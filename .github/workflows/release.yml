@@ -93,6 +93,7 @@ jobs:
           echo version=${new_version} >> $GITHUB_OUTPUT;
 
   release:
+    if: false
     needs: [ update-version ]
     runs-on: ubuntu-latest
     steps:
