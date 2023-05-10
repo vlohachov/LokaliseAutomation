@@ -70,7 +70,7 @@ jobs:
           minor_version=$(echo "${current_version}" | cut -d "." -f 2)
           patch_version=$(echo "${current_version}" | cut -d "." -f 3 | sed -E 's/-alpha[0-9]+$//')
           
-          if [[ "${{ github.events.inputs.hot-fix }}" == "true" ]]; then
+          if [[ ${{ github.event.inputs.hot-fix }} ]]; then
             fix_version=$(echo "${current_version}" | cut -d "." -f 4)
             if [ -z "${fix_version}" ]; then 
               fix_version=0 
