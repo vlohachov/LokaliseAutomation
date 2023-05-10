@@ -62,7 +62,7 @@ jobs:
         id: new-version
         run: |
           latest_release_tag=${{ steps.get-tag.outputs.tag }}
-          current_version=${latest_release_tag:1}
+          current_version=${latest_release_tag#*v}
           
           echo "Current version: ${current_version}"
           
