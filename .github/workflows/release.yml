@@ -103,6 +103,7 @@ jobs:
           echo version="v${new_version}" >> $GITHUB_OUTPUT;
 
   publish:
+    if: false
     needs: [ update-version ]
     runs-on: ubuntu-latest
     steps:
