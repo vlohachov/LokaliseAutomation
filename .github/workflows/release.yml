@@ -48,7 +48,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           releases=$(gh release list --exclude-drafts --exclude-pre-releases | awk '{print $1}')
-          current_version=$(echo "${releases} | sort -Vr | head -1")
+          current_version=$(echo "${releases}" | sort -Vr | head -1")
           echo "Current version: ${current_version}"
           echo version=${current_version} >> $GITHUB_OUTPUT;
 
@@ -103,6 +103,7 @@ jobs:
           echo version="v${new_version}" >> $GITHUB_OUTPUT;
 
   publish:
+    if: false
     needs: [ update-version ]
     runs-on: ubuntu-latest
     steps:
