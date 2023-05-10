@@ -127,10 +127,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Tag
-        run: |
-          git 
-
       - name: Create stable release
         if: ${{ github.event.inputs.release-type == 'stable' }}
         env:
