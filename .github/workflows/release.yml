@@ -50,7 +50,8 @@ jobs:
 
       - name: Check for breaking changes
         id: breaking-changes
-        if: ${{ github.event.inputs.release-type != 'stable' }} # Maybe should be enabled despite the release type
+        # Maybe should be enabled despite the release type
+        if: ${{ github.event.inputs.release-type != 'stable' }}
         run: |
           breaking_commits=$(git log ${{ steps.current-version.outputs.version }}..HEAD --format=%B --grep="BREAKING CHANGE: ")
           if [[ ${breaking_commits} != "" ]]; then
@@ -87,14 +88,13 @@ jobs:
           #  new_version="${major_version}.${minor_version}.${{patch_version}}-alpha$((suffix+1))"
           #elif [[ "${{ github.event.inputs.release-type }}" == "hot-fix" ]]; then
           #  new_version="${major_version}.${minor_version}.${{patch_version}}-rc$((suffix+1))"
-          #el
-          if [[ "${{ steps.breaking-changes.outputs.result }}" == "true" || "${{ github.event.inputs.update-type }}" == "major" ]]; then
-            new_version="$((major_version+1)).0.0"
-          elif [[ "${{ github.event.inputs.update-type }}" == "minor" ]]; then
-            new_version="${major_version}.$((minor_version+1)).0"
-          elif [[ "${{ github.event.inputs.update-type }}" == "patch" ]]; then
-            new_version="${major_version}.${minor_version}.$((patch_version+1))"
-          fi
+          #elif [[ "${{ steps.breaking-changes.outputs.result }}" == "true" || "${{ github.event.inputs.update-type }}" == "major" ]]; then
+          #  new_version="$((major_version+1)).0.0"
+          #elif [[ "${{ github.event.inputs.update-type }}" == "minor" ]]; then
+          #  new_version="${major_version}.$((minor_version+1)).0"
+          #elif [[ "${{ github.event.inputs.update-type }}" == "patch" ]]; then
+          #  new_version="${major_version}.${minor_version}.$((patch_version+1))"
+          #fi
           
           echo "New version: ${new_version}"
           
