@@ -7,6 +7,11 @@ concurrency:
 on:
   workflow_dispatch:
     inputs:
+      hot-fix:
+        description: 'Check if hot-fix release'
+        type: boolean
+        required: true
+        default: false
       update-type:
         description: 'Update type'
         type: choice
@@ -16,11 +21,6 @@ on:
           - patch
           - minor
           - major
-      hot-fix:
-        description: 'Check if hot-fix release'
-        type: boolean
-        required: true
-        default: false
       release-type:
         description: 'Release type'
         type: choice
@@ -50,6 +50,7 @@ jobs:
 
       - name: Check for breaking changes
         id: breaking-changes
+        if: ${{ !github.events.inputs.hot-fix }}
         run: |
           breaking_commits=$(git log ${{ steps.get-tag.outputs.tag }}..HEAD --format=%B --grep="BREAKING CHANGE: ")
           if [[ ${breaking_commits} != "" ]]; then
@@ -69,7 +70,11 @@ jobs:
           minor_version=$(echo "${current_version}" | cut -d "." -f 2)
           patch_version=$(echo "${current_version}" | cut -d "." -f 3 | sed -E 's/-alpha[0-9]+$//')
           
-          if [[ "${{ steps.breaking-changes.outputs.result }}" == "true" || "${{ github.event.inputs.update-type }}" == "major" ]]; then
+          if [[ ${{ github.events.inputs.hot-fix }} ]]; then
+            fix_version=$(echo "${current_version}" | cut -d "." -f 4)
+            if [ -z "${fix_version}" ]; then fix_version=0 fi
+            new_version="${major_version}.${minor_version}.${patch_version}.$((fix_version+1))"
+          elif [[ "${{ steps.breaking-changes.outputs.result }}" == "true" || "${{ github.event.inputs.update-type }}" == "major" ]]; then
             new_version="$((major_version+1)).0.0"
           elif [[ "${{ github.event.inputs.update-type }}" == "minor" ]]; then
             new_version="${major_version}.$((minor_version+1)).0"
@@ -86,6 +91,7 @@ jobs:
           echo version=${new_version} >> $GITHUB_OUTPUT;
 
   release:
+    if: false
     needs: [ update-version ]
     runs-on: ubuntu-latest
     steps:
