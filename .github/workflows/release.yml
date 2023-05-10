@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       hot-fix:
-        description: 'Check if hot-fix release'
+        description: 'Hot-fix release'
         type: boolean
         required: true
         default: false
@@ -98,7 +98,6 @@ jobs:
           echo version="v${new_version}" >> $GITHUB_OUTPUT;
 
   publish:
-    if: false
     needs: [ update-version ]
     runs-on: ubuntu-latest
     steps:
@@ -120,9 +119,8 @@ jobs:
           ./gradlew publish
 
   release:
-#    needs: [ update-version, publish ]
-    if: false
-    needs: [ update-version ]
+    needs: [ update-version, publish ]
+#    needs: [ update-version ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
