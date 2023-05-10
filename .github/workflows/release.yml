@@ -44,15 +44,10 @@ jobs:
       - name: Get latest release TAG
         id: get-tag
         run: |
-          latest_release_tag=$(git for-each-ref --sort=committerdate --format '%(refname:short)' 'refs/tags/v*' | tail -1)
-          echo "Latest release tag: ${latest_release_tag}"
-          echo tag=${latest_release_tag} >> $GITHUB_OUTPUT;
-
-      - name: List branch tags
-        run: |
           tag=$(git log --simplify-by-decoration --pretty="format:%d" | grep tag | head -1)
           tag=$(echo "${tag}" | grep -oP '(?<=tag: ).*(?=\))')
-          echo "${tag}"
+          echo "Latest release tag: ${tag}"
+          echo tag=${tag} >> $GITHUB_OUTPUT;
 
       - name: Check for breaking changes
         id: breaking-changes
