@@ -7,11 +7,6 @@ concurrency:
 on:
   workflow_dispatch:
     inputs:
-      hot-fix:
-        description: 'Hot-fix release'
-        type: boolean
-        required: true
-        default: false
       update-type:
         description: 'Update type'
         type: choice
@@ -28,7 +23,8 @@ on:
         default: 'stable'
         options:
           - stable
-          - pre-release
+          - alpha
+          - hot-fix
 
 jobs:
   update-version:
@@ -72,24 +68,31 @@ jobs:
           
           major_version=$(echo "${current_version}" | cut -d "." -f 1)
           minor_version=$(echo "${current_version}" | cut -d "." -f 2)
-          patch_version=$(echo "${current_version}" | cut -d "." -f 3 | sed -E 's/-alpha[0-9]+$//')
+          patch_version=$(echo "${current_version}" | cut -d "." -f 3)
           
-          if [[ "${{ github.event.inputs.hot-fix }}" == "true" ]]; then
-            fix_version=$(echo "${current_version}" | cut -d "." -f 4)
-            if [ -z "${fix_version}" ]; then 
-              fix_version=0 
-            fi
-            new_version="${major_version}.${minor_version}.${patch_version}.$((fix_version+1))"
+          # If not stable release and patch has no suffix
+          if [[ "${{ github.event.inputs.release-type }}" != "stable" && ${patch_version} != *"-"* ]]; then
+            suffix=0
+          # Else if alpha release
+          elif [[ "${{ github.event.inputs.release-type }}" == "alpha" ]]; then
+            suffix=${patch_version#*alpha}
+          # Else if hot-fix release
+          elif [[ "${{ github.event.inputs.release-type }}" == "hot-fix" ]]; then
+            suffix=${patch_version#*rc}
+          fi
+          
+          echo "Suffix: ${suffix}"
+          
+          if [[ "${{ github.event.inputs.release-type }}" == "alpha" ]]; then
+            new_version="${major_version}.${minor_version}.${{patch_version}}-alpha$((suffix+1))"
+          elif [[ "${{ github.event.inputs.release-type }}" == "hot-fix" ]]; then
+            new_version="${major_version}.${minor_version}.${{patch_version}}-rc$((suffix+1))"
           elif [[ "${{ steps.breaking-changes.outputs.result }}" == "true" || "${{ github.event.inputs.update-type }}" == "major" ]]; then
             new_version="$((major_version+1)).0.0"
           elif [[ "${{ github.event.inputs.update-type }}" == "minor" ]]; then
             new_version="${major_version}.$((minor_version+1)).0"
           elif [[ "${{ github.event.inputs.update-type }}" == "patch" ]]; then
             new_version="${major_version}.${minor_version}.$((patch_version+1))"
-          fi
-          
-          if [[ "${{ github.event.inputs.release-type }}" == "pre-release" ]]; then
-            new_version+="-alpha"
           fi
           
           echo "New version: ${new_version}"
