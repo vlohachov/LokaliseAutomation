@@ -110,11 +110,18 @@ jobs:
           java-version: '17'
           distribution: 'zulu'
 
+      - name: Fix version
+        id: fix-version
+        run: |
+          version=${{ needs.update-version.outputs.new-version }}
+          version=${version:1}
+          echo version=${version} >> $GITHUB_OUTPUT;
+
       - name: Publish
         env:
           GITHUB_USER: ${{ secrets.GITHUB_USER }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VERSION: ${{ needs.update-version.outputs.new-version }}
+          VERSION: ${{ steps.fix-version.outputs.version }}
         run: |
           ./gradlew publish
 
