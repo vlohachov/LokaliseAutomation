@@ -45,7 +45,10 @@ jobs:
       - name: Current version
         id: current-version
         run: |
-          tag=$(git log --simplify-by-decoration --pretty="format:%d" | grep tag | head -1)
+          tags=$(git log --simplify-by-decoration --pretty="format:%d" | grep tag)
+          echo "All tags:"
+          echo "${tags}"
+          tag=$(echo "${tags}" | head -1)
           current_version=$(echo "${tag}" | grep -oP '(?<=tag: ).*(?=\))')
           echo "Current version: ${current_version}"
           echo version=${current_version} >> $GITHUB_OUTPUT;
@@ -118,6 +121,7 @@ jobs:
 
   release:
 #    needs: [ update-version, publish ]
+    if: false
     needs: [ update-version ]
     runs-on: ubuntu-latest
     steps:
