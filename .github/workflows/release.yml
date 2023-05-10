@@ -45,7 +45,7 @@ jobs:
       - name: Current version
         id: current-version
         run: |
-          if [[ ${{ github.events.inputs.hot-fix }} ]]; then
+          if [[ ${{ github.event.inputs.hot-fix }} ]]; then
             tags=$(git log --simplify-by-decoration --pretty="format:%d" | grep tag)
             echo "All tags:"
             echo "${tags}"
@@ -65,7 +65,7 @@ jobs:
 
       - name: Check for breaking changes
         id: breaking-changes
-        if: ${{ !github.events.inputs.hot-fix }}
+        if: ${{ !github.event.inputs.hot-fix }}
         run: |
           breaking_commits=$(git log ${{ steps.current-version.outputs.version }}..HEAD --format=%B --grep="BREAKING CHANGE: ")
           if [[ ${breaking_commits} != "" ]]; then
