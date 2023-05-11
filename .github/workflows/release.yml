@@ -82,7 +82,8 @@ jobs:
             suffix=${patch_version#*rc}
           fi
           
-          echo "Suffix: ${suffix}"
+          # Remove suffix if already present
+          patch_version=${patch_version%-*}
           
           if [[ "${{ github.event.inputs.release-type }}" == "alpha" ]]; then
             new_version="${major_version}.${minor_version}.${patch_version}-alpha$((suffix+1))"
