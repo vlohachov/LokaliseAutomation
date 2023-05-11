@@ -38,7 +38,7 @@ runs:
       shell: bash
       run: |
         if [[ ${{ inputs.current-version }} == '' ]]; then
-          echo "Missing required `current-version` input value"
+          echo "Missing required 'current-version' input value"
           exit 1
         fi
         if [[ ${{ inputs.major-increment }} == 'true' ]]; then
@@ -54,8 +54,8 @@ runs:
         else
           increment_set=false
         fi
-        if [[ !${increment-set} ]]; then
-          echo "No increment input set to `true`"
+        if [[ !${increment_set} ]]; then
+          echo "No increment input set to 'true'"
           exit 1
         fi
 
