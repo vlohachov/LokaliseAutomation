@@ -41,10 +41,27 @@ runs:
           echo "Missing required `current-version` input value"
           exit 1
         fi
+        if [[ ${{ inputs.major-increment }} == 'true' ]]; then
+          increment-set=true
+        elif [[ ${{ inputs.minor-increment }} == 'true' ]]; then
+          increment-set=true
+        elif [[ ${{ inputs.patch-increment }} == 'true' ]]; then
+          increment-set=true
+        elif [[ ${{ inputs.alpha-increment }} == 'true' ]]; then
+          increment-set=true
+        elif [[ ${{ inputs.rc-increment }} == 'true' ]]; then
+          increment-set=true
+        else
+          increment-set=false
+        fi
+        if [[ !${increment-set} ]]; then
+          echo "No increment input set to `true`"
+          exit 1
+        fi
 
     - name: Major increment
       id: major-increment
-      if: ${{ inputs.major-increment }}
+      if: ${{ inputs.major-increment == 'true' }}
       shell: bash
       run: |
         version=${{ inputs.current-version }}
@@ -54,7 +71,7 @@ runs:
 
     - name: Minor increment
       id: minor-increment
-      if: ${{ inputs.minor-increment }}
+      if: ${{ inputs.minor-increment == 'true' }}
       shell: bash
       run: |
         version=${{ inputs.current-version }}
@@ -65,7 +82,7 @@ runs:
 
     - name: Patch increment
       id: patch-increment
-      if: ${{ inputs.patch-increment }}
+      if: ${{ inputs.patch-increment == 'true' }}
       shell: bash
       run: |
         version=${{ inputs.current-version }}
@@ -78,7 +95,7 @@ runs:
 
     - name: Alpha increment
       id: alpha-increment
-      if: ${{ inputs.alpha-increment }}
+      if: ${{ inputs.alpha-increment == 'true' }}
       shell: bash
       run: |
         version=${{ inputs.current-version }}
@@ -96,7 +113,7 @@ runs:
 
     - name: RC increment
       id: rc-increment
-      if: ${{ inputs.rc-increment }}
+      if: ${{ inputs.rc-increment == 'true' }}
       shell: bash
       run: |
         version=${{ inputs.current-version }}
@@ -109,22 +126,23 @@ runs:
           number=${patch_version#*rc}
         fi
         patch_version=${patch_version%-*}
-        new_version="${major_version}.${minor_version}.${patch_version}-rc((number+1))"
+        new_version="${major_version}.${minor_version}.${patch_version}-rc$((number+1))"
         echo version="${new_version}" >> $GITHUB_OUTPUT
 
     - name: New version
       id: new-version
       shell: bash
       run: |
-        if [[ ${{ inputs.major-increment }} ]]; then
+        if [[ ${{ inputs.major-increment == 'true' }} ]]; then
           new_version=${{ steps.major-increment.outputs.version }}
-        elif [[ ${{ inputs.minor-increment }} ]]; then
+        elif [[ ${{ inputs.minor-increment == 'true' }} ]]; then
           new_version=${{ steps.minor-increment.outputs.version }}
-        elif [[ ${{ inputs.patch-increment }} ]]; then
+        elif [[ ${{ inputs.patch-increment == 'true' }} ]]; then
           new_version=${{ steps.patch-increment.outputs.version }}
-        elif [[ ${{ inputs.alpha-increment }} ]]; then
+        elif [[ ${{ inputs.alpha-increment == 'true' }} ]]; then
           new_version=${{ steps.alpha-increment.outputs.version }}
-        elif [[ ${{ inputs.rc-increment }} ]]; then
+        elif [[ ${{ inputs.rc-increment == 'true' }} ]]; then
           new_version=${{ steps.rc-increment.outputs.version }}
         fi
+        echo "${new_version}"
         echo version="${new_version}" >> $GITHUB_OUTPUT
