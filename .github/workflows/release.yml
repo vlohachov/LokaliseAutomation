@@ -63,7 +63,7 @@ jobs:
         id: new-version
         run: |
           current_version=${{ steps.current-version.outputs.version }}
-          current_version="${current_version:1}-rc"
+          current_version="${current_version:1}-rc1"
           
           echo "Current version: ${current_version}"
           
