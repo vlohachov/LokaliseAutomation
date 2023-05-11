@@ -41,23 +41,6 @@ runs:
           echo "Missing required 'current-version' input value"
           exit 1
         fi
-        if [[ ${{ inputs.major-increment }} == 'true' ]]; then
-          increment_set=true
-        elif [[ ${{ inputs.minor-increment }} == 'true' ]]; then
-          increment_set=true
-        elif [[ ${{ inputs.patch-increment }} == 'true' ]]; then
-          increment_set=true
-        elif [[ ${{ inputs.alpha-increment }} == 'true' ]]; then
-          increment_set=true
-        elif [[ ${{ inputs.rc-increment }} == 'true' ]]; then
-          increment_set=true
-        else
-          increment_set=false
-        fi
-        if [[ ${increment_set} == 'false' ]]; then
-          echo "No increment input set to 'true'"
-          exit 1
-        fi
 
     - name: Major increment
       id: major-increment
@@ -135,14 +118,25 @@ runs:
       run: |
         if [[ ${{ inputs.major-increment == 'true' }} ]]; then
           new_version=${{ steps.major-increment.outputs.version }}
+          echo "${new_version}"
+          echo version="${new_version}" >> $GITHUB_OUTPUT
         elif [[ ${{ inputs.minor-increment == 'true' }} ]]; then
           new_version=${{ steps.minor-increment.outputs.version }}
+          echo "${new_version}"
+          echo version="${new_version}" >> $GITHUB_OUTPUT
         elif [[ ${{ inputs.patch-increment == 'true' }} ]]; then
           new_version=${{ steps.patch-increment.outputs.version }}
+          echo "${new_version}"
+          echo version="${new_version}" >> $GITHUB_OUTPUT
         elif [[ ${{ inputs.alpha-increment == 'true' }} ]]; then
           new_version=${{ steps.alpha-increment.outputs.version }}
+          echo "${new_version}"
+          echo version="${new_version}" >> $GITHUB_OUTPUT
         elif [[ ${{ inputs.rc-increment == 'true' }} ]]; then
           new_version=${{ steps.rc-increment.outputs.version }}
+          echo "${new_version}"
+          echo version="${new_version}" >> $GITHUB_OUTPUT
+        else 
+          echo "Unable to get new version. Please check increment inputs."
+          exit 1
         fi
-        echo "${new_version}"
-        echo version="${new_version}" >> $GITHUB_OUTPUT
