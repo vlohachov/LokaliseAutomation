@@ -85,7 +85,14 @@ jobs:
           alpha-increment: ${{ github.event.inputs.release-type == 'alpha' }}
           rc-increment: ${{ github.event.inputs.release-type == 'rc' }}
 
+      - name: Fail if version already released
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view v${{ steps.new-version.outputs.new-version }}
+
   publish:
+    if: false
     needs: [ update-version ]
     runs-on: ubuntu-latest
     steps:
