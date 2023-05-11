@@ -54,7 +54,7 @@ runs:
         else
           increment_set=false
         fi
-        if [[ !${increment_set} ]]; then
+        if [[ ${increment_set} == 'false' ]]; then
           echo "No increment input set to 'true'"
           exit 1
         fi
