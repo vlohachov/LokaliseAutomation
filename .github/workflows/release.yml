@@ -67,15 +67,35 @@ jobs:
           fi
           echo result=${result:-false} >> $GITHUB_OUTPUT;
 
-      - name: New version
+      - name: New major
         uses: vlohachov/LokaliseAutomation/.github/actions/new-version@release/v5.2.0
         with:
           current-version: ${{ steps.current-version.outputs.version }}
           major-increment: true
-          minor-increment: false
-          patch-increment: false
-          alpha-increment: false
-          rc-increment: false
+
+      - name: New minor
+        uses: vlohachov/LokaliseAutomation/.github/actions/new-version@release/v5.2.0
+        with:
+          current-version: ${{ steps.current-version.outputs.version }}
+          minor-increment: true
+
+      - name: New patch
+        uses: vlohachov/LokaliseAutomation/.github/actions/new-version@release/v5.2.0
+        with:
+          current-version: ${{ steps.current-version.outputs.version }}
+          patch-increment: true
+
+      - name: New alpha
+        uses: vlohachov/LokaliseAutomation/.github/actions/new-version@release/v5.2.0
+        with:
+          current-version: ${{ steps.current-version.outputs.version }}
+          alpha-increment: true
+
+      - name: New rc
+        uses: vlohachov/LokaliseAutomation/.github/actions/new-version@release/v5.2.0
+        with:
+          current-version: ${{ steps.current-version.outputs.version }}
+          rc-increment: true
 
 #      - name: Alpha version
 #        id: alpha-version
