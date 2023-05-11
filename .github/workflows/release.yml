@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       current-version: ${{ steps.current-version.outputs.version }}
-      new-version: ${{ steps.new-version.outputs.version }}
+      new-version: ${{ steps.new-version.outputs.new-version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -68,38 +68,18 @@ jobs:
           fi
           echo result=${result:-false} >> $GITHUB_OUTPUT;
 
-      - name: New major
+      - name: New version
+        id: new-version
         uses: vlohachov/LokaliseAutomation/.github/actions/new-version@release/v5.2.0
         with:
           current-version: ${{ steps.current-version.outputs.version }}
-          major-increment: true
-
-      - name: New minor
-        uses: vlohachov/LokaliseAutomation/.github/actions/new-version@release/v5.2.0
-        with:
-          current-version: ${{ steps.current-version.outputs.version }}
-          minor-increment: true
-
-      - name: New patch
-        uses: vlohachov/LokaliseAutomation/.github/actions/new-version@release/v5.2.0
-        with:
-          current-version: ${{ steps.current-version.outputs.version }}
-          patch-increment: true
-
-      - name: New alpha
-        uses: vlohachov/LokaliseAutomation/.github/actions/new-version@release/v5.2.0
-        with:
-          current-version: ${{ steps.current-version.outputs.version }}
-          alpha-increment: true
-
-      - name: New rc
-        uses: vlohachov/LokaliseAutomation/.github/actions/new-version@release/v5.2.0
-        with:
-          current-version: ${{ steps.current-version.outputs.version }}
-          rc-increment: true
+          major-increment: ${{ github.event.inputs.update-type == 'major' }}
+          minor-increment: ${{ github.event.inputs.update-type == 'minor' }}
+          patch-increment: ${{ github.event.inputs.update-type == 'patch' }}
+          alpha-increment: ${{ github.event.inputs.update-type == 'alpha' }}
+          rc-increment: ${{ github.event.inputs.update-type == 'rc' }}
 
   publish:
-    if: false
     needs: [ update-version ]
     runs-on: ubuntu-latest
     steps:
@@ -112,18 +92,11 @@ jobs:
           java-version: '17'
           distribution: 'zulu'
 
-      - name: Fix version
-        id: fix-version
-        run: |
-          version=${{ needs.update-version.outputs.new-version }}
-          version=${version:1}
-          echo version=${version} >> $GITHUB_OUTPUT;
-
       - name: Publish
         env:
           GITHUB_USER: ${{ secrets.GITHUB_USER }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VERSION: ${{ steps.fix-version.outputs.version }}
+          VERSION: ${{ needs.update-version.outputs.new-version }}
         run: |
           ./gradlew publish
 
@@ -151,15 +124,15 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create ${{ needs.update-version.outputs.new-version }} \
+          gh release create v${{ needs.update-version.outputs.new-version }} \
           --target ${{ github.ref_name }} \
-          --generate-notes --notes-start-tag ${{ needs.update-version.outputs.current-version }}
+          --generate-notes --notes-start-tag v${{ needs.update-version.outputs.current-version }}
 
       - name: Create pre release
         if: ${{ steps.release-type.outputs.value != 'stable' }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create ${{ needs.update-version.outputs.new-version }} --prerelease \
+          gh release create v${{ needs.update-version.outputs.new-version }} --prerelease \
           --target ${{ github.ref_name }} \
-          --generate-notes --notes-start-tag ${{ needs.update-version.outputs.current-version }}
+          --generate-notes --notes-start-tag v${{ needs.update-version.outputs.current-version }}
