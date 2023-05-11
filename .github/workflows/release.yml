@@ -70,7 +70,7 @@ jobs:
 
       - name: New version
         id: new-version
-        uses: vlohachov/LokaliseAutomation/.github/actions/new-version@release/v5.2.0
+        uses: vlohachov/LokaliseAutomation/.github/actions/new-version@main
         with:
           current-version: ${{ steps.current-version.outputs.version }}
           major-increment: ${{ github.event.inputs.update-type == 'major' }}
