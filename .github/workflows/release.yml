@@ -53,7 +53,7 @@ jobs:
       - name: Check for breaking changes
         id: breaking-changes
         # Maybe should be enabled despite the release type
-        if: ${{ github.event.inputs.release-type != 'stable' }}
+        if: ${{ github.event.inputs.release-type == 'stable' }}
         run: |
           breaking_commits=$(git log ${{ steps.current-version.outputs.version }}..HEAD --format=%B --grep="BREAKING CHANGE: ")
           if [[ ${breaking_commits} != "" ]]; then
