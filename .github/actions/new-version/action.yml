@@ -1,0 +1,130 @@
+name: New Version
+description: Generate new version
+
+inputs:
+  current-version:
+    description: 'Current version'
+    required: true
+  major-increment:
+    description: 'Increments major'
+    required: false
+    default: 'false'
+  minor-increment:
+    description: 'Increments minor'
+    required: false
+    default: 'false'
+  patch-increment:
+    description: 'Increments patch'
+    required: false
+    default: 'false'
+  alpha-increment:
+    description: 'Increments alpha'
+    required: false
+    default: 'false'
+  rc-increment:
+    description: 'Increments rc'
+    required: false
+    default: 'false'
+
+outputs:
+  new-version:
+    description: 'New Version'
+    value: ${{ steps.new-version.outputs.version }}
+
+runs:
+  using: composite
+  steps:
+    - name: Validate inputs
+      shell: bash
+      run: |
+        if [[ ${{ inputs.current-version }} == '' ]]; then
+          echo "Missing required `current-version` input value"
+          exit 1
+        fi
+
+    - name: Major increment
+      id: major-increment
+      if: ${{ inputs.major-increment }}
+      shell: bash
+      run: |
+        version=${{ inputs.current-version }}
+        major_version=$(echo "${version}" | cut -d "." -f 1)
+        new_version="$((major_version+1)).0.0"
+        echo version="${new_version}" >> $GITHUB_OUTPUT
+
+    - name: Minor increment
+      id: minor-increment
+      if: ${{ inputs.minor-increment }}
+      shell: bash
+      run: |
+        version=${{ inputs.current-version }}
+        major_version=$(echo "${version}" | cut -d "." -f 1)
+        minor_version=$(echo "${version}" | cut -d "." -f 2)
+        new_version="${major_version}.$((minor_version+1)).0"
+        echo version="${new_version}" >> $GITHUB_OUTPUT
+
+    - name: Patch increment
+      id: patch-increment
+      if: ${{ inputs.patch-increment }}
+      shell: bash
+      run: |
+        version=${{ inputs.current-version }}
+        major_version=$(echo "${version}" | cut -d "." -f 1)
+        minor_version=$(echo "${version}" | cut -d "." -f 2)
+        patch_version=$(echo "${version}" | cut -d "." -f 3)
+        patch_version=${patch_version%-*}
+        new_version="${major_version}.${minor_version}.$((patch_version+1))"
+        echo version="${new_version}" >> $GITHUB_OUTPUT
+
+    - name: Alpha increment
+      id: alpha-increment
+      if: ${{ inputs.alpha-increment }}
+      shell: bash
+      run: |
+        version=${{ inputs.current-version }}
+        major_version=$(echo "${version}" | cut -d "." -f 1)
+        minor_version=$(echo "${version}" | cut -d "." -f 2)
+        patch_version=$(echo "${version}" | cut -d "." -f 3)
+        if [[ ${patch_version} != *"-"* ]]; then
+          number=0
+        else
+          number=${patch_version#*alpha}
+        fi
+        patch_version=${patch_version%-*}
+        new_version="${major_version}.${minor_version}.${patch_version}-alpha$((number+1))"
+        echo version="${new_version}" >> $GITHUB_OUTPUT
+
+    - name: RC increment
+      id: rc-increment
+      if: ${{ inputs.rc-increment }}
+      shell: bash
+      run: |
+        version=${{ inputs.current-version }}
+        major_version=$(echo "${version}" | cut -d "." -f 1)
+        minor_version=$(echo "${version}" | cut -d "." -f 2)
+        patch_version=$(echo "${version}" | cut -d "." -f 3)
+        if [[ ${patch_version} != *"-"* ]]; then
+          number=0
+        else
+          number=${patch_version#*rc}
+        fi
+        patch_version=${patch_version%-*}
+        new_version="${major_version}.${minor_version}.${patch_version}-rc((number+1))"
+        echo version="${new_version}" >> $GITHUB_OUTPUT
+
+    - name: New version
+      id: new-version
+      shell: bash
+      run: |
+        if [[ ${{ inputs.major-increment }} ]]; then
+          new_version=${{ steps.major-increment.outputs.version }}
+        elif [[ ${{ inputs.minor-increment }} ]]; then
+          new_version=${{ steps.minor-increment.outputs.version }}
+        elif [[ ${{ inputs.patch-increment }} ]]; then
+          new_version=${{ steps.patch-increment.outputs.version }}
+        elif [[ ${{ inputs.alpha-increment }} ]]; then
+          new_version=${{ steps.alpha-increment.outputs.version }}
+        elif [[ ${{ inputs.rc-increment }} ]]; then
+          new_version=${{ steps.rc-increment.outputs.version }}
+        fi
+        echo version="${new_version}" >> $GITHUB_OUTPUT
