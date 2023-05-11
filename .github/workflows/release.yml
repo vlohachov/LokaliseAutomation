@@ -89,10 +89,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh release view v${{ steps.new-version.outputs.new-version }} >/dev/null 2>&1; then
-            echo "Release exists."
-          else
-            echo "Release does not exist."
+          version_tag=v${{ steps.new-version.outputs.new-version }}
+          if gh release view ${version_tag} >/dev/null 2>&1; then
+            echo "Release ${version_tag} already exists."
+            exit 1
           fi
 
   publish:
