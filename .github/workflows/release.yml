@@ -118,9 +118,9 @@ jobs:
       - name: Release type
         id: release-type
         run: |
-          if [[ ${{ github.event.inputs.update-type }} == 'alpha' ]]; then
+          if [[ ${{ github.event.inputs.release-type }} == 'alpha' ]]; then
             value='alpha'
-          elif [[ ${{ github.event.inputs.update-type }} == 'rc' ]]; then
+          elif [[ ${{ github.event.inputs.release-type }} == 'rc' ]]; then
             value='rc'
           else
             value='stable'
