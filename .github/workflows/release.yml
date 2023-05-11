@@ -50,7 +50,7 @@ jobs:
         run: |
           releases=$(gh release list --exclude-drafts | awk '{print $1}')
           #releases+=$'\n'"v5.3.0-alpha1"$'\n'"v5.3.0-alpha2"
-          releases+=$'\n'"v5.3.0-rc1"$'\n'"v5.3.0-rc2"
+          #releases+=$'\n'"v5.3.0-rc1"$'\n'"v5.3.0-rc2"
           sorted=$(echo "${releases}" | sort -Vr)
           
           if [[ ${{ github.ref_name }} == *"release"* ]]; then
@@ -67,8 +67,8 @@ jobs:
       - name: Check for breaking changes
         id: breaking-changes
         # Maybe should be enabled despite the release type
-        if: false
-#        if: ${{ steps.release-type.outputs.value == 'stable' }}
+#        if: false
+        if: ${{ steps.release-type.outputs.value == 'stable' }}
         run: |
           breaking_commits=$(git log v${{ steps.current-version.outputs.version }}..HEAD --format=%B --grep="BREAKING CHANGE: ")
           if [[ ${breaking_commits} != "" ]]; then
