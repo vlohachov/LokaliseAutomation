@@ -69,6 +69,7 @@ jobs:
           echo result=${result:-false} >> $GITHUB_OUTPUT;
 
       - name: New version
+        if: false
         id: new-version
         uses: vlohachov/LokaliseAutomation/.github/actions/new-version@main
         with:
@@ -80,6 +81,7 @@ jobs:
           rc-increment: ${{ github.event.inputs.update-type == 'rc' }}
 
   publish:
+    if: false
     needs: [ update-version ]
     runs-on: ubuntu-latest
     steps:
