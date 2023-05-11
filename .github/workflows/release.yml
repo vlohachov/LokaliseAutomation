@@ -50,14 +50,16 @@ jobs:
         run: |
           releases=$(gh release list --exclude-drafts | awk '{print $1}')
           #releases+=$'\n'"v5.3.0-alpha1"$'\n'"v5.3.0-alpha2"
-          echo "${releases}"
           sorted=$(echo "${releases}" | sort -Vr)
           
-          release=${{ github.ref_name }}
-          release="v${release#*/}"
+          if [[ ${{ github.ref_name }} == *"release"* ]]; then
+            base_version=${{ github.ref_name }}
+            base_version="v${base_version#*/}"
+            current_version=$(echo "${sorted}" | awk -v rel="${base_version%.*}" -v RS="\n" -v ORS="\n" 'BEGIN {p=0} {if(index($0,rel)==1)p=1; if(p) print}' | head -1)
+          else 
+            current_version=$(echo "${sorted}" | head -1)
+          fi
           
-          current_version=$(echo "${sorted}" | awk -v rel="${release%.*}" -v RS="\n" -v ORS="\n" 'BEGIN {p=0} {if(index($0,rel)==1)p=1; if(p) print}' | head -1)
-          #current_version=$(echo "${sorted}" | head -1)
           echo "Current version: ${current_version}"
           echo version=${current_version:1} >> $GITHUB_OUTPUT;
 
@@ -74,7 +76,6 @@ jobs:
           echo result=${result:-false} >> $GITHUB_OUTPUT;
 
       - name: New version
-        if: false
         id: new-version
         uses: vlohachov/LokaliseAutomation/.github/actions/new-version@main
         with:
