@@ -42,17 +42,17 @@ runs:
           exit 1
         fi
         if [[ ${{ inputs.major-increment }} == 'true' ]]; then
-          increment-set=true
+          increment_set=true
         elif [[ ${{ inputs.minor-increment }} == 'true' ]]; then
-          increment-set=true
+          increment_set=true
         elif [[ ${{ inputs.patch-increment }} == 'true' ]]; then
-          increment-set=true
+          increment_set=true
         elif [[ ${{ inputs.alpha-increment }} == 'true' ]]; then
-          increment-set=true
+          increment_set=true
         elif [[ ${{ inputs.rc-increment }} == 'true' ]]; then
-          increment-set=true
+          increment_set=true
         else
-          increment-set=false
+          increment_set=false
         fi
         if [[ !${increment-set} ]]; then
           echo "No increment input set to `true`"
