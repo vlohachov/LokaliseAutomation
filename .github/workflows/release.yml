@@ -76,10 +76,10 @@ jobs:
             suffix=0
           # Else if alpha release
           elif [[ "${{ github.event.inputs.release-type }}" == "alpha" ]]; then
-            suffix=${patch_version#*alpha}
+            #suffix=${patch_version#*alpha}
           # Else if hot-fix release
           elif [[ "${{ github.event.inputs.release-type }}" == "hot-fix" ]]; then
-            suffix=${patch_version#*rc}
+            #suffix=${patch_version#*rc}
           fi
           
           echo "Suffix: ${suffix}"
