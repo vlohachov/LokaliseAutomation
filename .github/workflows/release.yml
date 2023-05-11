@@ -7,10 +7,15 @@ concurrency:
 on:
   workflow_dispatch:
     inputs:
+      make-stable:
+        description: 'Makes stable out of "alpha" or "rc". "Release type" choice will be ignored.'
+        type: boolean
+        required: false
+        default: false
       release-type:
         description: 'Release type'
         type: choice
-        required: true
+        required: false
         default: 'patch'
         options:
           - patch
@@ -78,6 +83,7 @@ jobs:
         uses: vlohachov/LokaliseAutomation/.github/actions/new-version@main
         with:
           current-version: ${{ steps.current-version.outputs.version }}
+          make-stable: ${{ github.event.inputs.make-stable == 'true' }}
           major-increment: ${{ github.event.inputs.release-type == 'major' || steps.breaking-changes.outputs.result == 'true' }}
           minor-increment: ${{ github.event.inputs.release-type == 'minor' }}
           patch-increment: ${{ github.event.inputs.release-type == 'patch' }}

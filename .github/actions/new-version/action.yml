@@ -5,6 +5,9 @@ inputs:
   current-version:
     description: 'Current version'
     required: true
+  make-stable:
+    description: 'Make stable out of "alpha" or "rc"'
+    required: false
   major-increment:
     description: 'Increments major'
     required: false
@@ -39,6 +42,9 @@ runs:
       run: |
         if [[ ${{ inputs.current-version }} == '' ]]; then
           echo "Missing required 'current-version' input value"
+          exit 1
+        elif [[ "${{ inputs.make-stable }}" == "true" && "${{ inputs.current-version }}" != *"-"* ]]; then
+          echo "${{ inputs.current-version }} is stable already."
           exit 1
         fi
 
@@ -116,7 +122,10 @@ runs:
       id: new-version
       shell: bash
       run: |
-        if [[ "${{ inputs.major-increment }}" == "true" ]]; then
+        if [[ "${{ inputs.make-stable }}" == "true" ]]; then
+          new_version=${{ inputs.current-version }}
+          new_version=${new_version%-*}
+        elif [[ "${{ inputs.major-increment }}" == "true" ]]; then
           new_version=${{ steps.major-increment.outputs.version }}
         elif [[ "${{ inputs.minor-increment }}" == "true" ]]; then
           new_version=${{ steps.minor-increment.outputs.version }}
