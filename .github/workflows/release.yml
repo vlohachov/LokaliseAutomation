@@ -56,7 +56,7 @@ jobs:
           release=${{ github.ref_name }}
           release=${release#*/}
           
-          echo ${sorted} | awk -v rel="${release%.*}" -v RS="\n" -v ORS="\n" 'BEGIN {p=0} {if(index($0,rel)==1)p=1; if(p) print}'
+          echo "${sorted}" | awk -v rel="${release%.*}" -v RS="\n" -v ORS="\n" 'BEGIN {p=0} {if(index($0,rel)==1)p=1; if(p) print}'
           
           current_version=$(echo "${sorted}" | head -1)
           echo "Current version: ${current_version}"
