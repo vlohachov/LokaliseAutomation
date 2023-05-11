@@ -43,7 +43,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          releases=$(gh release list --exclude-drafts --exclude-pre-releases | awk '{print $1}')
+          releases=$(gh release list --exclude-drafts | awk '{print $1}')
+          releases+="5.2.0-alpha1\n5.2.0-alpha-2"
+          echo "${releases}"
           current_version=$(echo "${releases}" | sort -Vr | head -1)
           echo "Current version: ${current_version}"
           echo version=${current_version} >> $GITHUB_OUTPUT;
@@ -63,7 +65,7 @@ jobs:
         id: new-version
         run: |
           current_version=${{ steps.current-version.outputs.version }}
-          current_version="${current_version:1}-rc1"
+          current_version=${current_version:1}
           
           echo "Current version: ${current_version}"
           
