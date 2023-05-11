@@ -54,7 +54,7 @@ runs:
 
     - name: Minor increment
       id: minor-increment
-      if: ${{ inputs.minor-increment == 'true' }}
+      if: ${{ inputs.minor-increment == 'true' && inputs.major-increment != 'true' }}
       shell: bash
       run: |
         version=${{ inputs.current-version }}
@@ -65,7 +65,7 @@ runs:
 
     - name: Patch increment
       id: patch-increment
-      if: ${{ inputs.patch-increment == 'true' }}
+      if: ${{ inputs.patch-increment == 'true' && inputs.major-increment != 'true' }}
       shell: bash
       run: |
         version=${{ inputs.current-version }}
@@ -78,7 +78,7 @@ runs:
 
     - name: Alpha increment
       id: alpha-increment
-      if: ${{ inputs.alpha-increment == 'true' }}
+      if: ${{ inputs.alpha-increment == 'true' && inputs.major-increment != 'true' }}
       shell: bash
       run: |
         version=${{ inputs.current-version }}
@@ -96,7 +96,7 @@ runs:
 
     - name: RC increment
       id: rc-increment
-      if: ${{ inputs.rc-increment == 'true' }}
+      if: ${{ inputs.rc-increment == 'true' && inputs.major-increment != 'true' }}
       shell: bash
       run: |
         version=${{ inputs.current-version }}

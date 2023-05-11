@@ -81,7 +81,7 @@ jobs:
         uses: vlohachov/LokaliseAutomation/.github/actions/new-version@main
         with:
           current-version: ${{ steps.current-version.outputs.version }}
-          major-increment: ${{ github.event.inputs.update-type == 'major' }}
+          major-increment: ${{ github.event.inputs.update-type == 'major' || steps.breaking-changes.outputs.result == 'true' }}
           minor-increment: ${{ github.event.inputs.update-type == 'minor' }}
           patch-increment: ${{ github.event.inputs.update-type == 'patch' }}
           alpha-increment: ${{ github.event.inputs.update-type == 'alpha' }}
