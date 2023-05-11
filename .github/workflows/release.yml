@@ -52,6 +52,12 @@ jobs:
           #releases+=$'\n'"v5.2.0-alpha1"$'\n'"v5.2.0-alpha2"
           echo "${releases}"
           sorted=$(echo "${releases}" | sort -Vr)
+          
+          release=${{ github.ref_name }}
+          release=${release#*/}
+          
+          echo ${sorted} | awk -v rel="${release%.*}" -v RS="\n" -v ORS="\n" 'BEGIN {p=0} {if(index($0,rel)==1)p=1; if(p) print}'
+          
           current_version=$(echo "${sorted}" | head -1)
           echo "Current version: ${current_version}"
           echo version=${current_version:1} >> $GITHUB_OUTPUT;
