@@ -7,8 +7,8 @@ concurrency:
 on:
   workflow_dispatch:
     inputs:
-      update-type:
-        description: 'Update type'
+      release-type:
+        description: 'Release type'
         type: choice
         required: true
         default: 'patch'
@@ -34,9 +34,9 @@ jobs:
       - name: Release type
         id: release-type
         run: |
-          if [[ ${{ github.event.inputs.update-type }} == 'alpha' ]]; then
+          if [[ ${{ github.event.inputs.release-type }} == 'alpha' ]]; then
             value='alpha'
-          elif [[ ${{ github.event.inputs.update-type }} == 'rc' ]]; then
+          elif [[ ${{ github.event.inputs.release-type }} == 'rc' ]]; then
             value='rc'
           else
             value='stable'
@@ -81,11 +81,11 @@ jobs:
         uses: vlohachov/LokaliseAutomation/.github/actions/new-version@main
         with:
           current-version: ${{ steps.current-version.outputs.version }}
-          major-increment: ${{ github.event.inputs.update-type == 'major' || steps.breaking-changes.outputs.result == 'true' }}
-          minor-increment: ${{ github.event.inputs.update-type == 'minor' }}
-          patch-increment: ${{ github.event.inputs.update-type == 'patch' }}
-          alpha-increment: ${{ github.event.inputs.update-type == 'alpha' }}
-          rc-increment: ${{ github.event.inputs.update-type == 'rc' }}
+          major-increment: ${{ github.event.inputs.release-type == 'major' || steps.breaking-changes.outputs.result == 'true' }}
+          minor-increment: ${{ github.event.inputs.release-type == 'minor' }}
+          patch-increment: ${{ github.event.inputs.release-type == 'patch' }}
+          alpha-increment: ${{ github.event.inputs.release-type == 'alpha' }}
+          rc-increment: ${{ github.event.inputs.release-type == 'rc' }}
 
   publish:
     if: false
