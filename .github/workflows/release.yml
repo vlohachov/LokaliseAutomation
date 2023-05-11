@@ -67,7 +67,7 @@ jobs:
           echo result=${result:-false} >> $GITHUB_OUTPUT;
 
       - name: New version
-        uses: vlohachov/LokaliseAutomation.github/actions/new-version@release/v5.2.0
+        uses: vlohachov/LokaliseAutomation/.github/actions/new-version@release/v5.2.0
         with:
           current-version: ${{ steps.current-version.outputs.version }}
           major-increment: true
