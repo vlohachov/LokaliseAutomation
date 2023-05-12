@@ -5,9 +5,6 @@ inputs:
   current-version:
     description: 'Current version'
     required: true
-  make-stable:
-    description: 'Make stable out of "alpha" or "rc"'
-    required: false
   major-increment:
     description: 'Increments major'
     required: false
@@ -43,8 +40,17 @@ runs:
         if [[ ${{ inputs.current-version }} == '' ]]; then
           echo "Missing required 'current-version' input value"
           exit 1
-        elif [[ "${{ inputs.make-stable }}" == "true" && "${{ inputs.current-version }}" != *"-"* ]]; then
-          echo "${{ inputs.current-version }} is stable already."
+        elif [[ "${{ inputs.major-increment }}" == "true" && "${{ inputs.minor-increment }}" == "true" ]]; then
+          echo "Can not increment both 'major' and 'minor' at the same time"
+          exit 1
+        elif [[ "${{ inputs.major-increment }}" == "true" && "${{ inputs.patch-increment }}" == "true" ]]; then
+          echo "Can not increment both 'major' and 'patch' at the same time"
+          exit 1
+        elif [[ "${{ inputs.minor-increment }}" == "true" && "${{ inputs.patch-increment }}" == "true" ]]; then
+          echo "Can not increment both 'minor' and 'patch' at the same time"
+          exit 1
+        elif [[ "${{ inputs.alpha-increment }}" == "true" && "${{ inputs.rc-increment }}" == "true" ]]; then
+          echo "Can not increment both 'alpha' and 'rc' at the same time"
           exit 1
         fi
 
@@ -82,62 +88,55 @@ runs:
         new_version="${major_version}.${minor_version}.$((patch_version+1))"
         echo version="${new_version}" >> $GITHUB_OUTPUT
 
-    - name: Alpha increment
-      id: alpha-increment
-      if: ${{ inputs.alpha-increment == 'true' && inputs.major-increment != 'true' }}
+    - name: Intermediate version
+      id: intermediate-version
       shell: bash
       run: |
-        version=${{ inputs.current-version }}
-        major_version=$(echo "${version}" | cut -d "." -f 1)
-        minor_version=$(echo "${version}" | cut -d "." -f 2)
-        patch_version=$(echo "${version}" | cut -d "." -f 3)
-        if [[ ${patch_version} != *"-"* ]]; then
-          number=0
+        if [[ "${{ inputs.major-increment }}" == "true" ]]; then
+          version=${{ steps.major-increment.outputs.version }}
+        elif [[ "${{ inputs.minor-increment }}" == "true" ]]; then
+          version=${{ steps.minor-increment.outputs.version }}
+        elif [[ "${{ inputs.patch-increment }}" == "true" ]]; then
+          version=${{ steps.patch-increment.outputs.version }}
         else
-          number=${patch_version#*alpha}
+          version=${{ inputs.current-version }}
         fi
-        patch_version=${patch_version%-*}
-        new_version="${major_version}.${minor_version}.${patch_version}-alpha$((number+1))"
-        echo version="${new_version}" >> $GITHUB_OUTPUT
+        echo version="${version}" >> $GITHUB_OUTPUT
 
-    - name: RC increment
-      id: rc-increment
-      if: ${{ inputs.rc-increment == 'true' && inputs.major-increment != 'true' }}
+    - name: Suffix
+      id: suffix
+      if: ${{ inputs.alpha-increment == 'true' || inputs.rc-increment == 'true' }}
       shell: bash
       run: |
-        version=${{ inputs.current-version }}
-        major_version=$(echo "${version}" | cut -d "." -f 1)
-        minor_version=$(echo "${version}" | cut -d "." -f 2)
-        patch_version=$(echo "${version}" | cut -d "." -f 3)
-        if [[ ${patch_version} != *"-"* ]]; then
+        version=${{ steps.intermediate-version.outputs.version }}
+        
+        if [[ ${version} != *"-"* ]]; then
           number=0
-        else
-          number=${patch_version#*rc}
+        elif [[ "${{ inputs.alpha-increment }}" == "true" ]]; then
+          number=${version#*alpha}
+        elif [[ "${{ inputs.rc-increment }}" == "true" ]]; then
+          number=${version#*rc}
         fi
-        patch_version=${patch_version%-*}
-        new_version="${major_version}.${minor_version}.${patch_version}-rc$((number+1))"
-        echo version="${new_version}" >> $GITHUB_OUTPUT
+        
+        if [[ "${{ inputs.alpha-increment }}" == "true" ]]; then
+          value="alpha$((number+1))"
+        elif [[ "${{ inputs.rc-increment }}" == "true" ]]; then
+          value="rc$((number+1))"
+        fi
+        
+        echo value="${value}" >> $GITHUB_OUTPUT
 
     - name: New version
       id: new-version
       shell: bash
       run: |
-        if [[ "${{ inputs.make-stable }}" == "true" ]]; then
-          new_version=${{ inputs.current-version }}
-          new_version=${new_version%-*}
-        elif [[ "${{ inputs.major-increment }}" == "true" ]]; then
-          new_version=${{ steps.major-increment.outputs.version }}
-        elif [[ "${{ inputs.minor-increment }}" == "true" ]]; then
-          new_version=${{ steps.minor-increment.outputs.version }}
-        elif [[ "${{ inputs.patch-increment }}" == "true" ]]; then
-          new_version=${{ steps.patch-increment.outputs.version }}
-        elif [[ "${{ inputs.alpha-increment }}" == "true" ]]; then
-          new_version=${{ steps.alpha-increment.outputs.version }}
-        elif [[ "${{ inputs.rc-increment }}" == "true" ]]; then
-          new_version=${{ steps.rc-increment.outputs.version }}
-        elif [[ ${new_version} == '' ]]; then 
-          echo "Unable to get new version. Please check increment inputs."
-          exit 1
+        new_version=${{ steps.intermediate-version.outputs.version }}
+        
+        new_version=${new_version%-*}
+        
+        if [[ "${{ steps.suffix.outputs.value }}" != "" ]]; then
+          new_version="${new_version}-${{ steps.suffix.outputs.value }}"
         fi
+        
         echo "${new_version}"
         echo version="${new_version}" >> $GITHUB_OUTPUT

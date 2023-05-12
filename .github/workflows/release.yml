@@ -7,22 +7,31 @@ concurrency:
 on:
   workflow_dispatch:
     inputs:
-      make-stable:
-        description: 'Makes stable out of "alpha" or "rc". "Release type" choice will be ignored.'
+      major:
+        description: 'Major'
         type: boolean
         required: false
         default: false
-      release-type:
-        description: 'Release type'
-        type: choice
+      minor:
+        description: 'Minor'
+        type: boolean
         required: false
-        default: 'patch'
-        options:
-          - patch
-          - minor
-          - major
-          - alpha
-          - rc
+        default: false
+      patch:
+        description: 'Patch'
+        type: boolean
+        required: false
+        default: false
+      alpha:
+        description: 'Alpha'
+        type: boolean
+        required: false
+        default: false
+      rc:
+        description: 'RC'
+        type: boolean
+        required: false
+        default: false
 
 jobs:
   update-version:
@@ -39,9 +48,9 @@ jobs:
       - name: Release type
         id: release-type
         run: |
-          if [[ ${{ github.event.inputs.release-type }} == 'alpha' ]]; then
+          if [[ ${{ github.event.inputs.alpha }} == 'true' ]]; then
             value='alpha'
-          elif [[ ${{ github.event.inputs.release-type }} == 'rc' ]]; then
+          elif [[ ${{ github.event.inputs.rc }} == 'true' ]]; then
             value='rc'
           else
             value='stable'
@@ -83,12 +92,11 @@ jobs:
         uses: vlohachov/LokaliseAutomation/.github/actions/new-version@main
         with:
           current-version: ${{ steps.current-version.outputs.version }}
-          make-stable: ${{ github.event.inputs.make-stable == 'true' }}
-          major-increment: ${{ github.event.inputs.release-type == 'major' || steps.breaking-changes.outputs.result == 'true' }}
-          minor-increment: ${{ github.event.inputs.release-type == 'minor' }}
-          patch-increment: ${{ github.event.inputs.release-type == 'patch' }}
-          alpha-increment: ${{ github.event.inputs.release-type == 'alpha' }}
-          rc-increment: ${{ github.event.inputs.release-type == 'rc' }}
+          major-increment: ${{ github.event.inputs.major || steps.breaking-changes.outputs.result == 'true' }}
+          minor-increment: ${{ github.event.inputs.minor }}
+          patch-increment: ${{ github.event.inputs.patch }}
+          alpha-increment: ${{ github.event.inputs.alpha }}
+          rc-increment: ${{ github.event.inputs.rc }}
 
       - name: Fail if version already released
         env:
@@ -132,9 +140,9 @@ jobs:
       - name: Release type
         id: release-type
         run: |
-          if [[ ${{ github.event.inputs.release-type }} == 'alpha' ]]; then
+          if [[ ${{ github.event.inputs.alpha }} == 'true' ]]; then
             value='alpha'
-          elif [[ ${{ github.event.inputs.release-type }} == 'rc' ]]; then
+          elif [[ ${{ github.event.inputs.rc }} == 'true' ]]; then
             value='rc'
           else
             value='stable'
