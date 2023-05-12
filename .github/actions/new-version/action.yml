@@ -110,7 +110,7 @@ runs:
       run: |
         version=${{ steps.intermediate-version.outputs.version }}
         
-        version="5.3.0"
+        version="5.3.0-rc1"
         
         if [[ "${{ inputs.alpha-increment }}" == "true" ]]; then
           number=$(${version#*alpha} || echo "0")
