@@ -112,8 +112,10 @@ runs:
         
         if [[ ${version} != *"-"* ]]; then
           number=0
-        else
-          number=$(echo "$version" | grep -oP '(?<=alpha|rc)\d+')
+        elif [[ "${{ inputs.alpha-increment }}" == "true" ]]; then
+          number=$(${version#*alpha} || echo "0")
+        elif [[ "${{ inputs.rc-increment }}" == "true" ]]; then
+          number=$(${version#*rc} || echo "0")
         fi
         
         if [[ "${{ inputs.alpha-increment }}" == "true" ]]; then
