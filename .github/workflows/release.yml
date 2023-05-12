@@ -7,17 +7,31 @@ concurrency:
 on:
   workflow_dispatch:
     inputs:
-      update-type:
-        description: 'Update type'
-        type: choice
-        required: true
-        default: 'patch'
-        options:
-          - patch
-          - minor
-          - major
-          - alpha
-          - rc
+      major:
+        description: 'Major'
+        type: boolean
+        required: false
+        default: false
+      minor:
+        description: 'Minor'
+        type: boolean
+        required: false
+        default: false
+      patch:
+        description: 'Patch'
+        type: boolean
+        required: false
+        default: false
+      alpha:
+        description: 'Alpha'
+        type: boolean
+        required: false
+        default: false
+      rc:
+        description: 'RC'
+        type: boolean
+        required: false
+        default: false
 
 jobs:
   update-version:
@@ -34,9 +48,9 @@ jobs:
       - name: Release type
         id: release-type
         run: |
-          if [[ ${{ github.event.inputs.update-type }} == 'alpha' ]]; then
+          if [[ ${{ github.event.inputs.alpha }} == 'true' ]]; then
             value='alpha'
-          elif [[ ${{ github.event.inputs.update-type }} == 'rc' ]]; then
+          elif [[ ${{ github.event.inputs.rc }} == 'true' ]]; then
             value='rc'
           else
             value='stable'
@@ -49,18 +63,23 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           releases=$(gh release list --exclude-drafts | awk '{print $1}')
-          #releases+=$'\n'"v5.2.0-alpha1"$'\n'"v5.2.0-alpha2"
-          echo "${releases}"
           sorted=$(echo "${releases}" | sort -Vr)
-          current_version=$(echo "${sorted}" | head -1)
+          
+          if [[ ${{ github.ref_name }} == *"release"* ]]; then
+            base_version=${{ github.ref_name }}
+            base_version="v${base_version#*/}"
+            current_version=$(echo "${sorted}" | awk -v rel="${base_version%.*}" -v RS="\n" -v ORS="\n" 'BEGIN {p=0} {if(index($0,rel)==1)p=1; if(p) print}' | head -1)
+          else 
+            current_version=$(echo "${sorted}" | head -1)
+          fi
+          
           echo "Current version: ${current_version}"
           echo version=${current_version:1} >> $GITHUB_OUTPUT;
 
       - name: Check for breaking changes
         id: breaking-changes
         # Maybe should be enabled despite the release type
-        if: false
-#        if: ${{ steps.release-type.outputs.value == 'stable' }}
+        if: ${{ steps.release-type.outputs.value == 'stable' }}
         run: |
           breaking_commits=$(git log v${{ steps.current-version.outputs.version }}..HEAD --format=%B --grep="BREAKING CHANGE: ")
           if [[ ${breaking_commits} != "" ]]; then
@@ -70,14 +89,24 @@ jobs:
 
       - name: New version
         id: new-version
-        uses: vlohachov/LokaliseAutomation/.github/actions/new-version@main
+        uses: vlohachov/LokaliseAutomation/.github/actions/new-version@release/5.3.0
         with:
           current-version: ${{ steps.current-version.outputs.version }}
-          major-increment: ${{ github.event.inputs.update-type == 'major' }}
-          minor-increment: ${{ github.event.inputs.update-type == 'minor' }}
-          patch-increment: ${{ github.event.inputs.update-type == 'patch' }}
-          alpha-increment: ${{ github.event.inputs.update-type == 'alpha' }}
-          rc-increment: ${{ github.event.inputs.update-type == 'rc' }}
+          major-increment: ${{ github.event.inputs.major || steps.breaking-changes.outputs.result == 'true' }}
+          minor-increment: ${{ github.event.inputs.minor }}
+          patch-increment: ${{ github.event.inputs.patch }}
+          alpha-increment: ${{ github.event.inputs.alpha }}
+          rc-increment: ${{ github.event.inputs.rc }}
+
+      - name: Fail if version already released
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version_tag=v${{ steps.new-version.outputs.new-version }}
+          if gh release view ${version_tag} >/dev/null 2>&1; then
+            echo "Release ${version_tag} already exists."
+            exit 1
+          fi
 
   publish:
     needs: [ update-version ]
@@ -110,9 +139,9 @@ jobs:
       - name: Release type
         id: release-type
         run: |
-          if [[ ${{ github.event.inputs.update-type }} == 'alpha' ]]; then
+          if [[ ${{ github.event.inputs.alpha }} == 'true' ]]; then
             value='alpha'
-          elif [[ ${{ github.event.inputs.update-type }} == 'rc' ]]; then
+          elif [[ ${{ github.event.inputs.rc }} == 'true' ]]; then
             value='rc'
           else
             value='stable'
