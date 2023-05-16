@@ -37,4 +37,3 @@ user-logic = { module = "com.cricut:android-user-logic-release", version.ref = "
 
 gdpr = { module = "com.cricut:android-gdpr-release", version.ref = "gdpr" }
 gdpr-logic = { module = "com.cricut:android-gdpr-logic-release", version.ref = "gdpr" }
-
