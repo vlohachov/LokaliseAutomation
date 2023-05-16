@@ -46,7 +46,6 @@ jobs:
           fetch-depth: 0
 
       - name: Release notes
-        id: new-version
         uses: vlohachov/LokaliseAutomation/.github/actions/release-notes@update/release_notes
         with:
           catalog: 'libs.versions.toml'
