@@ -47,7 +47,9 @@ jobs:
 
       - name: Release notes
         uses: vlohachov/LokaliseAutomation/.github/actions/release-notes@update/release_notes
-#        with:
+        with:
+          catalog: ''
+#          catalog: 'libs.versions.toml'
 #          catalog: './gradle/libs.versions.toml'
 
       - name: Release type
