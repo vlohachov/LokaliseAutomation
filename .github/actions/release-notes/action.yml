@@ -12,7 +12,10 @@ runs:
     - name: Validate input
       shell: bash
       run: |
-        if [ ! -f ${{ inputs.catalog }} ]; then
+        if [ -z ${{ inputs.catalog }} ]; then
+          echo "Missing 'catalog' input or it is empty."
+          exit 1
+        elif [ ! -f ${{ inputs.catalog }} ]; then
           echo "${{ inputs.catalog }} catalog file not found."
           exit 1
         fi
