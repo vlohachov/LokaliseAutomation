@@ -26,5 +26,8 @@ runs:
         echo "Origin toml:"
         cat ${{ inputs.catalog }}
         echo "Parsed as json:"
-        json=$(yq -j -oy '.' ${{ inputs.catalog }})
+        json=$(yq -oj '.' ${{ inputs.catalog }})
+        echo "$json"
+        echo "Modified json:"
+        json=$(echo "json" | jq '{versions: [.versions | to_entries | .[] | {key: .key, value: .value}], libraries: [.libraries | to_entries | .[] | {key: .key, value: .value}]}' )
         echo "$json"
