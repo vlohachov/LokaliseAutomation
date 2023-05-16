@@ -29,5 +29,5 @@ runs:
         json=$(yq -oj '.' ${{ inputs.catalog }})
         echo "$json"
         echo "Modified json:"
-        json=$(echo "json" | jq '{versions: [.versions | to_entries | .[] | {key: .key, value: .value}], libraries: [.libraries | to_entries | .[] | {key: .key, value: .value}]}' )
+        json=$(echo "$json" | jq '{versions: [.versions | to_entries | .[] | {key: .key, value: .value}], libraries: [.libraries | to_entries | .[] | {key: .key, value: .value}]}' )
         echo "$json"
