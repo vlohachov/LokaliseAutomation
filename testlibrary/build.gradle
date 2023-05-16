@@ -118,7 +118,8 @@ koverAndroid {
 dependencies {
     implementation project(":feature-module:kotlin-lib")
 
-    implementation 'androidx.core:core-ktx:1.9.0'
+    implementation libs.core.ktx
+
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.8.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.0'
@@ -130,7 +131,7 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4'
     testImplementation 'app.cash.turbine:turbine:0.12.1'
-    testImplementation 'io.mockk:mockk:1.13.4'
+    testImplementation libs.mockk
 
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'

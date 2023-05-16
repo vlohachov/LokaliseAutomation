@@ -1,0 +1,7 @@
+[versions]
+mockk="1.13.4"
+core-ktx="1.9.0"
+
+[libraries]
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+core-ktx = { module = "androidx.core:core-ktx", version.ref = "core-ktx" }
