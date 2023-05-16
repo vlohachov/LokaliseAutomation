@@ -1,6 +1,35 @@
 [versions]
-user = "1.0.2"
-gdpr = "1.1.0"
+# Shared libs
+user = "1.0.2" #cricut/android-user
+gdpr = "1.1.0" #cricut/android-gdpr
+auth = "1.2.11" #cricut/android-auth
+cache = "0.0.10" #cricut/android-cache
+theme = "0.0.38" #cricut/android-theme
+hardcore = "8.0.1" #cricut/AndroidHardcore
+extensions = "0.2.1" #cricut/android-extension-lib
+feature-flags = "0.3.4" #cricut/android-feature-flags
+connectivity = "2.0.1" #cricut/android-connectivity
+
+# Analytics
+analytics = "7.0.0" #cricut/android-analytics
+events-api = "21.0.0" #cricut/EventSchemaAPI-Kotlin
+
+# Quickstart/Valentine/Joy/Guided Flow Libraries
+valentine = "7.3.0" #cricut/android-valentine
+
+# Discovery Pod
+discovery-data = "8.3.3" #cricut/android-discovery-data
+discovery = "8.4.4" #cricut/android-discovery
+billing = "2.6.0" #cricut/android-billing
+
+# Android Machines Libraries
+machines = "7.3.2" #cricut/android-oob-cut-interaction
+machine-interaction-models = "2.2.7" #cricut/android-machine-interaction-models
+machine-data = "2.4.12" #cricut/android-machine-data
+
+# Canvas Pod
+image-upload = "3.1.0" #cricut/android-image-upload
+canvas = "3.0.0" #cricut/android-canvas-only
 
 [libraries]
 user = { module = "com.cricut:android-user-release", version.ref = "user" }
