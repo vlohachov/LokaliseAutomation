@@ -31,7 +31,9 @@ runs:
         #json=$(echo "$json" | jq '(.versions | map({(.key): .value}) | add) as $versions | .libraries |= map(.value.version |= $versions[.ref])')
         #echo "$json"
         
-        json=$(yq -oj '.versions' ${{ inputs.catalog }})
+        toml=$(cat ${{ inputs.catalog }} | | awk -F '=' '!NF { next } /^#/ && NF<3 { print; next } !/^#/ { gsub(/ /,"",$1); gsub(/ /,"",$2); split($2,array,"#"); print array[2]" = \""array[1]"\" #"$1; }')
+        
+        json=$(echo "$toml" | yq -oj '.versions')
         echo "Origin json:"
         echo "$json"
         # Update .versions so they are array instead of object
