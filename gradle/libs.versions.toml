@@ -4,4 +4,5 @@ core-ktx="1.9.0"
 
 [libraries]
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockk" }
 core-ktx = { module = "androidx.core:core-ktx", version.ref = "core-ktx" }
