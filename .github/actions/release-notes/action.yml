@@ -30,4 +30,5 @@ runs:
         echo "$json"
         echo "Modified json:"
         json=$(echo "$json" | jq '{versions: [.versions | to_entries | .[] | {key: .key, value: .value}], libraries: [.libraries | to_entries | .[] | {key: .key, value: .value}]}' )
+        json=$(echo "$json" | jq '(.versions | map({(.key): .value}) | add) as $versions | .libraries |= map(.value.version |= $versions[.ref])')
         echo "$json"
