@@ -1,0 +1,23 @@
+name: Release notes
+description: 'Generate release notes for all the libraries inside given catalog.'
+
+inputs:
+  catalog:
+    description: 'Versions Catalog .toml file name'
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Validate input
+      shell: bash
+      run: |
+        if [ ! -f ${{ inputs.catalog }} ]; then
+          echo "${{ inputs.catalog }} catalog file not found."
+          exit 1
+        fi
+
+    - name: Parse Catalog
+      shell: bash
+      run: |
+        cat ${{ inputs.catalog }}
