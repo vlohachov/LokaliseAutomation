@@ -23,4 +23,7 @@ runs:
     - name: Parse Catalog
       shell: bash
       run: |
+        echo "Origin toml:"
         cat ${{ inputs.catalog }}
+        echo "Parsed:"
+        yq -oy '.' ${{ inputs.catalog }}
