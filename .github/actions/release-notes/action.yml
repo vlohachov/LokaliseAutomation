@@ -32,6 +32,9 @@ runs:
         #echo "$json"
         
         json=$(yq -oj '.versions' ${{ inputs.catalog }})
+        echo "Origin json:"
+        echo "$json"
         # Update .versions and .libraries, so they are arrays instead of objects
         json=$(echo "$json" | jq '{versions: [.versions | to_entries | .[] | {key: .key, value: .value}]}' )
+        echo "Modified json:"
         echo "$json"
