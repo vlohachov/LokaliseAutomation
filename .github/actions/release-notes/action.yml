@@ -25,5 +25,6 @@ runs:
       run: |
         echo "Origin toml:"
         cat ${{ inputs.catalog }}
-        echo "Parsed:"
-        yq -oy '.' ${{ inputs.catalog }}
+        echo "Parsed as json:"
+        json=$(yq -j -oy '.' ${{ inputs.catalog }})
+        echo "$json"
