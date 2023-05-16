@@ -23,12 +23,15 @@ runs:
     - name: Parse Catalog
       shell: bash
       run: |
-        echo "Origin toml:"
-        cat ${{ inputs.catalog }}
-        echo "Parsed as json:"
-        json=$(yq -oj '.' ${{ inputs.catalog }})
-        echo "$json"
-        echo "Modified json:"
-        json=$(echo "$json" | jq '{versions: [.versions | to_entries | .[] | {key: .key, value: .value}], libraries: [.libraries | to_entries | .[] | {key: .key, value: .value}]}' )
-        json=$(echo "$json" | jq '(.versions | map({(.key): .value}) | add) as $versions | .libraries |= map(.value.version |= $versions[.ref])')
+        # Parse into json
+        #json=$(yq -oj '.' ${{ inputs.catalog }})
+        # Update .versions and .libraries, so they are arrays instead of objects
+        #json=$(echo "$json" | jq '{versions: [.versions | to_entries | .[] | {key: .key, value: .value}], libraries: [.libraries | to_entries | .[] | {key: .key, value: .value}]}' )
+        # Update .libraries[], so each object contains actual version matching values from .versions[]
+        #json=$(echo "$json" | jq '(.versions | map({(.key): .value}) | add) as $versions | .libraries |= map(.value.version |= $versions[.ref])')
+        #echo "$json"
+        
+        json=$(yq -oj '.versions' ${{ inputs.catalog }})
+        # Update .versions and .libraries, so they are arrays instead of objects
+        json=$(echo "$json" | jq '{versions: [.versions | to_entries | .[] | {key: .key, value: .value}]}' )
         echo "$json"

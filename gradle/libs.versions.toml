@@ -1,8 +1,11 @@
 [versions]
-mockk="1.13.4"
-core-ktx="1.9.0"
+user = "1.0.2"
+gdpr = "1.1.0"
 
 [libraries]
-mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
-mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockk" }
-core-ktx = { module = "androidx.core:core-ktx", version.ref = "core-ktx" }
+user = { module = "com.cricut:android-user-release", version.ref = "user" }
+user-logic = { module = "com.cricut:android-user-logic-release", version.ref = "user" }
+
+gdpr = { module = "com.cricut:android-gdpr-release", version.ref = "gdpr" }
+gdpr-logic = { module = "com.cricut:android-gdpr-logic-release", version.ref = "gdpr" }
+
