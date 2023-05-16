@@ -32,7 +32,8 @@ runs:
         #echo "$json"
         
         toml=$(cat ${{ inputs.catalog }} | awk -F '=' '!NF { next } /^#/ && NF<3 { print; next } !/^#/ { gsub(/ /,"",$1); gsub(/ /,"",$2); split($2,array,"#"); print array[2]" = \""array[1]"\" #"$1; }')
-        
+        echo "Modified toml:"
+        echo "$toml"
         json=$(echo "$toml" | yq -oj '.versions')
         echo "Origin json:"
         echo "$json"
