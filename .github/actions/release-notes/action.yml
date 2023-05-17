@@ -30,16 +30,16 @@ runs:
         json=$(yq -oj '.versions' modified.toml)
         # Update .versions so they are array instead of object
         json=$(echo "$json" | jq 'to_entries | map({key: .key, value: .value})' )
-        echo "Modified json:"
-        echo "$json"
       
         # Using jq to parse JSON and read into an associative array
-        declare -A library_releases
+        declare -A libraries
         while IFS="=" read -r library version; do
-          library_releases["$library"]="$version"
+          libraries["${library}"]="${version}"
         done < <(echo "$json" | jq -r '.[] | "\(.key)=\(.value)"')
         
+        echo "${libraries[@]}"
+        
         # Now, print all keys and their corresponding values
-        for library in "${!library_releases[@]}"; do 
-          echo "$library=${library_releases[$library]}"; 
+        for library in "${!libraries[@]}"; do 
+          echo "${library}=${libraries[${library}]}"
         done
