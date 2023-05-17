@@ -20,7 +20,8 @@ runs:
           exit 1
         fi
 
-    - name: Parse Catalog
+    - name: Parse libraries releases
+      id: parse
       shell: bash
       run: |
         # Modify source catalog and write output into tmp toml file
@@ -30,16 +31,25 @@ runs:
         json=$(yq -oj '.versions' modified.toml)
         # Update .versions so they are array instead of object
         json=$(echo "$json" | jq 'to_entries | map({key: .key, value: .value})' )
-      
+        echo json="$json" >> $GITHUB_OUTPUT
+
+    - name: Release notes
+      id: release-notes
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        json='${steps.parse.outputs.json}'
+        echo "${json}"
+        
         # Using jq to parse JSON and read into an associative array
         declare -A libraries
         while IFS="=" read -r library version; do
           libraries["${library}"]="${version}"
         done < <(echo "$json" | jq -r '.[] | "\(.key)=\(.value)"')
         
-        echo "${libraries[@]}"
-        
         # Now, print all keys and their corresponding values
         for library in "${!libraries[@]}"; do 
-          echo "${library}=${libraries[${library}]}"
+          echo "Loading \"${library}\" v${libraries[${library}]} release notes..."
+        
         done
