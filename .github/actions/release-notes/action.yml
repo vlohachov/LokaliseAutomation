@@ -34,7 +34,7 @@ runs:
         toml=$(cat ${{ inputs.catalog }} | perl -pe 's/(^\s*)([\w-]+)(\s*=\s*\"[\d\.]+\"\s*#)([\w-]+)(\s*$)/\1\4\3\2\5/g')
         echo "Modified toml:"
         echo "$toml"
-        json=$(echo "$toml" | yq -oj '.versions')
+        json=$(echo "$toml" | yq -oj '.')
         echo "Origin json:"
         echo "$json"
         # Update .versions so they are array instead of object
