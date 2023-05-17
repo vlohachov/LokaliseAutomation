@@ -31,7 +31,6 @@ runs:
         json=$(yq -oj '.versions' modified.toml)
         # Update .versions so they are array instead of object
         json=$(echo "$json" | jq -c 'to_entries | map({key: .key, value: .value})' )
-        echo "${json}"
         echo json="${json}" >> $GITHUB_OUTPUT
 
     - name: Release notes
@@ -41,7 +40,6 @@ runs:
         GH_TOKEN: ${{ github.token }}
       run: |
         json='${{ steps.parse.outputs.json }}'
-        echo "${json}"
         
         # Using jq to parse JSON and read into an associative array
         declare -A libraries
@@ -49,8 +47,12 @@ runs:
           libraries["${library}"]="${version}"
         done < <(echo "$json" | jq -r '.[] | "\(.key)=\(.value)"')
         
+        merged_notes=""
+        
         # Now, print all keys and their corresponding values
         for library in "${!libraries[@]}"; do 
-          echo "Loading \"${library}\" v${libraries[${library}]} release notes..."
-        
+          repository="cricut/${library}"
+          version="v${libraries[${library}]}"
+          echo "Loading \"${repository}\" ${version} release notes..."
+          gh release view ${version} --repo ${repository}
         done
