@@ -31,7 +31,8 @@ runs:
         json=$(yq -oj '.versions' modified.toml)
         # Update .versions so they are array instead of object
         json=$(echo "$json" | jq 'to_entries | map({key: .key, value: .value})' )
-        echo json="$json" >> $GITHUB_OUTPUT
+        echo "${json}"
+        echo json="${json}" >> $GITHUB_OUTPUT
 
     - name: Release notes
       id: release-notes
