@@ -42,3 +42,14 @@ runs:
         json=$(echo "$json" | jq 'to_entries | map({key: .key, value: .value})' )
         echo "Modified json:"
         echo "$json"
+        
+        declare -A my_array
+
+        # Using jq to parse JSON and read into an associative array
+        while IFS="=" read -r key value
+        do
+        my_array["$key"]="$value"
+        done < <(echo $json_data | jq -r '.[] | "\(.key)=\(.value)"')
+        
+        # Now, print all keys and their corresponding values
+        for key in "${!my_array[@]}"; do echo "$key=${my_array[$key]}"; done
