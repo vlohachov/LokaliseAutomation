@@ -54,5 +54,5 @@ runs:
           repository="cricut/${library}"
           version="v${libraries[${library}]}"
           echo "Loading \"${repository}\" ${version} release notes..."
-          gh release view ${version} --repo ${repository}
+          gh release view ${repository} ${version} 
         done
