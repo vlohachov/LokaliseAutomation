@@ -49,7 +49,7 @@ runs:
         while IFS="=" read -r key value
         do
         my_array["$key"]="$value"
-        done < <(echo $json_data | jq -r '.[] | "\(.key)=\(.value)"')
+        done < <(echo "$json" | jq -r '.[] | "\(.key)=\(.value)"')
         
         # Now, print all keys and their corresponding values
         for key in "${!my_array[@]}"; do echo "$key=${my_array[$key]}"; done
