@@ -23,33 +23,23 @@ runs:
     - name: Parse Catalog
       shell: bash
       run: |
-        # Parse into json
-        #json=$(yq -oj '.' ${{ inputs.catalog }})
-        # Update .versions and .libraries, so they are arrays instead of objects
-        #json=$(echo "$json" | jq '{versions: [.versions | to_entries | .[] | {key: .key, value: .value}], libraries: [.libraries | to_entries | .[] | {key: .key, value: .value}]}' )
-        # Update .libraries[], so each object contains actual version matching values from .versions[]
-        #json=$(echo "$json" | jq '(.versions | map({(.key): .value}) | add) as $versions | .libraries |= map(.value.version |= $versions[.ref])')
-        #echo "$json"
-        
-        toml=$(cat ${{ inputs.catalog }} | perl -pe 's/(^\s*)([\w-]+)(\s*=\s*\"[\d\.]+\"\s*#)([\w-]+)(\s*$)/\1\4\3\2\5/g')
-        echo "Modified toml:"
-        echo "$toml" >> modified.toml
-        cat modified.toml
+        # Modify source catalog and write output into tmp toml file
+        modified_toml=$(cat ${{ inputs.catalog }} | perl -pe 's/(^\s*)([\w-]+)(\s*=\s*\"[\d\.]+\"\s*#)([\w-]+)(\s*$)/\1\4\3\2\5/g')
+        echo "$modified_toml" >> modified.toml
+        # Parse .versions as json object
         json=$(yq -oj '.versions' modified.toml)
-        echo "Origin json:"
-        echo "$json"
         # Update .versions so they are array instead of object
         json=$(echo "$json" | jq 'to_entries | map({key: .key, value: .value})' )
         echo "Modified json:"
         echo "$json"
-        
-        declare -A my_array
-
+      
         # Using jq to parse JSON and read into an associative array
-        while IFS="=" read -r key value
-        do
-        my_array["$key"]="$value"
+        declare -A library_releases
+        while IFS="=" read -r library version; do
+          library_releases["$library"]="$version"
         done < <(echo "$json" | jq -r '.[] | "\(.key)=\(.value)"')
         
         # Now, print all keys and their corresponding values
-        for key in "${!my_array[@]}"; do echo "$key=${my_array[$key]}"; done
+        for library in "${!library_releases[@]}"; do 
+          echo "$library=${library_releases[$library]}"; 
+        done
