@@ -39,7 +39,7 @@ runs:
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
-        json='${steps.parse.outputs.json}'
+        json='${{ steps.parse.outputs.json }}'
         echo "${json}"
         
         # Using jq to parse JSON and read into an associative array
