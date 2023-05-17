@@ -73,7 +73,7 @@ jobs:
           if [[ ${{ github.ref_name }} == *"release"* ]]; then
             base_version=${{ github.ref_name }}
             base_version="v${base_version#*/}"
-            current_version=$(echo "${sorted}" | awk -v rel="${base_version%.*}" -v RS="\n" -v ORS="\n" 'BEGIN {p=0} {if(index($0,rel)==1)p=1; if(p) print}' | head -1)
+            current_version=$(echo "$sorted" | sort -rV | awk -v rel="${base_version}" -F "-" '{if ($1 == rel || $1 < rel) print $0}' | head -1)
           else 
             current_version=$(echo "${sorted}" | head -1)
           fi
