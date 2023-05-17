@@ -1,35 +1,35 @@
 [versions]
 # Shared libs
-user = "1.0.2" #cricut/android-user
-gdpr = "1.1.0" #cricut/android-gdpr
-auth = "1.2.11" #cricut/android-auth
-cache = "0.0.10" #cricut/android-cache
-theme = "0.0.38" #cricut/android-theme
-hardcore = "8.0.1" #cricut/AndroidHardcore
-extensions = "0.2.1" #cricut/android-extension-lib
-feature-flags = "0.3.4" #cricut/android-feature-flags
-connectivity = "2.0.1" #cricut/android-connectivity
+user = "1.0.2" #android-user
+gdpr = "1.1.0" #android-gdpr
+auth = "1.2.11" #android-auth
+cache = "0.0.10" #android-cache
+theme = "0.0.38" #android-theme
+hardcore = "8.0.1" #AndroidHardcore
+extensions = "0.2.1" #android-extension-lib
+feature-flags = "0.3.4" #android-feature-flags
+connectivity = "2.0.1" #android-connectivity
 
 # Analytics
-analytics = "7.0.0" #cricut/android-analytics
-events-api = "21.0.0" #cricut/EventSchemaAPI-Kotlin
+analytics = "7.0.0" #android-analytics
+events-api = "21.0.0" #EventSchemaAPI-Kotlin
 
 # Quickstart/Valentine/Joy/Guided Flow Libraries
-valentine = "7.3.0" #cricut/android-valentine
+valentine = "7.3.0" #android-valentine
 
 # Discovery Pod
-discovery-data = "8.3.3" #cricut/android-discovery-data
-discovery = "8.4.4" #cricut/android-discovery
-billing = "2.6.0" #cricut/android-billing
+discovery-data = "8.3.3" #android-discovery-data
+discovery = "8.4.4" #android-discovery
+billing = "2.6.0" #android-billing
 
 # Android Machines Libraries
-machines = "7.3.2" #cricut/android-oob-cut-interaction
-machine-interaction-models = "2.2.7" #cricut/android-machine-interaction-models
-machine-data = "2.4.12" #cricut/android-machine-data
+machines = "7.3.2" #android-oob-cut-interaction
+machine-interaction-models = "2.2.7" #android-machine-interaction-models
+machine-data = "2.4.12" #android-machine-data
 
 # Canvas Pod
-image-upload = "3.1.0" #cricut/android-image-upload
-canvas = "3.0.0" #cricut/android-canvas-only
+image-upload = "3.1.0" #android-image-upload
+canvas = "3.0.0" #android-canvas-only
 
 [libraries]
 user = { module = "com.cricut:android-user-release", version.ref = "user" }
