@@ -35,7 +35,7 @@ runs:
         echo "Modified toml:"
         echo "$toml" >> modified.toml
         cat modified.toml
-        json=$(yq -oj '.' modified.toml)
+        json=$(yq -oj '.versions' modified.toml)
         echo "Origin json:"
         echo "$json"
         # Update .versions so they are array instead of object
