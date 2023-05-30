@@ -23,7 +23,7 @@ env:
 
 jobs:
   pull-translations:
-    if: ${{ inputs.trigger == 'schedule' || inputs.trigger == 'workflow_dispatch' }}
+    if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     steps:
       - name: Setup Lokalise CLI
@@ -156,7 +156,7 @@ jobs:
           label: lokalise,translations,PLEASE REVIEW
 
   push-translations:
-    if: ${{ inputs.trigger == 'push' }}
+    if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
     steps:
       - name: Setup Lokalise CLI

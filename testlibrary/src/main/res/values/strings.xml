@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
     <string name="library_key">Library key</string>
+    <plurals name="library_plurals_key">
+        <item quantity="one">One</item>
+        <item quantity="other">Two</item>
+    </plurals>
     <string name="title_activity_main">MainActivity</string>
 </resources>
