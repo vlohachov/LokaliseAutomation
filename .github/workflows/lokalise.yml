@@ -272,7 +272,7 @@ jobs:
             fi
             # Replace "." in module path with project name to generate tag that consists of
             # project name and module path
-            tag=${module_path/./${{ github.event.inputs.project-name }}}
+            tag=${module_path/./${{ env.PROJECT_NAME }}}
             echo "Cleanup strings from \"${module_path}\" module with \"${tag}\" tag..."
             echo "Loading remote keys tagged with \"${tag}\""
             response_json=$(lokalise2 --token ${{ env.LOKALISE_TOKEN }} --project-id ${{ env.LOKALISE_PROJECT_ID }} \
