@@ -305,6 +305,9 @@ jobs:
                 echo "$tags_json"
                 # Remove tag
                 edited_tags=$(jq -r -c --arg tag "${tag}" 'map(select(. != $tag))' <<< ${tags_json} | tr -d '[]"')
+                if [ -z "${edited_tags}" ]; then
+                  edited_tags="NO_LONGER_USED_IN_ANDROID"
+                fi
                 echo "Edited tags:"
                 echo "$edited_tags"
                 # Update remote key tags
