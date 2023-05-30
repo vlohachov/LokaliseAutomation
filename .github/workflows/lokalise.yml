@@ -167,10 +167,13 @@ jobs:
     if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
     steps:
+      - name: Inputs
+        run: |
+          echo "Project name: ${{ inputs.project-name }}"
+          echo "Origin: ${{ inputs.origin }}"
+
       - name: Setup Lokalise CLI
-        uses: sudosubin/setup-lokalise-action@v1.0.1
-        with:
-          lokalise-version: 'latest' # or specify version (ex. '2.6.3')
+        uses: frenck/action-setup-lokalise@v1
 
       - name: Checkout Lokalise
         id: checkout_lokalise
