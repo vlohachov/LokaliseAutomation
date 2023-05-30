@@ -13,6 +13,14 @@ on:
     paths:
       - '**/*strings.xml' # if 'push' contains changes to '*strings.xml' files
   workflow_dispatch:
+    inputs:
+      project-name:
+        type: string
+        default: 'lokalise-automation'
+      origin:
+        type: string
+        default: 'main'
+
 
 env:
   GITHUB_TOKEN: ${{ github.token }}
@@ -82,7 +90,7 @@ jobs:
             # Get module from path, by cutting "/src/..." part out of original path
             module_path=${file_path%%/src/*}
             # Skip if excluded
-            if [[ ${module_path#./} == ${{ inputs.skip }} ]]; then
+            if [[ ${module_path#./} == ${{ env.SKIP_MODULES_PATTERN }} ]]; then
               echo "Skipping \"${module_path}\" module..."
               continue
             fi
@@ -114,7 +122,7 @@ jobs:
             # Get module from path, by cutting "/src/..." part out of original path
             module_path=${res_path%%/src/*}
             # Skip if excluded
-            if [[ ${module_path#./} == ${{ inputs.skip }} ]]; then
+            if [[ ${module_path#./} == ${{ env.SKIP_MODULES_PATTERN }} ]]; then
               echo "Skipping \"${module_path}\" module..."
               continue
             fi
@@ -221,7 +229,7 @@ jobs:
             # Get module from path, by cutting "/src/..." part out of original path
             module_path=${file_path%%/src/*}
             # Skip if excluded
-            if [[ ${module_path#./} == ${{ inputs.skip }} ]]; then
+            if [[ ${module_path#./} == ${{ env.SKIP_MODULES_PATTERN }} ]]; then
               echo "Skipping \"${module_path}\" module..."
               continue
             fi
@@ -261,7 +269,7 @@ jobs:
             # Get module from path, by cutting "/src/..." part out of original path
             module_path=${file_path%%/src/*}
             # Skip if excluded
-            if [[ ${module_path#./} == ${{ inputs.skip }} ]]; then
+            if [[ ${module_path#./} == ${{ env.SKIP_MODULES_PATTERN }} ]]; then
               echo "Skipping \"${module_path}\" module..."
               continue
             fi
