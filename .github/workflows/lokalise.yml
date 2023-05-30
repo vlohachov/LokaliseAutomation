@@ -23,16 +23,14 @@ env:
 
 jobs:
   pull-translations:
-    if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+    if: ${{ inputs.trigger == 'schedule' || inputs.trigger == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     steps:
       - name: Setup Lokalise CLI
-        uses: sudosubin/setup-lokalise-action@v1.0.1
-        with:
-          lokalise-version: 'latest' # or specify version (ex. '2.6.3')
+        uses: frenck/action-setup-lokalise@v1
 
-      - name: Checkout main
-        uses: actions/checkout@v3.1.0
+      - name: Checkout master
+        uses: actions/checkout@v3.5.2
 
       - name: Get modules with "res" folder
         id: get_modules
@@ -45,16 +43,6 @@ jobs:
         run: |
           git fetch origin
           git checkout -b lokalise/sync_translations origin/lokalise/sync_translations || git checkout -b lokalise/sync_translations
-
-      - name: Read project name
-        if: false
-        id: read_project_name
-        run: |
-          raw_project_name=$(./gradlew -q printProjectName)
-          # Convert to lowercase and replace white spaces with '-'
-          processed_project_name=$(echo $raw_project_name | tr " " "-" | tr '[:upper:]' '[:lower:]')
-          echo "Project name: ${processed_project_name}"
-          echo project_name=$processed_project_name >> $GITHUB_OUTPUT
 
       - name: Map languages
         id: map_languages
@@ -94,7 +82,7 @@ jobs:
             # Get module from path, by cutting "/src/..." part out of original path
             module_path=${file_path%%/src/*}
             # Skip if excluded
-            if [[ ${module_path#./} == ${{ env.SKIP_MODULES_PATTERN }} ]]; then
+            if [[ ${module_path#./} == ${{ inputs.skip }} ]]; then
               echo "Skipping \"${module_path}\" module..."
               continue
             fi
@@ -126,13 +114,13 @@ jobs:
             # Get module from path, by cutting "/src/..." part out of original path
             module_path=${res_path%%/src/*}
             # Skip if excluded
-            if [[ ${module_path#./} == ${{ env.SKIP_MODULES_PATTERN }} ]]; then
+            if [[ ${module_path#./} == ${{ inputs.skip }} ]]; then
               echo "Skipping \"${module_path}\" module..."
               continue
             fi
             # Replace "." in module path with project name to generate tag that consists of
             # project name and module path 
-            tag=${module_path/./${{ steps.read_project_name.outputs.project_name }}}
+            tag=${module_path/./${{ inputs.project-name }}}
             echo "Pulling translations tagged \"${tag}\" into \"${module_path}\" module..."
             # Call Lokalise CLI (v2) "file download" command to pull all available translations 
             # (tagged with the tag we generated before) and unzip them to a proper module.
@@ -153,22 +141,22 @@ jobs:
         uses: devops-infra/action-commit-push@v0.9.2
         with:
           github_token: ${{ github.token }}
-          commit_prefix: "Update "
-          commit_message: "Lokalise translations (${{ steps.generate_timestamp.outputs.timestamp }})"
+          commit_prefix: "chore(lokalise): "
+          commit_message: "update translations (${{ steps.generate_timestamp.outputs.timestamp }})"
 
       - name: Create PR
         if: ${{ steps.push_changes.outputs.files_changed != '' }}
-        uses: devops-infra/action-pull-request@v0.5.3
+        uses: devops-infra/action-pull-request@v0.5.5
         with:
           github_token: ${{ github.token }}
           source_branch: lokalise/sync_translations
-          target_branch: main
-          title: "Lokalise: Translations update"
+          target_branch: ${{ inputs.origin }}
+          title: "chore(lokalise): update translations"
           body: "This PR contains translations update."
           label: lokalise,translations,PLEASE REVIEW
 
   push-translations:
-    if: ${{ github.event_name == 'push' }}
+    if: ${{ inputs.trigger == 'push' }}
     runs-on: ubuntu-latest
     steps:
       - name: Setup Lokalise CLI
@@ -179,7 +167,7 @@ jobs:
       - name: Checkout Lokalise
         id: checkout_lokalise
         continue-on-error: true
-        uses: actions/checkout@v3.1.0
+        uses: actions/checkout@v3.5.2
         with:
           fetch-depth: 0
           ref: lokalise/sync_translations
@@ -189,20 +177,11 @@ jobs:
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git merge --no-ff origin/main
+          git merge --no-ff origin/${{ inputs.origing }}
 
-      - name: Checkout main
+      - name: Checkout
         if: ${{ steps.checkout_lokalise.outcome == 'failure' }}
-        uses: actions/checkout@v3.1.0
-
-      - name: Read project name
-        if: false
-        id: read_project_name
-        run: |
-          raw_project_name=$(./gradlew -q printProjectName)
-          # Convert to lowercase and replace white spaces with '-'
-          processed_project_name=$(echo $raw_project_name | tr " " "-" | tr '[:upper:]' '[:lower:]')
-          echo project_name=$processed_project_name >> $GITHUB_OUTPUT
+        uses: actions/checkout@v3.5.2
 
       - name: Map languages
         id: map_languages
@@ -242,7 +221,7 @@ jobs:
             # Get module from path, by cutting "/src/..." part out of original path
             module_path=${file_path%%/src/*}
             # Skip if excluded
-            if [[ ${module_path#./} == ${{ env.SKIP_MODULES_PATTERN }} ]]; then
+            if [[ ${module_path#./} == ${{ inputs.skip }} ]]; then
               echo "Skipping \"${module_path}\" module..."
               continue
             fi
@@ -261,7 +240,7 @@ jobs:
             fi
             # Replace "." in module path with project name to generate tag that consists of
             # project name and module path
-            tag=${module_path/./${{ steps.read_project_name.outputs.project_name }}}
+            tag=${module_path/./${{ inputs.project-name }}}
             echo "Pushing \"${lang_iso}\" strings from \"${module_path}\" module with \"${tag}\" tag..."
             # Call Lokalise CLI (v2) "file upload" command to upload 'strings.xml' file.
             # Each string key is tagged with the tag we generated, so later on (while pulling)
@@ -282,13 +261,13 @@ jobs:
             # Get module from path, by cutting "/src/..." part out of original path
             module_path=${file_path%%/src/*}
             # Skip if excluded
-            if [[ ${module_path#./} == ${{ env.SKIP_MODULES_PATTERN }} ]]; then
+            if [[ ${module_path#./} == ${{ inputs.skip }} ]]; then
               echo "Skipping \"${module_path}\" module..."
               continue
             fi
             # Replace "." in module path with project name to generate tag that consists of
             # project name and module path
-            tag=${module_path/./${{ steps.read_project_name.outputs.project_name }}}
+            tag=${module_path/./${{ inputs.project-name }}}
             echo "Cleanup strings from \"${module_path}\" module with \"${tag}\" tag..."
             echo "Loading remote keys tagged with \"${tag}\""
             response_json=$(lokalise2 --token ${{ env.LOKALISE_TOKEN }} --project-id ${{ env.LOKALISE_PROJECT_ID }} \
@@ -303,7 +282,7 @@ jobs:
             local_keys_json=$(yq -p=xml --xml-attribute-prefix=attr_ -o=json '.resources' ${file_path})
             # Extract only 'attr_name' values from 'string' array
             local_string_keys=$(jq -r '.string[].attr_name' <<< ${local_keys_json} || jq -r '.string.attr_name' <<< ${local_keys_json} )
-            local_plurals_keys=$(jq -r '.plurals[].attr_name' <<< ${local_keys_json} || jq -r '.plurals.attr_name' <<< ${local_keys_json})
+            local_plurals_keys=$(jq -r '.plurals[].attr_name' <<< ${local_keys_json} || jq -r '.plurals.attr_name' <<< ${local_keys_json} )
             # Create array of local keys
             local_keys=( ${local_string_keys//$'\n'/ } ${local_plurals_keys//$'\n'/ } )
             echo "Local keys: ${local_keys[*]}"
@@ -317,8 +296,12 @@ jobs:
                 remote_key_id=$(jq -r -c --arg key_name "${remote_key}" '.keys[] | select(.key_name.android == $key_name) | .key_id' <<< ${response_json})
                 # Get tags of the key
                 tags_json=$(jq -r -c --arg key_name "${remote_key}" '.keys[] | select(.key_name.android == $key_name) | .tags' <<< ${response_json})
+                echo "Tags json:"
+                echo "$tags_json"
                 # Remove tag
                 edited_tags=$(jq -r -c --arg tag "${tag}" 'map(select(. != $tag))' <<< ${tags_json} | tr -d '[]"')
+                echo "Edited tags:"
+                echo "$edited_tags"
                 # Update remote key tags
                 lokalise2 --token ${{ env.LOKALISE_TOKEN }} --project-id ${{ env.LOKALISE_PROJECT_ID }} \
                 key update --key-id ${remote_key_id} --tags "${edited_tags}" &> /dev/null
