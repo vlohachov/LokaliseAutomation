@@ -92,8 +92,6 @@ jobs:
 
       - name: Check for breaking changes
         id: breaking-changes
-        # Maybe should be enabled despite the release type
-        if: ${{ steps.release-type.outputs.value == 'stable' }}
         run: |
           breaking_commits=$(git log v${{ steps.current-version.outputs.version }}..HEAD --format=%B --grep="BREAKING CHANGE: ")
           if [[ ${breaking_commits} != "" ]]; then
@@ -106,7 +104,7 @@ jobs:
         uses: vlohachov/LokaliseAutomation/.github/actions/new-version@main
         with:
           current-version: ${{ steps.current-version.outputs.version }}
-          major-increment: ${{ github.event.inputs.major || steps.breaking-changes.outputs.result == 'true' }}
+          major-increment: ${{ github.event.inputs.major == 'true' || steps.breaking-changes.outputs.result == 'true' }}
           minor-increment: ${{ github.event.inputs.minor }}
           patch-increment: ${{ github.event.inputs.patch }}
           alpha-increment: ${{ github.event.inputs.alpha }}
