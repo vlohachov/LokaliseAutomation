@@ -67,9 +67,9 @@ jobs:
           sorted=$(echo "${releases}" | sort -Vr)
           echo "List of sorted releases:"
           echo "${sorted}"
-          latest-stable-version=$(echo "${sorted}" | head -1)
-          echo "Latest stable version: ${latest-stable-version}"
-          echo version=${latest-stable-version:1} >> $GITHUB_OUTPUT;
+          latest_stable_version=$(echo "${sorted}" | head -1)
+          echo "Latest stable version: ${latest_stable_version}"
+          echo version=${latest_stable_version:1} >> $GITHUB_OUTPUT;
 
       - name: Current version
         id: current-version
