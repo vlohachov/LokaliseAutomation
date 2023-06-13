@@ -78,6 +78,8 @@ jobs:
         run: |
           releases=$(gh release list --exclude-drafts | awk '{print $1}')
           sorted=$(echo "${releases}" | sort -Vr)
+          echo "List of sorted releases:"
+          echo "${sorted}"
           
           if [[ ${{ github.ref_name }} == *"release"* ]]; then
             base_version=${{ github.ref_name }}
