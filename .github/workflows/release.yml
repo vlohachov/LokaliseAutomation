@@ -37,11 +37,12 @@ jobs:
   update-version:
     runs-on: ubuntu-latest
     outputs:
+      latest-stable-version: ${{ steps.latest-stable-version.outputs.version }}
       current-version: ${{ steps.current-version.outputs.version }}
       new-version: ${{ steps.new-version.outputs.new-version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3.5.3
         with:
           fetch-depth: 0
 
@@ -56,6 +57,19 @@ jobs:
             value='stable'
           fi
           echo value=${value} >> $GITHUB_OUTPUT;
+
+      - name: Latest stable version
+        id: latest-stable-version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          releases=$(gh release list --exclude-drafts --exclude-pre-releases | awk '{print $1}')
+          sorted=$(echo "${releases}" | sort -Vr)
+          echo "List of sorted releases:"
+          echo "${sorted}"
+          latest-stable-version=$(echo "${sorted}" | head -1)
+          echo "Latest stable version: ${latest-stable-version}"
+          echo version=${latest-stable-version:1} >> $GITHUB_OUTPUT;
 
       - name: Current version
         id: current-version
@@ -155,7 +169,7 @@ jobs:
         run: |
           gh release create v${{ needs.update-version.outputs.new-version }} \
           --target ${{ github.ref_name }} \
-          --generate-notes --notes-start-tag v${{ needs.update-version.outputs.current-version }}
+          --generate-notes --notes-start-tag v${{ needs.update-version.outputs.latest-stable-version }}
 
       - name: Create pre release
         if: ${{ steps.release-type.outputs.value != 'stable' }}
