@@ -123,6 +123,7 @@ jobs:
           fi
 
   publish:
+    if: false
     needs: [ update-version ]
     runs-on: ubuntu-latest
     steps:
