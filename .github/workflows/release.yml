@@ -89,6 +89,10 @@ jobs:
             current_version=$(echo "${sorted}" | head -1)
           fi
           
+          if [[ ${current_version} == *"${{ steps.latest-stable-version.outputs.version }}"* ]]; then
+            current_version=${{ steps.latest-stable-version.outputs.version }}
+          fi
+          
           echo "Current version: ${current_version}"
           echo version=${current_version:1} >> $GITHUB_OUTPUT;
 
