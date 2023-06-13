@@ -90,7 +90,7 @@ jobs:
           fi
           
           if [[ ${current_version} == *"${{ steps.latest-stable-version.outputs.version }}"* ]]; then
-            current_version=${{ steps.latest-stable-version.outputs.version }}
+            current_version="v${{ steps.latest-stable-version.outputs.version }}"
           fi
           
           echo "Current version: ${current_version}"
