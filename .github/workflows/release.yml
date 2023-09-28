@@ -7,6 +7,11 @@ concurrency:
 on:
   workflow_dispatch:
     inputs:
+      check-maven:
+        description: 'Check maven'
+        type: boolean
+        required: false
+        default: false
       major:
         description: 'Major'
         type: boolean
@@ -34,152 +39,25 @@ on:
         default: false
 
 jobs:
-  update-version:
-    runs-on: ubuntu-latest
-    outputs:
-      latest-stable-version: ${{ steps.latest-stable-version.outputs.version }}
-      current-version: ${{ steps.current-version.outputs.version }}
-      new-version: ${{ steps.new-version.outputs.new-version }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3.5.3
-        with:
-          fetch-depth: 0
-
-      - name: Release type
-        id: release-type
-        run: |
-          if [[ ${{ github.event.inputs.alpha }} == 'true' ]]; then
-            value='alpha'
-          elif [[ ${{ github.event.inputs.rc }} == 'true' ]]; then
-            value='rc'
-          else
-            value='stable'
-          fi
-          echo value=${value} >> $GITHUB_OUTPUT;
-
-      - name: Latest stable version
-        id: latest-stable-version
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          releases=$(gh release list --exclude-drafts --exclude-pre-releases | awk '{print $1}')
-          sorted=$(echo "${releases}" | sort -Vr)
-          echo "List of sorted releases:"
-          echo "${sorted}"
-          latest_stable_version=$(echo "${sorted}" | head -1)
-          echo "Latest stable version: ${latest_stable_version}"
-          echo version=${latest_stable_version:1} >> $GITHUB_OUTPUT;
-
-      - name: Current version
-        id: current-version
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          releases=$(gh release list --exclude-drafts | awk '{print $1}')
-          sorted=$(echo "${releases}" | sort -Vr)
-          echo "List of sorted releases:"
-          echo "${sorted}"
-          
-          if [[ ${{ github.ref_name }} == *"release"* ]]; then
-            base_version=${{ github.ref_name }}
-            base_version="v${base_version#*/}"
-            current_version=$(echo "${sorted}" | awk -v rel="${base_version%.*}" -v RS="\n" -v ORS="\n" 'BEGIN {p=0} {if(index($0,rel)==1)p=1; if(p) print}' | head -1)
-          else 
-            current_version=$(echo "${sorted}" | head -1)
-          fi
-          
-          if [[ ${current_version} == *"${{ steps.latest-stable-version.outputs.version }}"* ]]; then
-            current_version="v${{ steps.latest-stable-version.outputs.version }}"
-          fi
-          
-          echo "Current version: ${current_version}"
-          echo version=${current_version:1} >> $GITHUB_OUTPUT;
-
-      - name: Check for breaking changes
-        id: breaking-changes
-        run: |
-          breaking_commits=$(git log v${{ steps.current-version.outputs.version }}..HEAD --format=%B --grep="BREAKING CHANGE: ")
-          if [[ ${breaking_commits} != "" ]]; then
-            result=true
-          fi
-          echo result=${result:-false} >> $GITHUB_OUTPUT;
-
-      - name: New version
-        id: new-version
-        uses: vlohachov/LokaliseAutomation/.github/actions/new-version@main
-        with:
-          current-version: ${{ steps.current-version.outputs.version }}
-          major-increment: ${{ github.event.inputs.major == 'true' || steps.breaking-changes.outputs.result == 'true' }}
-          minor-increment: ${{ github.event.inputs.minor }}
-          patch-increment: ${{ github.event.inputs.patch }}
-          alpha-increment: ${{ github.event.inputs.alpha }}
-          rc-increment: ${{ github.event.inputs.rc }}
-
-      - name: Fail if version already released
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          version_tag=v${{ steps.new-version.outputs.new-version }}
-          if gh release view ${version_tag} >/dev/null 2>&1; then
-            echo "Release ${version_tag} already exists."
-            exit 1
-          fi
-
-  publish:
-    needs: [ update-version ]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Setup JDK 1.17
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'zulu'
-
-      - name: Publish
-        env:
-          GITHUB_USER: ${{ secrets.GITHUB_USER }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VERSION: ${{ needs.update-version.outputs.new-version }}
-        run: |
-          ./gradlew publish
-
   release:
-    needs: [ update-version, publish ]
-    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.check-maven == 'false' }}
+    uses: cricut/release/.github/workflows/release.yml@v2.0.1
+    secrets: inherit
+    with:
+      major: ${{ github.event.inputs.major == 'true' }} # (optional: default false) increments major number
+      minor: ${{ github.event.inputs.minor == 'true' }} # (optional: default false) increments minor number
+      patch: ${{ github.event.inputs.patch == 'true' }} # (optional: default false) increments patch number
+      alpha: ${{ github.event.inputs.alpha == 'true' }} # (optional: default false) increments alpha number
+      rc: ${{ github.event.inputs.rc == 'true' }} # (optional: default false) increments rc number
+      java-version: '17' # (optional) JDK version
+
+  check-maven:
+    if: ${{ github.event.inputs.check-maven == 'true' }}
+    runs-on: android
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Release type
-        id: release-type
+      - name: Check maven local
         run: |
-          if [[ ${{ github.event.inputs.alpha }} == 'true' ]]; then
-            value='alpha'
-          elif [[ ${{ github.event.inputs.rc }} == 'true' ]]; then
-            value='rc'
-          else
-            value='stable'
-          fi
-          echo value=${value} >> $GITHUB_OUTPUT; 
-
-      - name: Create stable release
-        if: ${{ steps.release-type.outputs.value == 'stable' }}
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release create v${{ needs.update-version.outputs.new-version }} \
-          --target ${{ github.ref_name }} \
-          --generate-notes --notes-start-tag v${{ needs.update-version.outputs.latest-stable-version }}
-
-      - name: Create pre release
-        if: ${{ steps.release-type.outputs.value != 'stable' }}
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release create v${{ needs.update-version.outputs.new-version }} --prerelease \
-          --target ${{ github.ref_name }} \
-          --generate-notes --notes-start-tag v${{ needs.update-version.outputs.current-version }}
+          ls -al ~/.m2/repository
