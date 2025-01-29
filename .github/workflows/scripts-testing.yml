@@ -20,7 +20,7 @@ jobs:
           echo "systemProp.org.gradle.internal.http.connectionTimeout=120000" >> ./gradle.properties
           echo "systemProp.org.gradle.internal.http.socketTimeout=120000" >> ./gradle.properties
           # Override gradle parallel 
-          sed -i 's/^org.gradle.parallel=true/org.gradle.parallel=false/' ./gradle.properties
+          sed -i 's/^org.gradle.parallel=.*/org.gradle.parallel=false/' ./gradle.properties
           # Print modified project root ./gradle.properties
           cat ./gradle.properties
           echo "-----------------------------------------------------------------------------------"
