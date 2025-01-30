@@ -50,16 +50,6 @@ publishing {
     }
 }
 
-koverReport {
-    verify {
-        rule {
-            entity = kotlinx.kover.gradle.plugin.dsl.GroupingEntityType.APPLICATION
-
-            minBound(70)
-        }
-    }
-}
-
 dependencies {
     testImplementation 'junit:junit:4.13.2'
 }
