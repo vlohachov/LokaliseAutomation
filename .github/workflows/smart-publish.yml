@@ -45,9 +45,12 @@ jobs:
         env:
           VERSION: ${{ github.event.inputs.version }}
         run: |
+          # Gather array of modules to publish
           echo "Gathering array of modules to publish..."
           MODULES=$(./gradlew getModulesList --quiet | tail -n 1)
           echo "$MODULES"
+          
+          # Publish each module one by one
           for module in $MODULES; do
             echo "Publishing $module..."
             ./gradlew $module:publish
