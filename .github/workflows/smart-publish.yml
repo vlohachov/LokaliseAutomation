@@ -43,6 +43,8 @@ jobs:
 
       - name: Publish smart
         env:
+          GITHUB_USER: ${{ secrets.GITHUB_USER }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ github.event.inputs.version }}
         run: |
           # Gather array of modules to publish
@@ -53,5 +55,6 @@ jobs:
           # Publish each module one by one
           for module in $MODULES; do
             echo "Publishing $module..."
-            ./gradlew $module:publish
+            ./gradlew $module:publish --quiet
+            echo "$module published successfully!"
           done
