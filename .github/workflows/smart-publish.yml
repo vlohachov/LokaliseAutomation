@@ -57,14 +57,16 @@ jobs:
             echo "🚀 Publishing module: $module"
           
             # Run the Gradle publish task with minimal output and capture the logs
-            LOG=$(./gradlew "$module:publish" --quiet --console=plain --stacktrace 2>&1 || true)
+            #LOG=$(./gradlew "$module:publish" --quiet --console=plain --stacktrace 2>&1 || true)
+            LOG=$(./gradlew "$module:publish" 2>&1 || true)
+            echo "$LOG"
           
             if echo "$LOG" | grep -q "BUILD SUCCESSFUL"; then
               echo "✅ Successfully published $module module"
               continue
             fi
           
-            echo "⚠️ Publish failed for $module module. Checking if it's a 409 Conflict..."
+            echo "⚠️ Publishing failed for $module module. Checking if it's a 409 Conflict..."
           
             if echo "$LOG" | grep -q "409 Conflict"; then
               echo "🔴 409 Conflict detected! Deleting old package version..."
@@ -92,11 +94,11 @@ jobs:
               if ./gradlew "$module:publish" --quiet --console=plain --stacktrace; then
                 echo "✅ Successfully published $module after retry"
               else
-                echo "❌ Publish failed again after deletion. Stopping workflow."
+                echo "❌ Publishing failed again after deletion. Stopping workflow."
                 exit 1
               fi
             else
-              echo "❌ Publish failed with an error other than 409. Stopping workflow."
+              echo "❌ Publishing failed with an error other than 409. Stopping workflow."
               exit 1
             fi
           done
