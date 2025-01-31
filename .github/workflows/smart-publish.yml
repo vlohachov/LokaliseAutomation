@@ -54,44 +54,34 @@ jobs:
           echo "$MODULES"
           
           for module in $MODULES; do
-            echo "🚀 Publishing module: $module"
+            echo "🚀 Publishing module: $module..."
           
             # Run the Gradle publish task with minimal output and capture the logs
-            #LOG=$(./gradlew "$module:publish" --quiet --console=plain --stacktrace 2>&1 || true)
-            LOG=$(./gradlew $module:publish --quiet --console=plain 2>&1 || true)
+            LOG=$(./gradlew $module:publish --quiet 2>&1 || true)
             echo "$LOG"
           
             if echo "$LOG" | grep -q "BUILD SUCCESSFUL"; then
-              echo "✅ Successfully published $module module"
+              echo "✅ Successfully published $module module!"
               continue
             fi
           
             echo "⚠️ Publishing failed for $module module. Checking if it's a 409 Conflict..."
           
-            if echo "$LOG" | grep -q "409 Conflict"; then
+            if echo "$LOG" | grep -q "Received status code 409 from server: Conflict"; then
               echo "🔴 409 Conflict detected! Deleting old package version..."
           
-              PACKAGE_NAME="your-package-name"  # Adjust this as needed
-              ORG_NAME="your-org" # Your GitHub org
+              PACKAGE_NAME="com.example.${module//:/\.}"
+              ORG_NAME=${{ github.repository_owner }} 
+              VERSION=${{ github.event.inputs.version }} 
           
-              # Fetch latest version ID of the package
-              VERSION_ID=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
-                -H "Accept: application/vnd.github+json" \
-                "https://api.github.com/orgs/$ORG_NAME/packages/container/$PACKAGE_NAME/versions" | jq -r '.[0].id')
-              
-              if [ -z "$VERSION_ID" ] || [ "$VERSION_ID" == "null" ]; then
-                echo "❌ Failed to get package version ID. Skipping delete."
-                exit 1
-              fi
-          
-              echo "🗑️ Deleting package version: $VERSION_ID"
+              echo "🗑️ Deleting conflicting package of version: v$VERSION"
               curl -X DELETE -H "Authorization: Bearer $GITHUB_TOKEN" \
                 -H "Accept: application/vnd.github+json" \
-                "https://api.github.com/orgs/$ORG_NAME/packages/container/$PACKAGE_NAME/versions/$VERSION_ID"
+                "https://api.github.com/orgs/$ORG_NAME/packages/container/$PACKAGE_NAME/versions/$VERSION"
           
               echo "🔄 Retrying publish for $module..."
               # Retry the publish task after deletion
-              if ./gradlew "$module:publish" --quiet --console=plain --stacktrace; then
+              if ./gradlew $module:publish --quiet; then
                 echo "✅ Successfully published $module after retry"
               else
                 echo "❌ Publishing failed again after deletion. Stopping workflow."
