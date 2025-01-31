@@ -42,9 +42,10 @@ jobs:
           fi
 
       - name: Publish smart
+        id: publish-smart
         env:
-          GITHUB_USER: ${{ secrets.GITHUB_USER }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_USER: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ github.token }}
           VERSION: ${{ github.event.inputs.version }}
         run: |
           # Gather array of modules to publish
@@ -99,3 +100,12 @@ jobs:
               exit 1
             fi
           done
+
+      - name: Create GH release
+        if: ${{ steps.publish-smart.outcome == 'success' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create v${{ github.event.inputs.version }} \
+          --target ${{ github.ref_name }} \
+          --generate-notes
