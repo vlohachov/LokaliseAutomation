@@ -79,12 +79,12 @@ jobs:
               echo "🔍 Fetching latest version ID of the $PACKAGE_NAME package..."
               DEBUG=$(gh api \
                   -H "Accept: application/vnd.github+json" \
-                  /orgs/$ORG_NAME/packages/maven/$PACKAGE_NAME/versions)
+                  /users/$ORG_NAME/packages/maven/$PACKAGE_NAME/versions)
               echo "$DEBUG"
           
               VERSION_ID=$(gh api \
                 -H "Accept: application/vnd.github+json" \
-                /orgs/$ORG_NAME/packages/maven/$PACKAGE_NAME/versions | jq -r '.[0].id')
+                /users/$ORG_NAME/packages/maven/$PACKAGE_NAME/versions | jq -r '.[0].id')
               echo "VERSION_ID: $VERSION_ID"
       
               if [ -z "$VERSION_ID" ] || [ "$VERSION_ID" == "null" ]; then
@@ -97,7 +97,7 @@ jobs:
               gh api \
                 --method DELETE \
                 -H "Accept: application/vnd.github+json" \
-                /orgs/$ORG_NAME/packages/maven/$PACKAGE_NAME/versions/$VERSION_ID
+                /users/$ORG_NAME/packages/maven/$PACKAGE_NAME/versions/$VERSION_ID
           
               # Retry the publish task after deletion
               echo "🔄 Retrying publish for $module..."
