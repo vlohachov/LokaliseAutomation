@@ -58,7 +58,7 @@ jobs:
           
             # Run the Gradle publish task with minimal output and capture the logs
             #LOG=$(./gradlew "$module:publish" --quiet --console=plain --stacktrace 2>&1 || true)
-            LOG=$(./gradlew "$module:publish" 2>&1 || true)
+            LOG=$(./gradlew $module:publish --quiet --console=plain 2>&1 || true)
             echo "$LOG"
           
             if echo "$LOG" | grep -q "BUILD SUCCESSFUL"; then
