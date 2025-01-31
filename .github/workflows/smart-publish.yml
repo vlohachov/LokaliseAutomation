@@ -52,9 +52,50 @@ jobs:
           MODULES=$(./gradlew getModulesList --quiet | tail -n 1)
           echo "$MODULES"
           
-          # Publish each module one by one
-          for module in $MODULES; do
-            echo "Publishing $module..."
-            ./gradlew $module:publish --quiet
-            echo "$module published successfully!"
+          for module in "${MODULES[@]}"; do
+            echo "🚀 Publishing module: $module"
+          
+            # Run the Gradle publish task with minimal output and capture the logs
+            LOG=$(./gradlew "$module:publish" --quiet --console=plain --stacktrace 2>&1 || true)
+          
+            if echo "$LOG" | grep -q "BUILD SUCCESSFUL"; then
+              echo "✅ Successfully published $module"
+              continue
+            fi
+          
+            echo "⚠️ Publish failed for $module. Checking if it's a 409 Conflict..."
+          
+            if echo "$LOG" | grep -q "409 Conflict"; then
+              echo "🔴 409 Conflict detected! Deleting old package version..."
+          
+              PACKAGE_NAME="your-package-name"  # Adjust this as needed
+              ORG_NAME="your-org" # Your GitHub org
+          
+              # Fetch latest version ID of the package
+              VERSION_ID=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+                -H "Accept: application/vnd.github+json" \
+                "https://api.github.com/orgs/$ORG_NAME/packages/container/$PACKAGE_NAME/versions" | jq -r '.[0].id')
+              
+              if [ -z "$VERSION_ID" ] || [ "$VERSION_ID" == "null" ]; then
+                echo "❌ Failed to get package version ID. Skipping delete."
+                exit 1
+              fi
+          
+              echo "🗑️ Deleting package version: $VERSION_ID"
+              curl -X DELETE -H "Authorization: Bearer $GITHUB_TOKEN" \
+                -H "Accept: application/vnd.github+json" \
+                "https://api.github.com/orgs/$ORG_NAME/packages/container/$PACKAGE_NAME/versions/$VERSION_ID"
+          
+              echo "🔄 Retrying publish for $module..."
+              # Retry the publish task after deletion
+              if ./gradlew "$module:publish" --quiet --console=plain --stacktrace; then
+                echo "✅ Successfully published $module after retry"
+              else
+                echo "❌ Publish failed again after deletion. Stopping workflow."
+                exit 1
+              fi
+            else
+              echo "❌ Publish failed with an error other than 409. Stopping workflow."
+              exit 1
+            fi
           done
