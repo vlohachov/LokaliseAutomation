@@ -39,5 +39,5 @@ jobs:
       - name: Publish smart
         run: |
           echo "Gathering array of modules to publish..."
-          MODULES=$(./gradlew getModulesList --console=plain --quiet)
+          MODULES=$(./gradlew getModulesList --quiet | tail -n 1)
           echo "MODULES=$MODULES"
