@@ -46,6 +46,7 @@ jobs:
         env:
           GITHUB_USER: ${{ github.actor }}
           GITHUB_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ github.token }} # Required for gh CLI
           VERSION: ${{ github.event.inputs.version }}
         run: |
           # Gather array of modules to publish
@@ -66,21 +67,24 @@ jobs:
             fi
           
             echo "⚠️ Publishing failed for $module module. Checking if it's a 409 Conflict..."
-          
+            
+            # Check if the error is due to a 409 Conflict
             if echo "$LOG" | grep -q "Received status code 409 from server: Conflict"; then
               echo "🔴 409 Conflict detected! Deleting old package version..."
           
-              PACKAGE_NAME="com.example.${module//:/\.}"
+              PACKAGE_NAME="com.example${module//:/\.}"
               ORG_NAME=${{ github.repository_owner }} 
               VERSION=${{ github.event.inputs.version }} 
           
-              echo "🗑️ Deleting conflicting package of version: v$VERSION"
-              curl -X DELETE -H "Authorization: Bearer $GITHUB_TOKEN" \
+              # Delete the conflicting package version
+              echo "🗑️ Deleting conflicting $PACKAGE_NAME package of version: v$VERSION"
+              gh api \
+                --method DELETE \
                 -H "Accept: application/vnd.github+json" \
-                "https://api.github.com/orgs/$ORG_NAME/packages/container/$PACKAGE_NAME/versions/$VERSION"
+                /orgs/$ORG_NAME/packages/maven/$PACKAGE_NAME/versions/$VERSION
           
-              echo "🔄 Retrying publish for $module..."
               # Retry the publish task after deletion
+              echo "🔄 Retrying publish for $module..."
               if ./gradlew $module:publish --quiet; then
                 echo "✅ Successfully published $module after retry"
               else
@@ -96,7 +100,7 @@ jobs:
       - name: Create GH release
         if: ${{ steps.publish-smart.outcome == 'success' }}
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ github.token }} # Required for gh CLI
         run: |
           gh release create v${{ github.event.inputs.version }} \
           --target ${{ github.ref_name }} \
