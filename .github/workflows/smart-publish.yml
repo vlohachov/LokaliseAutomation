@@ -2,6 +2,11 @@ name: Smart publishing
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version'
+        type: string
+        required: true
 
 jobs:
   publish-smart:
@@ -37,7 +42,13 @@ jobs:
           fi
 
       - name: Publish smart
+        env:
+          VERSION: ${{ github.event.inputs.version }}
         run: |
           echo "Gathering array of modules to publish..."
           MODULES=$(./gradlew getModulesList --quiet | tail -n 1)
-          echo "MODULES=$MODULES"
+          echo "$MODULES"
+          for module in $MODULES; do
+            echo "Publishing $module..."
+            ./gradlew $module:publish
+          done
