@@ -38,4 +38,5 @@ jobs:
 
       - name: Publish smart
         run: |
-          ./gradlew getModulesList
+          MODULES=$(./gradlew getModulesList --quiet)
+          echo "MODULES=$MODULES"
