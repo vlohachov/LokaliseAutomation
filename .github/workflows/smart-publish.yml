@@ -38,5 +38,5 @@ jobs:
 
       - name: Publish smart
         run: |
-          MODULES=$(./gradlew getModulesList --quiet)
+          MODULES=$(./gradlew getModulesList --console=plain --no-daemon --quiet | tail -n 1)
           echo "MODULES=$MODULES"
