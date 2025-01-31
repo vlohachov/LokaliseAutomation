@@ -1,0 +1,41 @@
+name: Smart publishing
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish-smart:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Append getModulesList Task to root build.gradle.kts
+        run: |
+          if [ -f "build.gradle.kts" ]; then
+            echo 'tasks.register<Task>("getModulesList") {' >> build.gradle.kts
+            echo '    doLast {' >> build.gradle.kts
+            echo '        project.subprojects' >> build.gradle.kts
+            echo '            .filter { subproject ->' >> build.gradle.kts
+            echo '                !subproject.name.contains("app") && subproject.childProjects.isEmpty()' >> build.gradle.kts
+            echo '            }' >> build.gradle.kts
+            echo '            .joinToString(separator = " ", transform = Project::getPath)' >> build.gradle.kts
+            echo '            .also(::println)' >> build.gradle.kts
+            echo '    }' >> build.gradle.kts
+            echo '}' >> build.gradle.kts
+          elif [ -f "build.gradle" ]; then
+            echo 'tasks.register("getModulesList") {' >> build.gradle
+            echo '    doLast {' >> build.gradle
+            echo '        println project.subprojects.findAll { subproject ->' >> build.gradle
+            echo '            !subproject.name.contains("app") && subproject.childProjects.isEmpty()' >> build.gradle
+            echo '        }.collect { it.path }.join(" ")' >> build.gradle
+            echo '    }' >> build.gradle
+            echo '}' >> build.gradle
+          else
+            echo "❌ No root build.gradle or build.gradle.kts found!"
+            exit 1
+          fi
+
+      - name: Publish smart
+        run: |
+          ./gradlew getModulesList
