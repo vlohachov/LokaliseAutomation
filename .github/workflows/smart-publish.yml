@@ -77,9 +77,15 @@ jobs:
           
               # Fetch latest version ID of the package
               echo "🔍 Fetching latest version ID of the $PACKAGE_NAME package..."
+              DEBUG=$(gh api \
+                  -H "Accept: application/vnd.github+json" \
+                  /orgs/$ORG_NAME/packages/maven/$PACKAGE_NAME/versions)
+              echo "$DEBUG"
+          
               VERSION_ID=$(gh api \
                 -H "Accept: application/vnd.github+json" \
                 /orgs/$ORG_NAME/packages/maven/$PACKAGE_NAME/versions | jq -r '.[0].id')
+              echo "VERSION_ID: $VERSION_ID"
       
               if [ -z "$VERSION_ID" ] || [ "$VERSION_ID" == "null" ]; then
                 echo "❌ Failed to get package version ID. Skipping delete."
