@@ -54,11 +54,19 @@ jobs:
           GH_TOKEN: ${{ github.token }} # Required for gh CLI
           VERSION: ${{ github.event.inputs.version }}
         run: |
-          # Gather array of modules to publish
-          echo "Gathering array of modules to publish..."
+          # Gather list of modules to publish
+          echo "Gathering list of modules to publish..."
       
           MODULES=$(./gradlew getModulesList --quiet | tail -n 1)
-          echo "$MODULES"
+          
+          if [ -z "$MODULES" ]; then
+            echo "❌ No modules found to publish. Exiting..."
+            exit 1
+          fi
+          
+          if [ ${{ github.event.inputs.debug-logs }} == 'true' ]; then
+            echo "Modules to publish: $MODULES"
+          fi
           
           for module in $MODULES; do
             echo "🚀 Publishing module: $module..."
