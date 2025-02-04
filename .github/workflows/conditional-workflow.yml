@@ -32,7 +32,7 @@ jobs:
         run: echo "Running jobC"
 
   jobD:
-    if: ${{ always() }}
+    if: ${{ needs.jobB.result == 'success' || needs.jobC.result == 'success' }}
     needs: [ jobB, jobC]
     runs-on: ubuntu-latest
     steps:
