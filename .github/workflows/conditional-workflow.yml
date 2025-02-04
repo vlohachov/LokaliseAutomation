@@ -1,0 +1,39 @@
+name: Conditional Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      runB:
+        description: 'Run jobB (true) or jobC (false)'
+        required: true
+        default: 'true'
+
+jobs:
+  jobA:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run jobA
+        run: echo "Running jobA"
+
+  jobB:
+    needs: jobA
+    runs-on: ubuntu-latest
+    if: ${{ inputs.runB == 'true' }}
+    steps:
+      - name: Run jobB
+        run: echo "Running jobB"
+
+  jobC:
+    needs: jobA
+    runs-on: ubuntu-latest
+    if: ${{ inputs.runB == 'false' }}
+    steps:
+      - name: Run jobC
+        run: echo "Running jobC"
+
+  jobD:
+    needs: [jobB, jobC]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run jobD
+        run: echo "Running jobD"
