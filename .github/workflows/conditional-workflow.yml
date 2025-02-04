@@ -32,7 +32,7 @@ jobs:
         run: echo "Running jobC"
 
   jobD:
-    if: ${{ success() || skipped() }}
+    if: ${{ !failure() || !canceled() }}
     needs: [ jobB, jobC]
     runs-on: ubuntu-latest
     steps:
