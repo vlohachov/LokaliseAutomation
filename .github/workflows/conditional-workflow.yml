@@ -33,6 +33,7 @@ jobs:
 
   jobD:
     needs: [jobB, jobC]
+    if: ${{ needs.jobB.result == 'success' || needs.jobC.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: Run jobD
