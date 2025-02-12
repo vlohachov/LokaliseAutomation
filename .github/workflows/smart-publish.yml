@@ -7,10 +7,6 @@ on:
         description: 'Version'
         type: string
         required: true
-      admin-github-token:
-        description: 'Admin GitHub token'
-        type: string
-        required: true
       debug-logs:
         description: 'Debug logs'
         type: boolean
@@ -55,8 +51,8 @@ jobs:
         env:
           GITHUB_USER: ${{ github.actor }}
           GITHUB_TOKEN: ${{ github.token }}
-          GH_TOKEN: ${{ github.event.inputs.admin-github-token }} # Required for gh CLI
-          VERSION: ${{ github.event.inputs.version }}
+          GH_TOKEN: ${{ github.token }} # Required for gh CLI
+          VERSION: ${{ inputs.version }}
         run: |
           # Gather list of modules to publish
           echo "Gathering list of modules to publish..."
