@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.5.0
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.base_ref }}
 
@@ -27,7 +27,7 @@ jobs:
           ./gradlew detektBaseline
 
       - name: Save baseline files
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: baseline-files
           path: ./**/detekt-baseline.xml
@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.5.0
+        uses: actions/checkout@v4
 
       - name: Setup JDK 1.17
         uses: actions/setup-java@v3
@@ -46,7 +46,7 @@ jobs:
           distribution: 'zulu'
 
       - name: Load baseline files
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: baseline-files
 
@@ -56,7 +56,7 @@ jobs:
           ./gradlew detekt
 
       - name: Save report files
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: detekt-reports
           path: |
@@ -68,7 +68,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Load report files
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: detekt-reports
 
