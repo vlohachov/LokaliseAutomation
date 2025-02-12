@@ -97,7 +97,7 @@ jobs:
 
               gh api \
                 -H "Accept: application/vnd.github+json" \
-                /users/$ORG_NAME/packages/maven/$PACKAGE_NAME/versions
+                /users/$ORG_NAME/packages/maven/$PACKAGE_NAME/versions | jq .
           
               VERSION_ID=$(gh api \
                 -H "Accept: application/vnd.github+json" \
