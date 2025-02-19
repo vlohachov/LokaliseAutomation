@@ -58,6 +58,10 @@ jobs:
           rm "$SEMAPHORE"
           for _ in $(seq $MAX_JOBS); do echo >&3; done
 
+          echo "Setting up stop file..."
+          ABORT_FILE=$(mktemp) # Temporary file to track abort status
+          echo "false" > "$ABORT_FILE"
+          
           # Trap exit signal to call the cleanup function
           trap cleanup EXIT
 
