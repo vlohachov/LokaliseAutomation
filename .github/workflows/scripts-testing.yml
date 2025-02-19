@@ -20,7 +20,9 @@ jobs:
             sleep 2
           }
 
-          for item in ("first" "second" "third" "fourth" "fifth"); do
+          items=("first" "second" "third" "fourth" "fifth")
+
+          for item in "${items[@]}"; do
             (
               # Call the function
               my_function $item
