@@ -20,10 +20,8 @@ jobs:
             sleep 2
 
             if [[ $1 == +(item4|item5) ]]; then
-              echo "Function call for $1 failed!"
               return 1
             else
-              echo "Function call for $1 finished!"
               return 0
             fi
           }
@@ -45,9 +43,12 @@ jobs:
             read -u 3
             (
               # Call the function
-              is_success=$(my_function $item)
-
-              echo "is_success=$is_success"
+              if ! my_function $item; then
+                echo "Failure of $item"
+                kill 0
+              else
+                echo "Success of $item"
+              fi
 
               echo >&3  # Release the slot after the job is done
             ) &
