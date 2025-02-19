@@ -15,17 +15,18 @@ jobs:
         run: |
           # Define the function
           my_function() {
-            echo "This is a function"
+            echo "This is a function call for $1"
             # Simulate some work
             sleep 2
           }
 
-          # Call the function
-          my_function
+          for item in ("first" "second" "third" "fourth" "fifth"); do
+            (
+              # Call the function
+              my_function $item
+            ) &
+          done
 
-          # More script execution
-          echo "Doing more work"
-          sleep 1
+          wait
 
-          # Exit cleanly
-          exit 0
+          echo "Complete!"
