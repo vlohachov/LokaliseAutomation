@@ -19,7 +19,7 @@ jobs:
             # Simulate some work
             sleep 2
 
-            if [[ $1 == +(second) ]]; then
+            if [[ $1 == +(item4|item5) ]]; then
               echo "Function call for $1 failed!"
               stop_jobs
               exit 1
