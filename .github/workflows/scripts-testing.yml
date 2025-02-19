@@ -28,20 +28,9 @@ jobs:
             echo "Function call for $1 finished!"
           }
 
-          # Function to handle the cleanup and final status
-          cleanup() {
-            STOP=$(<"$STOP_FILE")
-            if [[ "$STOP" == "true" ]]; then
-              echo "Stopped!"
-            fi
-            # Clean up the abort file
-            rm -f "$STOP_FILE"
-          }
-
           # Stop jobs function
           stop_jobs() {
             echo "Stopping workflow..."
-            #echo "true" > "$STOP_FILE"
             # Send a kill signal to all background jobs and terminate the script
             kill 0
           }
@@ -57,13 +46,6 @@ jobs:
           exec 3<>"$SEMAPHORE"
           rm "$SEMAPHORE"
           for _ in $(seq $MAX_JOBS); do echo >&3; done
-
-          echo "Setting up stop file..."
-          STOP_FILE=$(mktemp) # Temporary file to track abort status
-          echo "false" > "$STOP_FILE"
-          
-          # Trap exit signal to call the cleanup function
-          trap cleanup EXIT
 
           for item in "${items[@]}"; do
             # Wait for an available slot in the semaphore
