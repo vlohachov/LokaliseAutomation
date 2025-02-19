@@ -21,18 +21,11 @@ jobs:
 
             if [[ $1 == +(item4|item5) ]]; then
               echo "Function call for $1 failed!"
-              stop_jobs
-              exit 1
+              return 1
+            else
+              echo "Function call for $1 finished!"
+              return 0
             fi
-            
-            echo "Function call for $1 finished!"
-          }
-
-          # Stop jobs function
-          stop_jobs() {
-            echo "Stopping workflow..."
-            # Send a kill signal to all background jobs and terminate the script
-            kill 0
           }
 
           items=("item1" "item2" "item3" "item4" "item5" "item6" "item7" "item8" "item9" "item10")
@@ -52,7 +45,9 @@ jobs:
             read -u 3
             (
               # Call the function
-              my_function $item
+              is_success=$(my_function $item)
+
+              echo "is_success=$is_success"
 
               echo >&3  # Release the slot after the job is done
             ) &
