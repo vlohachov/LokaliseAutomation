@@ -13,18 +13,19 @@ jobs:
 
       - name: Update gradle.properties
         run: |
-          # Print project root ./gradle.properties
-          cat ./gradle.properties
-          echo "-----------------------------------------------------------------------------------"
-          # Override gradle internal http timeouts
-          echo "systemProp.org.gradle.internal.http.connectionTimeout=120000" >> ./gradle.properties
-          echo "systemProp.org.gradle.internal.http.socketTimeout=120000" >> ./gradle.properties
-          # Override gradle parallel or append if not exist
-          if grep -q "^org.gradle.parallel=" ./gradle.properties; then
-            sed -i 's/^org.gradle.parallel=.*/org.gradle.parallel=false/' ./gradle.properties
-          else
-            echo 'org.gradle.parallel=false' >> ./gradle.properties
-          fi
-          # Print modified project root ./gradle.properties
-          cat ./gradle.properties
-          echo "-----------------------------------------------------------------------------------"
+          # Define the function
+          my_function() {
+            echo "This is a function"
+            # Simulate some work
+            sleep 2
+          }
+
+          # Call the function
+          my_function
+
+          # More script execution
+          echo "Doing more work"
+          sleep 1
+
+          # Exit cleanly
+          exit 0
